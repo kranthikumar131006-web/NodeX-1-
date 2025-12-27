@@ -117,15 +117,17 @@ export default function ProfilePage() {
     }
   }, [userProfile, isLoaded]);
 
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
-      const newAvatarUrl = URL.createObjectURL(file);
-      setAvatarPreview(newAvatarUrl);
-      setUserProfile(prev => ({...prev, avatarUrl: newAvatarUrl}));
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const newAvatarUrl = reader.result as string;
+        setUserProfile(prev => ({...prev, avatarUrl: newAvatarUrl}));
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -204,7 +206,7 @@ export default function ProfilePage() {
               <CardContent className="p-6 text-center">
                 <div className="relative mx-auto mb-4 h-32 w-32">
                   <Avatar className="h-full w-full border-4 border-primary/20">
-                    <AvatarImage src={avatarPreview ?? userProfile.avatarUrl} alt={userProfile.name} />
+                    <AvatarImage src={userProfile.avatarUrl} alt={userProfile.name} />
                     <AvatarFallback>{userProfile.name.charAt(0)}</AvatarFallback>
                   </Avatar>
                   <input
@@ -537,5 +539,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
-    
