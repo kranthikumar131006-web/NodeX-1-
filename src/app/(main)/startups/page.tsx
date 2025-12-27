@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -6,7 +7,7 @@ import { startups as staticStartups } from '@/lib/data';
 import { StartupCard } from '@/components/shared/startup-card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Filter, Search, Rocket } from 'lucide-react';
+import { Filter, Search, Rocket, BadgeCheck } from 'lucide-react';
 import {
   Popover,
   PopoverContent,
@@ -31,7 +32,7 @@ import {
 
 export default function StartupsPage() {
   const [startups, setStartups] = useState<Startup[]>(staticStartups);
-  const [filteredStartups, setFilteredStartups] = useState<Startup[]>(staticStartups);
+  const [filteredStartups, setFilteredStartups] = useState<Startup[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   
   const [industryFilter, setIndustryFilter] = useState('All');
@@ -40,7 +41,38 @@ export default function StartupsPage() {
   const [tempIndustryFilter, setTempIndustryFilter] = useState('All');
   const [tempYearsFilter, setTempYearsFilter] = useState(10);
 
-  const industries = ['All', ...Array.from(new Set(staticStartups.map(s => s.industry)))];
+  const [allIndustries, setAllIndustries] = useState<string[]>([]);
+
+  useEffect(() => {
+    const updateUserStartups = () => {
+        try {
+            const savedStartups = localStorage.getItem('userStartups');
+            if (savedStartups) {
+                const userStartups = JSON.parse(savedStartups);
+                // Avoid duplicates by checking IDs
+                const combined = [...staticStartups];
+                const staticIds = new Set(staticStartups.map(s => s.id));
+                userStartups.forEach((startup: Startup) => {
+                    if (!staticIds.has(startup.id)) {
+                        combined.push(startup);
+                    }
+                });
+                setStartups(combined);
+            } else {
+                setStartups(staticStartups);
+            }
+        } catch (error) {
+            console.error("Failed to load user startups from localStorage", error);
+            setStartups(staticStartups);
+        }
+    };
+    updateUserStartups();
+  }, []);
+
+  useEffect(() => {
+    setAllIndustries(['All', ...Array.from(new Set(startups.map(s => s.industry)))]);
+  }, [startups]);
+
 
   useEffect(() => {
     let result = startups;
@@ -113,7 +145,7 @@ export default function StartupsPage() {
                       <SelectValue placeholder="Select industry" />
                     </SelectTrigger>
                     <SelectContent>
-                      {industries.map(industry => (
+                      {allIndustries.map(industry => (
                         <SelectItem key={industry} value={industry}>{industry}</SelectItem>
                       ))}
                     </SelectContent>
