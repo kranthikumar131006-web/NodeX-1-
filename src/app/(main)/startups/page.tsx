@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { startups as staticStartups } from '@/lib/data';
 import { StartupCard } from '@/components/shared/startup-card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Filter, Search } from 'lucide-react';
+import { Filter, Search, Rocket } from 'lucide-react';
 import {
   Popover,
   PopoverContent,
@@ -141,6 +142,13 @@ export default function StartupsPage() {
           <StartupCard key={startup.id} startup={startup} />
         ))}
       </div>
+
+      <Button asChild className="fixed bottom-8 right-8 h-16 w-16 rounded-full shadow-lg p-0">
+        <Link href="#">
+          <Rocket className="h-8 w-8" />
+          <span className="sr-only">Register Startup</span>
+        </Link>
+      </Button>
     </div>
   );
 }
