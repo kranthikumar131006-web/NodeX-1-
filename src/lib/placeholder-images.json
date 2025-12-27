@@ -99,6 +99,21 @@
       "id": "landing-hero",
       "imageUrl": "https://images.unsplash.com/photo-1623177623442-979c1e42c255?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxtb2Rlcm4lMjBvZmZpY2V8ZW58MHx8fHwxNzY2ODA4NTYzfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "modern office"
+    },
+    {
+      "id": "uc-berkeley-logo",
+      "imageUrl": "https://images.unsplash.com/photo-1728206348193-9b5ae74a7d32?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHx1bml2ZXJzaXR5JTIwbG9nb3xlbnwwfHx8fDE3NjY3MzExNDd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "university logo"
+    },
+    {
+      "id": "aws-logo",
+      "imageUrl": "https://picsum.photos/seed/aws/64/64",
+      "imageHint": "company logo"
+    },
+    {
+      "id": "google-logo",
+      "imageUrl": "https://images.unsplash.com/photo-1687523327554-fa9f50423489?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxjb21wYW55JTIwbG9nb3xlbnwwfHx8fDE3NjY3NDQ0MjF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "company logo"
     }
   ]
 }
