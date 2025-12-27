@@ -69,7 +69,7 @@ export default function RegisterHackathonPage() {
       }
     }
 
-    const newHackathon: Partial<Hackathon> = {
+    const newHackathon: Hackathon = {
       id: `h${Date.now()}`,
       title: formData.title,
       organizer: formData.organizer,
@@ -85,10 +85,10 @@ export default function RegisterHackathonPage() {
     };
 
     try {
-      // In a real app, you would send this to a server.
-      // For now, we can simulate by logging it.
-      console.log('New Hackathon Registered:', newHackathon);
-
+      const existingHackathons = JSON.parse(localStorage.getItem('userHackathons') || '[]');
+      const updatedHackathons = [...existingHackathons, newHackathon];
+      localStorage.setItem('userHackathons', JSON.stringify(updatedHackathons));
+      
       toast({
         title: "Event successfully registered",
         description: `${newHackathon.title} is now listed on the platform.`,

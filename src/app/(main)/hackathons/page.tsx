@@ -3,18 +3,43 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { hackathons } from '@/lib/data';
+import { hackathons as staticHackathons } from '@/lib/data';
 import { HackathonCard } from '@/components/shared/hackathon-card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Filter, Search, Users, Plus } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card } from '@/components/ui/card';
+import type { Hackathon } from '@/lib/types';
 
 export default function HackathonsPage() {
+  const [hackathons, setHackathons] = useState<Hackathon[]>([]);
   const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
+    const updateUserHackathons = () => {
+        try {
+            const savedHackathons = localStorage.getItem('userHackathons');
+            if (savedHackathons) {
+                const userHackathons = JSON.parse(savedHackathons);
+                // Avoid duplicates by checking IDs
+                const combined = [...staticHackathons];
+                const staticIds = new Set(staticHackathons.map(h => h.id));
+                userHackathons.forEach((hackathon: Hackathon) => {
+                    if (!staticIds.has(hackathon.id)) {
+                        combined.push(hackathon);
+                    }
+                });
+                setHackathons(combined);
+            } else {
+                setHackathons(staticHackathons);
+            }
+        } catch (error) {
+            console.error("Failed to load user hackathons from localStorage", error);
+            setHackathons(staticHackathons);
+        }
+    };
+    updateUserHackathons();
     setHasMounted(true);
   }, []);
 
