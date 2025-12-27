@@ -51,15 +51,15 @@ const initialFreelancerData = {
     userId: '',
     name: '',
     email: '',
-    avatarUrl: 'https://picsum.photos/seed/placeholder-avatar/128/128',
+    avatarUrl: '',
     imageHint: 'person portrait',
     tagline: '',
     location: '',
-    skills: [],
+    skills: [] as string[],
     availability: 'Available' as 'Available' | 'Busy' | 'On a project',
     rating: 0,
-    reviews: [],
-    portfolio: [],
+    reviews: [] as any[],
+    portfolio: [] as any[],
     bio: '',
     isFreelancing: false, // Default to off
 };
@@ -132,7 +132,7 @@ export default function ProfilePage() {
                 userId: user.uid,
                 name: user.displayName || '',
                 email: user.email || '',
-                avatarUrl: user.photoURL || prev.avatarUrl,
+                avatarUrl: user.photoURL || '',
                 isFreelancing: false,
               }))
             }
@@ -220,7 +220,11 @@ export default function ProfilePage() {
   }
   
   const handleFreelancingToggle = (checked: boolean) => {
-    setFormData(prev => ({...prev, isFreelancing: checked}));
+    const updatedProfile = {...formData, isFreelancing: checked};
+    setFormData(updatedProfile);
+    setUserProfile(updatedProfile); // Optimistically update UI
+    localStorage.setItem('userProfile', JSON.stringify(updatedProfile));
+    window.dispatchEvent(new CustomEvent('profileUpdated'));
   };
   
   const handleSave = () => {
@@ -254,7 +258,6 @@ export default function ProfilePage() {
     const dataToSave = {
       ...formData,
       userId: user.uid,
-      id: user.uid,
     };
 
     try {
@@ -353,7 +356,7 @@ export default function ProfilePage() {
                         </div>
                         <div className="grid gap-2">
                           <Label htmlFor="email">Email</Label>
-                          <Input id="email" name="email" value={userProfile.email} disabled />
+                          <Input id="email" name="email" value={formData.email} disabled />
                         </div>
                         <div className="grid gap-2">
                            <Label htmlFor="tagline">Tagline</Label>
@@ -666,3 +669,5 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+    
