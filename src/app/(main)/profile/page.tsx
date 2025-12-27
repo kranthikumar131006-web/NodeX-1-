@@ -38,43 +38,41 @@ import {
   Plus,
   Rocket,
 } from 'lucide-react';
-import { freelancers } from '@/lib/data';
 import { Switch } from '@/components/ui/switch';
-import type { Freelancer, Review, Project } from '@/lib/types';
 import { useUser, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 
 // Define initial data structures more robustly
-const initialFreelancerData = freelancers[0];
-const initialEducationData = {
-  university: 'University of California, Berkeley',
-  degree: 'Bachelor of Science in Computer Science',
-  years: '2021 - 2025 (Expected)',
-  current: true,
+const initialFreelancerData = {
+    id: '',
+    name: '',
+    email: '',
+    avatarUrl: 'https://picsum.photos/seed/placeholder-avatar/128/128',
+    imageHint: 'person portrait',
+    tagline: '',
+    location: '',
+    skills: [],
+    availability: 'Available' as 'Available' | 'Busy' | 'On a project',
+    rating: 0,
+    reviews: [],
+    portfolio: [],
+    bio: '',
 };
-const initialCertificationsData = [
-  {
-    name: 'AWS Certified Cloud Practitioner',
-    issuer: 'Amazon Web Services (AWS)',
-    date: 'Issued Jan 2024',
-    credentialUrl: '#',
-    logo: '/aws-logo.svg',
-  },
-  {
-    name: 'Google UX Design Professional Certificate',
-    issuer: 'Google Career Certificates',
-    date: 'Issued Aug 2023',
-    credentialUrl: '#',
-    logo: '/google-logo.svg',
-  },
-];
+
+const initialEducationData = {
+  university: '',
+  degree: '',
+  years: '',
+  current: false,
+};
+const initialCertificationsData: { name: string; issuer: string; date: string; credentialUrl: string; logo: string; }[] = [];
 const initialSocialsData = {
-  resumeUrl: '#',
-  portfolioUrl: 'portfolio.alexj.dev',
-  githubUrl: 'github.com/alexj',
-  linkedinUrl: 'linkedin.com/in/alexj',
-  instagramUrl: '@alex_codes',
+  resumeUrl: '',
+  portfolioUrl: '',
+  githubUrl: '',
+  linkedinUrl: '',
+  instagramUrl: '',
 };
 
 const ensureProtocol = (url: string) => {
@@ -112,9 +110,17 @@ export default function ProfilePage() {
         try {
           const docSnap = await getDoc(userProfileRef);
           if (docSnap.exists()) {
-            setUserProfile(prev => ({ ...prev, ...docSnap.data() }));
+            const data = docSnap.data();
+            setUserProfile(prev => ({
+                ...prev,
+                ...data,
+                // ensure nested objects are not undefined
+                education: data.education || initialEducationData,
+                certifications: data.certifications || initialCertificationsData,
+                socials: data.socials || initialSocialsData,
+            }));
           } else {
-            // If no profile exists, maybe pre-fill with some user data
+            // If no profile exists, pre-fill with user data
             if(user) {
               setUserProfile(prev => ({
                 ...prev,
@@ -211,6 +217,15 @@ export default function ProfilePage() {
   };
   
   const handleSave = async () => {
+    if (!formData.name) {
+        toast({
+            variant: "destructive",
+            title: "Missing Information",
+            description: "Full Name is a required field.",
+        });
+        return;
+    }
+
     if (!userProfileRef) {
        toast({
          variant: 'destructive',
@@ -263,7 +278,7 @@ export default function ProfilePage() {
                 <div className="relative mx-auto mb-4 h-32 w-32">
                   <Avatar className="h-full w-full border-4 border-primary/20">
                     <AvatarImage src={userProfile.avatarUrl} alt={userProfile.name} />
-                    <AvatarFallback>{userProfile.name.charAt(0)}</AvatarFallback>
+                    <AvatarFallback>{userProfile.name ? userProfile.name.charAt(0) : 'U'}</AvatarFallback>
                   </Avatar>
                   <input
                     type="file"
@@ -280,9 +295,9 @@ export default function ProfilePage() {
                     <Edit className="h-4 w-4" />
                   </Button>
                 </div>
-                <h2 className="text-2xl font-bold font-headline">{userProfile.name}</h2>
+                <h2 className="text-2xl font-bold font-headline">{userProfile.name || 'Your Name'}</h2>
                 <p className="text-sm text-muted-foreground">
-                  {userProfile.tagline}
+                  {userProfile.tagline || 'Your Tagline'}
                 </p>
 
                 <Dialog onOpenChange={onOpenChange}>
@@ -300,8 +315,12 @@ export default function ProfilePage() {
                       <div className="space-y-4">
                         <h3 className="font-semibold text-lg">Personal Information</h3>
                         <div className="grid gap-2">
-                          <Label htmlFor="name">Full Name</Label>
+                          <Label htmlFor="name">Full Name *</Label>
                           <Input id="name" name="name" value={formData.name} onChange={handleFormChange} />
+                        </div>
+                        <div className="grid gap-2">
+                          <Label htmlFor="email">Email</Label>
+                          <Input id="email" name="email" value={userProfile.email} disabled />
                         </div>
                         <div className="grid gap-2">
                            <Label htmlFor="tagline">Tagline</Label>
@@ -411,6 +430,7 @@ export default function ProfilePage() {
                         <DialogClose asChild>
                             <Button type="button" variant="secondary">Cancel</Button>
                         </DialogClose>
+                        {/* Note: This DialogClose will close the dialog after save */}
                         <DialogClose asChild>
                             <Button type="submit" onClick={handleSave}>Save Changes</Button>
                         </DialogClose>
@@ -430,16 +450,18 @@ export default function ProfilePage() {
                     <MapPin className="h-5 w-5 text-muted-foreground" />
                     <div>
                       <p className="text-xs text-muted-foreground">Location</p>
-                      <p>{userProfile.location}</p>
+                      <p>{userProfile.location || 'Not specified'}</p>
                     </div>
                   </li>
                   <li className="flex items-center gap-3">
                     <FileText className="h-5 w-5 text-muted-foreground" />
                     <div>
                       <p className="text-xs text-muted-foreground">Resume</p>
+                      {userProfile.socials.resumeUrl ? (
                       <a href={ensureProtocol(userProfile.socials.resumeUrl)} target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-primary">
                         View Resume <ExternalLink className="ml-1 h-3 w-3" />
                       </a>
+                      ) : <p>Not specified</p>}
                     </div>
                   </li>
                   <li className="flex items-center gap-3">
@@ -448,10 +470,12 @@ export default function ProfilePage() {
                       <p className="text-xs text-muted-foreground">
                         Past Projects
                       </p>
+                      {userProfile.socials.portfolioUrl ? (
                       <a href={ensureProtocol(userProfile.socials.portfolioUrl)} target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-primary">
                         {userProfile.socials.portfolioUrl}{' '}
                         <ExternalLink className="ml-1 h-3 w-3" />
                       </a>
+                      ) : <p>Not specified</p>}
                     </div>
                   </li>
                   <li className="flex items-center gap-3">
@@ -471,30 +495,36 @@ export default function ProfilePage() {
                     </svg>
                     <div>
                       <p className="text-xs text-muted-foreground">GitHub</p>
+                       {userProfile.socials.githubUrl ? (
                       <a href={ensureProtocol(userProfile.socials.githubUrl)} target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-primary">
                         {userProfile.socials.githubUrl}{' '}
                         <ExternalLink className="ml-1 h-3 w-3" />
                       </a>
+                       ) : <p>Not specified</p>}
                     </div>
                   </li>
                   <li className="flex items-center gap-3">
                     <Linkedin className="h-5 w-5 text-muted-foreground" />
                     <div>
                       <p className="text-xs text-muted-foreground">LinkedIn</p>
+                      {userProfile.socials.linkedinUrl ? (
                       <a href={ensureProtocol(userProfile.socials.linkedinUrl)} target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-primary">
                         {userProfile.socials.linkedinUrl}
                         <ExternalLink className="ml-1 h-3 w-3" />
                       </a>
+                      ): <p>Not specified</p>}
                     </div>
                   </li>
                   <li className="flex items-center gap-3">
                     <Instagram className="h-5 w-5 text-muted-foreground" />
                     <div>
                       <p className="text-xs text-muted-foreground">Instagram</p>
+                       {userProfile.socials.instagramUrl ? (
                       <a href={`https://instagram.com/${userProfile.socials.instagramUrl.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-primary">
                         {userProfile.socials.instagramUrl}
                         <ExternalLink className="ml-1 h-3 w-3" />
                       </a>
+                       ) : <p>Not specified</p>}
                     </div>
                   </li>
                 </ul>
@@ -510,6 +540,7 @@ export default function ProfilePage() {
                 <CardTitle className="text-lg">Education</CardTitle>
               </CardHeader>
               <CardContent>
+                {userProfile.education.university ? (
                 <div className="flex items-start gap-4">
                   <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-secondary">
                     <Image src="/uc-berkeley-logo.svg" alt="UC Berkeley Logo" width={32} height={32} />
@@ -521,13 +552,14 @@ export default function ProfilePage() {
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">{userProfile.education.years}</p>
                   </div>
-                  <Badge
+                  {userProfile.education.current && <Badge
                     variant={userProfile.education.current ? 'default' : 'secondary'}
                     className="ml-auto shrink-0"
                   >
                     Current
-                  </Badge>
+                  </Badge>}
                 </div>
+                ) : (<p className="text-sm text-muted-foreground">No education information provided.</p>)}
               </CardContent>
             </Card>
 
@@ -537,11 +569,11 @@ export default function ProfilePage() {
                 <CardTitle className="text-lg">Skills</CardTitle>
               </CardHeader>
               <CardContent className="flex flex-wrap gap-2">
-                {userProfile.skills.map((skill) => (
+                {userProfile.skills.length > 0 ? userProfile.skills.map((skill) => (
                   <Badge key={skill} variant="outline" className="px-3 py-1 text-sm font-normal">
                     {skill}
                   </Badge>
-                ))}
+                )) : <p className="text-sm text-muted-foreground">No skills added yet.</p>}
               </CardContent>
             </Card>
 
@@ -551,13 +583,12 @@ export default function ProfilePage() {
                   <Award className="h-6 w-6 text-primary" />
                   <CardTitle className="text-lg">Certifications</CardTitle>
                 </div>
-                {/* <Button variant="link" className="text-primary">Add New</Button> */}
               </CardHeader>
               <CardContent className="space-y-4">
-                {userProfile.certifications.map((cert, index) => (
+                {userProfile.certifications.length > 0 ? userProfile.certifications.map((cert, index) => (
                   <div key={index} className="flex items-start gap-4">
                     <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-secondary">
-                         <Image src={cert.logo} alt={`${cert.issuer} Logo`} width={32} height={32} />
+                         <Image src={cert.logo || '/generic-logo.svg'} alt={`${cert.issuer} Logo`} width={32} height={32} />
                     </div>
                     <div className="flex-1">
                       <p className="font-semibold">{cert.name}</p>
@@ -573,7 +604,7 @@ export default function ProfilePage() {
                     </div>
                     <p className="text-xs text-muted-foreground shrink-0">{cert.date}</p>
                   </div>
-                ))}
+                )) : <p className="text-sm text-muted-foreground">No certifications added yet.</p>}
               </CardContent>
             </Card>
             <div className="flex flex-col gap-4">
