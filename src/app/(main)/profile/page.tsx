@@ -41,7 +41,7 @@ import {
 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { useUser, useFirestore, useMemoFirebase } from '@/firebase';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
@@ -666,4 +666,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
