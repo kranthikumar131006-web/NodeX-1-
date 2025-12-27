@@ -59,34 +59,28 @@ export default function RegisterTeamPage() {
   }, []);
 
   useEffect(() => {
-    // Adjust the number of member input fields based on totalParticipants
     const leaderCount = 1;
-    const numberOfMemberFields = teamSize - leaderCount;
-    
-    // If shrinking, slice the array
+    const numberOfMemberFields = Math.max(0, teamSize - leaderCount);
+
     if (members.length > numberOfMemberFields) {
       setMembers(members.slice(0, numberOfMemberFields));
-    } 
-    // If growing, add new empty member objects
-    else if (members.length < numberOfMemberFields) {
-      const newMembersToAdd = Array(numberOfMemberFields - members.length).fill({
+    } else if (members.length < numberOfMemberFields) {
+      const newMembersToAdd = Array.from({ length: numberOfMemberFields - members.length }, () => ({
         name: '',
         role: '',
         skills: [],
-      });
-      setMembers([...members, ...newMembersToAdd]);
+      }));
+      setMembers(currentMembers => [...currentMembers, ...newMembersToAdd]);
     }
-  }, [teamSize, members.length]);
+  }, [teamSize]);
 
-  const handleMemberChange = (index: number, field: keyof NewMember, value: string) => {
-    const updatedMembers = [...members];
-    const member = updatedMembers[index];
-
-    if (field === 'skills') {
-      member.skills = value.split(',').map(s => s.trim()).filter(Boolean);
-    } else {
-      (member[field] as string) = value;
-    }
+  const handleMemberChange = (index: number, field: keyof NewMember, value: string | string[]) => {
+    const updatedMembers = members.map((member, i) => {
+      if (i === index) {
+        return { ...member, [field]: value };
+      }
+      return member;
+    });
     setMembers(updatedMembers);
   };
   
@@ -115,6 +109,7 @@ export default function RegisterTeamPage() {
         role: 'Team Lead',
         avatarUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/64/64`,
         imageHint: 'person portrait',
+        skills: [],
     };
 
     const additionalMembers = members
@@ -130,7 +125,7 @@ export default function RegisterTeamPage() {
 
     const allMembers = [teamLead, ...additionalMembers];
     const openSpots = teamSize - allMembers.length;
-    const lookingFor = Array(openSpots).fill({ role: 'Any Role', skills: [] });
+    const lookingFor = openSpots > 0 ? Array(openSpots).fill({ role: 'Any Role', skills: [] }) : [];
 
 
     try {
@@ -249,7 +244,7 @@ export default function RegisterTeamPage() {
                                 </div>
                                 <div className="md:col-span-2 space-y-2">
                                     <Label htmlFor={`member-skills-${index}`}>Skills (comma-separated)</Label>
-                                    <Input id={`member-skills-${index}`} placeholder="e.g., React, TypeScript, Figma" value={member.skills.join(', ')} onChange={e => handleMemberChange(index, 'skills', e.target.value)} />
+                                    <Input id={`member-skills-${index}`} placeholder="e.g., React, TypeScript, Figma" value={member.skills.join(', ')} onChange={e => handleMemberChange(index, 'skills', e.target.value.split(',').map(s => s.trim()))} />
                                 </div>
                            </CardContent>
                         </Card>
