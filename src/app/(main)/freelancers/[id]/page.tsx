@@ -162,7 +162,7 @@ export default function FreelancerDetailPage() {
                 </Card>
 
                  <Button asChild className="w-full" size="lg">
-                    <a href={`mailto:${freelancer.email}`}>
+                    <a href={`https://mail.google.com/mail/?view=cm&fs=1&to=${freelancer.email}`} target="_blank" rel="noopener noreferrer">
                         <Mail className="mr-2 h-4 w-4" /> Contact {freelancer.name.split(' ')[0]}
                     </a>
                 </Button>
