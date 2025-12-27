@@ -212,7 +212,7 @@ export default function TeamDetailPage() {
                 </Card>
 
                  {teamLead && (
-                    <Button asChild className="w-full" size="lg" disabled={isFull}>
+                    <Button asChild className="w-full" size="lg" disabled={isFull || !user}>
                         <a href={isFull || !user ? '#' : `mailto:${teamLead.email}`} target="_blank" rel="noopener noreferrer">
                             <Mail className="mr-2 h-4 w-4" /> {isFull ? 'Team Full' : 'Contact Team Lead'}
                         </a>
