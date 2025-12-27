@@ -24,12 +24,19 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import { collectionGroup } from 'firebase/firestore';
 
 export default function HackathonTeamsPage() {
   const firestore = useFirestore();
-  const teamsQuery = useMemoFirebase(() => collectionGroup(firestore, 'teams'), [firestore]);
+  const { user, isUserLoading } = useUser();
+
+  // Defer query creation until firestore and user are available
+  const teamsQuery = useMemoFirebase(
+    () => (firestore && user ? collectionGroup(firestore, 'teams') : null),
+    [firestore, user]
+  );
+  
   const { data: liveTeams, isLoading: isLoadingTeams } = useCollection<HackathonTeam>(teamsQuery);
   
   const [filteredTeams, setFilteredTeams] = useState<HackathonTeam[]>([]);
@@ -139,7 +146,7 @@ export default function HackathonTeamsPage() {
         </p>
       </div>
       
-      { !hasMounted || isLoadingTeams ? renderSkeleton() : (
+      { !hasMounted || isLoadingTeams || isUserLoading ? renderSkeleton() : (
         <>
           <div className="mt-8 flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">
