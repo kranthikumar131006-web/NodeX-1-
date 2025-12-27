@@ -5,42 +5,65 @@ import { freelancers as staticFreelancers } from '@/lib/data';
 import { FreelancerCard } from '@/components/shared/freelancer-card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Filter, Search } from 'lucide-react';
+import { Filter, Search, Star } from 'lucide-react';
 import type { Freelancer } from '@/lib/types';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 export default function FreelancersPage() {
-  const [freelancers, setFreelancers] = useState<Freelancer[]>(staticFreelancers);
+  const [freelancers, setFreelancers] = useState<Freelancer[]>([]);
+  const [filteredFreelancers, setFilteredFreelancers] = useState<Freelancer[]>([]);
+
+  const [availabilityFilter, setAvailabilityFilter] = useState('All');
+  const [ratingFilter, setRatingFilter] = useState(0);
 
   useEffect(() => {
+    let currentFreelancers = [...staticFreelancers];
     try {
       const savedProfile = localStorage.getItem('userProfile');
       if (savedProfile) {
         const userProfile = JSON.parse(savedProfile);
-        
-        // Prevent adding duplicates
-        const profileExists = staticFreelancers.some(f => f.id === userProfile.id);
+        const profileExists = currentFreelancers.some(f => f.id === userProfile.id);
 
         if (userProfile.isFreelancing && !profileExists) {
-          // Add the user's profile to the list if they are freelancing
-          setFreelancers(prev => [userProfile, ...prev.filter(f => f.id !== userProfile.id)]);
+          currentFreelancers = [userProfile, ...currentFreelancers];
         } else if (!userProfile.isFreelancing && profileExists) {
-           // This part is tricky because the static list will always have the user.
-           // A better approach is to filter the static list if the user shouldn't be on it.
-           setFreelancers(staticFreelancers.filter(f => f.id !== userProfile.id));
-        } else if (userProfile.isFreelancing && profileExists) {
-            // If user is freelancing and already in static list, ensure the list is correct
-            setFreelancers(staticFreelancers);
-        } else {
-            // If user is not freelancing and not in static list, also ensure list is correct
-             setFreelancers(staticFreelancers.filter(f => f.id !== userProfile.id));
+          currentFreelancers = currentFreelancers.filter(f => f.id !== userProfile.id);
         }
       }
     } catch (error) {
       console.error("Failed to process user profile from localStorage", error);
-       // On error, just show the static list
-      setFreelancers(staticFreelancers);
     }
+    setFreelancers(currentFreelancers);
+    setFilteredFreelancers(currentFreelancers);
   }, []);
+
+  useEffect(() => {
+    let result = freelancers;
+
+    if (availabilityFilter !== 'All') {
+      result = result.filter(f => f.availability === availabilityFilter);
+    }
+
+    if (ratingFilter > 0) {
+      result = result.filter(f => f.rating >= ratingFilter);
+    }
+
+    setFilteredFreelancers(result);
+  }, [availabilityFilter, ratingFilter, freelancers]);
+
 
   return (
     <div className="container py-8 md:py-12">
@@ -56,19 +79,70 @@ export default function FreelancersPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input placeholder="Search by skill, name, or role..." className="pl-9" />
         </div>
-        <Button variant="outline">
-            <Filter className="mr-2 h-4 w-4" />
-            Filters
-        </Button>
+        <Popover>
+            <PopoverTrigger asChild>
+                <Button variant="outline">
+                    <Filter className="mr-2 h-4 w-4" />
+                    Filters
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80">
+            <div className="grid gap-4">
+              <div className="space-y-2">
+                <h4 className="font-medium leading-none">Filters</h4>
+                <p className="text-sm text-muted-foreground">
+                  Refine your search for the perfect freelancer.
+                </p>
+              </div>
+              <div className="grid gap-2">
+                <div className="grid grid-cols-3 items-center gap-4">
+                  <Label htmlFor="availability">Availability</Label>
+                   <Select onValueChange={setAvailabilityFilter} defaultValue={availabilityFilter}>
+                    <SelectTrigger id="availability" className="col-span-2 h-8">
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="All">All</SelectItem>
+                      <SelectItem value="Available">Available</SelectItem>
+                      <SelectItem value="Busy">Busy</SelectItem>
+                      <SelectItem value="On a project">On a project</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                 <div className="grid grid-cols-3 items-center gap-4">
+                  <Label>Rating</Label>
+                  <div className="col-span-2">
+                    <RadioGroup
+                      defaultValue="0"
+                      onValueChange={(value) => setRatingFilter(Number(value))}
+                      className="flex gap-4"
+                    >
+                      {[4, 3, 2, 1].map(rating => (
+                        <div key={rating} className="flex items-center space-x-2">
+                          <RadioGroupItem value={String(rating)} id={`r${rating}`} />
+                          <Label htmlFor={`r${rating}`} className="flex items-center">
+                            {rating} <Star className="ml-1 h-4 w-4 text-yellow-400 fill-yellow-400" />+
+                          </Label>
+                        </div>
+                      ))}
+                    </RadioGroup>
+                  </div>
+                </div>
+              </div>
+               <Button onClick={() => {
+                 setAvailabilityFilter('All');
+                 setRatingFilter(0);
+               }}>Clear Filters</Button>
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
 
       <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {freelancers.map((freelancer) => (
+        {filteredFreelancers.map((freelancer) => (
           <FreelancerCard key={freelancer.id} freelancer={freelancer} />
         ))}
       </div>
     </div>
   );
 }
-
-    
