@@ -7,6 +7,18 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
   Briefcase,
   Calendar,
   Check,
@@ -22,21 +34,20 @@ import {
   MapPin,
   Sparkles,
   Award,
+  X,
 } from 'lucide-react';
 import { freelancers } from '@/lib/data';
 import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 
 export default function ProfilePage() {
-  // Using the first freelancer as the example user
-  const user = freelancers[0];
-  const education = {
+  const [user, setUser] = useState(freelancers[0]);
+  const [education, setEducation] = useState({
     university: 'University of California, Berkeley',
     degree: 'Bachelor of Science in Computer Science',
     years: '2021 - 2025 (Expected)',
     current: true,
-  };
-  const certifications = [
+  });
+  const [certifications, setCertifications] = useState([
     {
       name: 'AWS Certified Cloud Practitioner',
       issuer: 'Amazon Web Services (AWS)',
@@ -51,7 +62,7 @@ export default function ProfilePage() {
       credentialUrl: '#',
       logo: '/google-logo.svg',
     },
-  ];
+  ]);
 
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -66,6 +77,34 @@ export default function ProfilePage() {
   const handleEditClick = () => {
     fileInputRef.current?.click();
   };
+
+  // State for the edit form
+  const [formData, setFormData] = useState({
+    name: user.name,
+    tagline: user.tagline,
+    location: user.location,
+    skills: user.skills,
+  });
+
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({...prev, [name]: value}));
+  }
+
+  const handleSkillsChange = (newSkills: string[]) => {
+    setFormData(prev => ({...prev, skills: newSkills}));
+  }
+
+  const handleSave = () => {
+     setUser(prevUser => ({
+        ...prevUser,
+        name: formData.name,
+        tagline: formData.tagline,
+        location: formData.location,
+        skills: formData.skills,
+     }));
+     // Here you would typically also save education, certifications, and social links
+  }
 
   return (
     <div className="bg-secondary/50">
@@ -97,12 +136,135 @@ export default function ProfilePage() {
                 </div>
                 <h2 className="text-2xl font-bold font-headline">{user.name}</h2>
                 <p className="text-sm text-muted-foreground">
-                  Computer Science Student | Frontend Enthusiast | Hackathon
-                  Winner
+                  {user.tagline}
                 </p>
-                <Button className="mt-4 w-full">
-                  <Edit className="mr-2 h-4 w-4" /> Edit Profile
-                </Button>
+
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button className="mt-4 w-full">
+                      <Edit className="mr-2 h-4 w-4" /> Edit Profile
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Edit Profile</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid gap-6 py-4">
+                      {/* Personal Info */}
+                      <div className="space-y-4">
+                        <h3 className="font-semibold text-lg">Personal Information</h3>
+                        <div className="grid gap-2">
+                          <Label htmlFor="name">Full Name</Label>
+                          <Input id="name" name="name" value={formData.name} onChange={handleFormChange} />
+                        </div>
+                        <div className="grid gap-2">
+                           <Label htmlFor="tagline">Tagline</Label>
+                           <Input id="tagline" name="tagline" value={formData.tagline} onChange={handleFormChange} />
+                        </div>
+                        <div className="grid gap-2">
+                           <Label htmlFor="location">Location</Label>
+                           <Input id="location" name="location" value={formData.location} onChange={handleFormChange} />
+                        </div>
+                      </div>
+
+                      {/* Skills */}
+                      <div className="space-y-4">
+                        <h3 className="font-semibold text-lg">Skills</h3>
+                        <div className="grid gap-2">
+                           <Label>Your skills</Label>
+                           <div className="flex flex-wrap gap-2">
+                            {formData.skills.map(skill => (
+                               <Badge key={skill} variant="secondary" className="flex items-center gap-1">
+                                {skill}
+                                <button onClick={() => handleSkillsChange(formData.skills.filter(s => s !== skill))}>
+                                  <X className="h-3 w-3"/>
+                                </button>
+                               </Badge>
+                            ))}
+                           </div>
+                           <Input placeholder="Add a new skill and press Enter" onKeyDown={(e) => {
+                             if (e.key === 'Enter' && e.currentTarget.value.trim() !== '') {
+                               e.preventDefault();
+                               if (!formData.skills.includes(e.currentTarget.value.trim())) {
+                                handleSkillsChange([...formData.skills, e.currentTarget.value.trim()]);
+                               }
+                               e.currentTarget.value = '';
+                             }
+                           }}/>
+                        </div>
+                      </div>
+
+                       {/* Education */}
+                      <div className="space-y-4">
+                        <h3 className="font-semibold text-lg">Education</h3>
+                         <div className="grid gap-2">
+                            <Label htmlFor="university">University</Label>
+                            <Input id="university" defaultValue={education.university} />
+                         </div>
+                         <div className="grid gap-2">
+                            <Label htmlFor="degree">Degree</Label>
+                            <Input id="degree" defaultValue={education.degree} />
+                         </div>
+                         <div className="grid gap-2">
+                            <Label htmlFor="years">Years</Label>
+                            <Input id="years" defaultValue={education.years} />
+                         </div>
+                      </div>
+
+                       {/* Certifications */}
+                      <div className="space-y-4">
+                        <h3 className="font-semibold text-lg">Certifications</h3>
+                        {certifications.map((cert, index) => (
+                           <div key={index} className="p-4 border rounded-md space-y-2">
+                             <div className="grid gap-2">
+                               <Label>Certification Name</Label>
+                               <Input defaultValue={cert.name} />
+                             </div>
+                              <div className="grid gap-2">
+                               <Label>Issuer</Label>
+                               <Input defaultValue={cert.issuer} />
+                             </div>
+                           </div>
+                        ))}
+                        <Button variant="outline" className="w-full">Add Certification</Button>
+                      </div>
+
+                       {/* Contact & Socials */}
+                      <div className="space-y-4">
+                        <h3 className="font-semibold text-lg">Contact & Socials</h3>
+                         <div className="grid gap-2">
+                            <Label>Resume URL</Label>
+                            <Input defaultValue="#" />
+                         </div>
+                          <div className="grid gap-2">
+                            <Label>Portfolio URL</Label>
+                            <Input defaultValue="portfolio.alexj.dev" />
+                         </div>
+                          <div className="grid gap-2">
+                            <Label>GitHub Profile</Label>
+                            <Input defaultValue="github.com/alexj" />
+                         </div>
+                          <div className="grid gap-2">
+                            <Label>LinkedIn Profile</Label>
+                            <Input defaultValue="linkedin.com/in/alexj" />
+                         </div>
+                          <div className="grid gap-2">
+                            <Label>Instagram Handle</Label>
+                            <Input defaultValue="@alex_codes" />
+                         </div>
+                      </div>
+
+                    </div>
+                    <DialogFooter>
+                        <DialogClose asChild>
+                            <Button type="button" variant="secondary">Cancel</Button>
+                        </DialogClose>
+                        <DialogClose asChild>
+                            <Button type="submit" onClick={handleSave}>Save Changes</Button>
+                        </DialogClose>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </CardContent>
             </Card>
 
