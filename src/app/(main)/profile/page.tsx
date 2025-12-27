@@ -83,12 +83,13 @@ const ensureProtocol = (url: string) => {
 
 export default function ProfilePage() {
   // Combine user profile state
-  const [userProfile, setUserProfile] = useState({
+  const [userProfile, setUserProfile] = useState(() => ({
       ...initialFreelancerData,
       education: initialEducationData,
       certifications: initialCertificationsData,
       socials: initialSocialsData,
-  });
+      isFreelancing: true,
+  }));
 
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -96,7 +97,9 @@ export default function ProfilePage() {
     try {
       const savedProfile = localStorage.getItem('userProfile');
       if (savedProfile) {
-        setUserProfile(JSON.parse(savedProfile));
+        // Merge saved data with initial data to ensure all keys are present
+        const parsedProfile = JSON.parse(savedProfile);
+        setUserProfile(prevProfile => ({ ...prevProfile, ...parsedProfile }));
       }
     } catch (error) {
       console.error("Failed to parse user profile from localStorage", error);
@@ -178,6 +181,10 @@ export default function ProfilePage() {
   const handleSkillsChange = (newSkills: string[]) => {
     setFormData(prev => ({...prev, skills: newSkills}));
   }
+  
+  const handleFreelancingToggle = (checked: boolean) => {
+    setUserProfile(prev => ({...prev, isFreelancing: checked}));
+  };
 
   const handleSave = () => {
      setUserProfile(formData);
@@ -517,7 +524,11 @@ export default function ProfilePage() {
                     <Check className="h-5 w-5 text-primary" />
                     <span className="font-medium">Interested in freelancing</span>
                 </Label>
-                <Switch id="freelancing" defaultChecked />
+                <Switch
+                    id="freelancing"
+                    checked={userProfile.isFreelancing}
+                    onCheckedChange={handleFreelancingToggle}
+                />
               </CardContent>
             </Card>
           </div>
@@ -526,3 +537,5 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+    
