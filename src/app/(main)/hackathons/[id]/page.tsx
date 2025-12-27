@@ -28,7 +28,7 @@ export default function HackathonDetailPage() {
 
   const hackathonRef = useMemoFirebase(
     () => (firestore && hackathonId ? doc(firestore, 'hackathons', hackathonId) : null),
-    [firestore, hackAthonId]
+    [firestore, hackathonId]
   );
   const { data: hackathon, isLoading } = useDoc<Hackathon>(hackathonRef);
 
