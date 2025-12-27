@@ -56,7 +56,8 @@ export default function SignupPage() {
   const handleError = (error: any) => {
     console.error('Authentication Error:', error);
     let description = 'An unknown error occurred. Please try again.';
-    if (error.code) {
+    // Ensure we have an error code to switch on
+    if (error && error.code) {
       switch (error.code) {
         case 'auth/email-already-in-use':
           description = 'This email is already in use. Please try logging in.';
@@ -70,6 +71,9 @@ export default function SignupPage() {
         default:
           description = error.message;
       }
+    } else if (error && error.message) {
+      // Fallback for custom error messages
+      description = error.message;
     }
     toast({
       variant: 'destructive',

@@ -89,7 +89,7 @@ export default function LoginPage() {
 
   const handleError = (error: any) => {
     console.error('Authentication Error:', error);
-    let description = 'An unknown error occurred. Please try again.';
+    let description = 'Email and password are required.';
     if (error.code) {
       switch (error.code) {
         case 'auth/user-not-found':
