@@ -26,8 +26,13 @@ export default function FreelancersPage() {
   const [freelancers, setFreelancers] = useState<Freelancer[]>([]);
   const [filteredFreelancers, setFilteredFreelancers] = useState<Freelancer[]>([]);
 
+  // State for applied filters
   const [availabilityFilter, setAvailabilityFilter] = useState('All');
   const [ratingFilter, setRatingFilter] = useState(0);
+
+  // Temporary state for filters inside popover
+  const [tempAvailabilityFilter, setTempAvailabilityFilter] = useState('All');
+  const [tempRatingFilter, setTempRatingFilter] = useState(0);
 
   useEffect(() => {
     let currentFreelancers = [...staticFreelancers];
@@ -47,7 +52,6 @@ export default function FreelancersPage() {
       console.error("Failed to process user profile from localStorage", error);
     }
     setFreelancers(currentFreelancers);
-    setFilteredFreelancers(currentFreelancers);
   }, []);
 
   useEffect(() => {
@@ -64,6 +68,26 @@ export default function FreelancersPage() {
     setFilteredFreelancers(result);
   }, [availabilityFilter, ratingFilter, freelancers]);
 
+  const handleApplyFilters = () => {
+    setAvailabilityFilter(tempAvailabilityFilter);
+    setRatingFilter(tempRatingFilter);
+  };
+  
+  const handleClearFilters = () => {
+    setTempAvailabilityFilter('All');
+    setTempRatingFilter(0);
+    setAvailabilityFilter('All');
+    setRatingFilter(0);
+  };
+
+  const onOpenChange = (open: boolean) => {
+    if (open) {
+      // When opening popover, sync temp state with applied state
+      setTempAvailabilityFilter(availabilityFilter);
+      setTempRatingFilter(ratingFilter);
+    }
+  };
+
 
   return (
     <div className="container py-8 md:py-12">
@@ -79,7 +103,7 @@ export default function FreelancersPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input placeholder="Search by skill, name, or role..." className="pl-9" />
         </div>
-        <Popover>
+        <Popover onOpenChange={onOpenChange}>
             <PopoverTrigger asChild>
                 <Button variant="outline">
                     <Filter className="mr-2 h-4 w-4" />
@@ -97,7 +121,7 @@ export default function FreelancersPage() {
               <div className="grid gap-2">
                 <div className="grid grid-cols-3 items-center gap-4">
                   <Label htmlFor="availability">Availability</Label>
-                   <Select onValueChange={setAvailabilityFilter} defaultValue={availabilityFilter}>
+                   <Select onValueChange={setTempAvailabilityFilter} value={tempAvailabilityFilter}>
                     <SelectTrigger id="availability" className="col-span-2 h-8">
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
@@ -113,10 +137,14 @@ export default function FreelancersPage() {
                   <Label>Rating</Label>
                   <div className="col-span-2">
                     <RadioGroup
-                      defaultValue="0"
-                      onValueChange={(value) => setRatingFilter(Number(value))}
+                      value={String(tempRatingFilter)}
+                      onValueChange={(value) => setTempRatingFilter(Number(value))}
                       className="flex gap-4"
                     >
+                       <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="0" id="r0" />
+                           <Label htmlFor="r0" className="flex items-center">All</Label>
+                       </div>
                       {[4, 3, 2, 1].map(rating => (
                         <div key={rating} className="flex items-center space-x-2">
                           <RadioGroupItem value={String(rating)} id={`r${rating}`} />
@@ -129,10 +157,10 @@ export default function FreelancersPage() {
                   </div>
                 </div>
               </div>
-               <Button onClick={() => {
-                 setAvailabilityFilter('All');
-                 setRatingFilter(0);
-               }}>Clear Filters</Button>
+              <div className="flex justify-between">
+               <Button variant="ghost" onClick={handleClearFilters}>Clear Filters</Button>
+               <Button onClick={handleApplyFilters}>Apply</Button>
+              </div>
             </div>
           </PopoverContent>
         </Popover>
