@@ -74,6 +74,8 @@ export type Hackathon = {
   prize: string;
   imageUrl: string;
   imageHint: string;
+  description: string;
+  officialUrl: string;
 };
 
 export type HackathonTeam = {

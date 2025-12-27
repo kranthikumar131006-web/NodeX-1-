@@ -181,6 +181,8 @@ export const hackathons: Hackathon[] = [
     prize: '$10,000',
     imageUrl: getImage('hackathon1').url,
     imageHint: getImage('hackathon1').hint,
+    description: 'Join us for a weekend of innovation, where you\'ll work with other talented students to build AI-powered solutions for social good. This is a great opportunity to learn, network, and make a real impact.',
+    officialUrl: '#',
   },
   {
     id: 'h2',
@@ -193,6 +195,8 @@ export const hackathons: Hackathon[] = [
     prize: '$25,000',
     imageUrl: getImage('hackathon2').url,
     imageHint: getImage('hackathon2').hint,
+    description: 'A global competition to find the most innovative FinTech solutions. If you have a groundbreaking idea that can change the future of finance, this is the place to be.',
+    officialUrl: '#',
   },
   {
     id: 'h3',
@@ -205,6 +209,8 @@ export const hackathons: Hackathon[] = [
     prize: 'Eco-friendly gadgets',
     imageUrl: getImage('hackathon3').url,
     imageHint: getImage('hackathon3').hint,
+    description: 'Use technology to create a more sustainable future for our cities. This hackathon will focus on challenges related to energy, transportation, and waste management.',
+    officialUrl: '#',
   },
 ];
 

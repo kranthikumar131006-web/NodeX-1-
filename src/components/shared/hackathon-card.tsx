@@ -52,7 +52,7 @@ export function HackathonCard({ hackathon }: HackathonCardProps) {
           ))}
         </div>
         <Button asChild size="sm">
-          <Link href="#">Register</Link>
+          <Link href={`/hackathons/${hackathon.id}`}>Details</Link>
         </Button>
       </CardFooter>
     </Card>
