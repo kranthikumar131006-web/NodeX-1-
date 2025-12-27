@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -45,6 +45,12 @@ export default function RegisterHackathonPage() {
     description: '',
     officialUrl: '',
   });
+  
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
@@ -112,6 +118,10 @@ export default function RegisterHackathonPage() {
       });
     }
   };
+  
+  if (!hasMounted) {
+    return null;
+  }
 
   return (
     <div className="bg-secondary/30">
@@ -196,5 +206,3 @@ export default function RegisterHackathonPage() {
     </div>
   );
 }
-
-    
