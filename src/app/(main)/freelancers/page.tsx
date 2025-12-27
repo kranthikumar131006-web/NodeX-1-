@@ -25,6 +25,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 export default function FreelancersPage() {
   const [freelancers, setFreelancers] = useState<Freelancer[]>([]);
   const [filteredFreelancers, setFilteredFreelancers] = useState<Freelancer[]>([]);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   // State for applied filters
   const [availabilityFilter, setAvailabilityFilter] = useState('All');
@@ -71,6 +72,7 @@ export default function FreelancersPage() {
   const handleApplyFilters = () => {
     setAvailabilityFilter(tempAvailabilityFilter);
     setRatingFilter(tempRatingFilter);
+    setIsFilterOpen(false);
   };
   
   const handleClearFilters = () => {
@@ -78,9 +80,11 @@ export default function FreelancersPage() {
     setTempRatingFilter(0);
     setAvailabilityFilter('All');
     setRatingFilter(0);
+    setIsFilterOpen(false);
   };
 
   const onOpenChange = (open: boolean) => {
+    setIsFilterOpen(open);
     if (open) {
       // When opening popover, sync temp state with applied state
       setTempAvailabilityFilter(availabilityFilter);
@@ -103,7 +107,7 @@ export default function FreelancersPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input placeholder="Search by skill, name, or role..." className="pl-9" />
         </div>
-        <Popover onOpenChange={onOpenChange}>
+        <Popover open={isFilterOpen} onOpenChange={onOpenChange}>
             <PopoverTrigger asChild>
                 <Button variant="outline">
                     <Filter className="mr-2 h-4 w-4" />
