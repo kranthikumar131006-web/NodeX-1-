@@ -26,6 +26,11 @@ export default function SignupPage() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   const handleSuccess = async (userCredential: UserCredential) => {
     const user = userCredential.user;
@@ -80,6 +85,10 @@ export default function SignupPage() {
     }
     createUserWithEmailAndPassword(auth, email, password).then(handleSuccess).catch(handleError);
   };
+  
+  if (!hasMounted) {
+    return null;
+  }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
