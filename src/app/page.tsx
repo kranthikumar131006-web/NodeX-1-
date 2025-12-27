@@ -266,7 +266,7 @@ export default function LoginPage() {
 
           <p className="mt-8 text-center text-sm text-gray-600">
             New here?{' '}
-            <Link href="#" className="font-medium text-cyan-600 hover:text-cyan-500">
+            <Link href="/signup" className="font-medium text-cyan-600 hover:text-cyan-500">
               Create {loginType === 'student' ? 'Student' : 'Client'} Account
             </Link>
           </p>
