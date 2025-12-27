@@ -14,7 +14,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
+import { useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import type { Hackathon, HackathonTeam, Freelancer } from '@/lib/types';
 import { doc, getDoc } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
@@ -26,6 +26,7 @@ export default function TeamDetailPage() {
   const teamId = params.id as string;
   const hackathonId = searchParams.get('hackathonId');
   const firestore = useFirestore();
+  const { user } = useUser();
   
   const teamRef = useMemoFirebase(() => {
       if (!firestore || !hackathonId || !teamId) return null;
@@ -35,8 +36,8 @@ export default function TeamDetailPage() {
   const { data: team, isLoading: isTeamLoading } = useDoc<HackathonTeam>(teamRef);
 
   const [hackathon, setHackathon] = useState<Hackathon | null>(null);
-  const [teamLead, setTeamLead] = useState<Freelancer | null>(null);
-  const [membersWithProfiles, setMembersWithProfiles] = useState<Freelancer[]>([]);
+  const [teamLead, setTeamLead] = useState<any | null>(null);
+  const [membersWithProfiles, setMembersWithProfiles] = useState<any[]>([]);
   const [isLoadingDetails, setIsLoadingDetails] = useState(true);
 
   useEffect(() => {
@@ -45,29 +46,18 @@ export default function TeamDetailPage() {
 
       setIsLoadingDetails(true);
       
-      // Fetch hackathon details
       const hackathonRef = doc(firestore, 'hackathons', team.hackathonId);
       const hackathonSnap = await getDoc(hackathonRef);
       if (hackathonSnap.exists()) {
         setHackathon({ id: hackathonSnap.id, ...hackathonSnap.data() } as Hackathon);
       }
 
-      // Fetch team members' full profiles
-      const memberProfiles: Freelancer[] = [];
       const leadMember = team.members.find(m => m.role.toLowerCase().includes('lead'));
-
-      for (const member of team.members) {
-         const userProfileRef = doc(firestore, 'users', member.id, 'studentProfiles', member.id);
-         const userProfileSnap = await getDoc(userProfileRef);
-         if (userProfileSnap.exists()) {
-           const profile = userProfileSnap.data() as Freelancer;
-           memberProfiles.push(profile);
-           if (leadMember && member.id === leadMember.id) {
-               setTeamLead(profile);
-           }
-         }
+      if (leadMember) {
+          setTeamLead(leadMember);
       }
-      setMembersWithProfiles(memberProfiles);
+
+      setMembersWithProfiles(team.members);
       setIsLoadingDetails(false);
     };
 
@@ -78,6 +68,7 @@ export default function TeamDetailPage() {
   
   const memberCount = team?.members?.length || 0;
   const isFull = memberCount >= 4;
+  const rolesNeeded = 4 - memberCount;
 
   if (isLoading) {
     return (
@@ -130,7 +121,6 @@ export default function TeamDetailPage() {
           </div>
         </div>
 
-        {/* Header Section */}
         <header className="relative mb-8 rounded-xl bg-card p-8 md:p-12">
           <div className="flex flex-col md:flex-row gap-8 items-center">
             <div className="flex-shrink-0">
@@ -159,63 +149,54 @@ export default function TeamDetailPage() {
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Main Content */}
             <div className="lg:col-span-2 space-y-8">
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-3 text-2xl"><Users className="h-6 w-6 text-primary" />Team Members</CardTitle>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                       {membersWithProfiles.map(member => {
-                         const teamMemberInfo = team.members.find(m => m.id === member.id);
-                         const memberCard = (
-                             <div className="flex items-center gap-4 p-4 border rounded-lg bg-background/50">
+                       {membersWithProfiles.map(member => (
+                             <div key={member.id} className="flex items-center gap-4 p-4 border rounded-lg bg-background/50">
                                 <Avatar className="h-16 w-16">
                                     <AvatarImage src={member.avatarUrl} alt={member.name} />
                                     <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
                                 </Avatar>
                                 <div>
                                     <h3 className="font-semibold">{member.name}</h3>
-                                    <p className="text-sm text-primary font-medium">{teamMemberInfo?.role}</p>
+                                    <p className="text-sm text-primary font-medium">{member.role}</p>
+                                     {(member.skills || []).length > 0 && (
+                                        <div className="flex flex-wrap gap-1 mt-2">
+                                            {member.skills.map((skill: string) => (
+                                                <Badge key={skill} variant="outline" className="font-normal text-xs">{skill}</Badge>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                              </div>
-                         );
-
-                         return (
-                            <Link key={member.id} href={`/freelancers/${member.id}`} className="transition-transform hover:-translate-y-1 block">
-                                {memberCard}
-                            </Link>
-                           );
-                       })}
+                       ))}
                     </CardContent>
                 </Card>
             </div>
 
-            {/* Sidebar */}
             <div className="space-y-8">
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-3 text-xl"><Target className="h-5 w-5 text-primary"/>We're Looking For</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        {isFull ? (
+                        {isFull || rolesNeeded <= 0 ? (
                              <div className="p-3 bg-secondary/50 rounded-lg text-center text-muted-foreground">
                                 <UserX className="h-6 w-6 mx-auto mb-2" />
                                 This team is currently full.
                             </div>
-                        ) : (team.lookingFor || []).map((role, index) => (
-                            <div key={index} className="p-3 bg-secondary/50 rounded-lg">
-                                <p className="font-semibold">{role.role}</p>
-
-                                {role.skills.length > 0 && (
-                                <div className="flex flex-wrap gap-1 mt-2">
-                                    {role.skills.map(skill => (
-                                        <Badge key={skill} variant="outline" className="font-normal text-xs">{skill}</Badge>
-                                    ))}
-                                </div>
-                                )}
-                            </div>
-                        ))}
+                        ) : (
+                          <div className="p-3 bg-secondary/50 rounded-lg">
+                              <p className="font-semibold">{rolesNeeded} more member{rolesNeeded > 1 ? 's' : ''}</p>
+                              <div className="flex flex-wrap gap-1 mt-2">
+                                  <Badge variant="outline" className="font-normal text-xs">Any Role</Badge>
+                              </div>
+                          </div>
+                        )}
                          {hackathon && !isFull && (
                             <div className='mt-4'>
                                 <p className="text-xs text-muted-foreground mb-2">Team is aligned with hackathon tech stack:</p>
@@ -231,7 +212,7 @@ export default function TeamDetailPage() {
 
                  {teamLead && (
                     <Button asChild className="w-full" size="lg" disabled={isFull}>
-                        <a href={isFull ? '#' : `mailto:${teamLead.email}`} target="_blank" rel="noopener noreferrer">
+                        <a href={isFull || !user ? '#' : `mailto:${teamLead.email}`} target="_blank" rel="noopener noreferrer">
                             <Mail className="mr-2 h-4 w-4" /> {isFull ? 'Team Full' : 'Contact Team Lead'}
                         </a>
                     </Button>

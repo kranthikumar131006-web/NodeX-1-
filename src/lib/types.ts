@@ -39,6 +39,7 @@ export type TeamMember = {
   avatarUrl: string;
   imageHint: string;
   bio?: string;
+  skills?: string[];
 };
 
 export type Startup = {
@@ -86,7 +87,7 @@ export type HackathonTeam = {
   name: string;
   hackathonId: string;
   description: string;
-  createdAt: string;
+  createdAt: any; // Can be Date or FieldValue
   members: TeamMember[];
   memberIds: string[];
   lookingFor: { role: string; skills: string[] }[];

@@ -28,6 +28,8 @@ export function TeamCard({ team }: TeamCardProps) {
   const memberCount = team.members?.length || 0;
   const isFull = memberCount >= 4;
 
+  const rolesNeeded = 4 - memberCount;
+
   return (
     <Card className="flex flex-col h-full overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
       <CardHeader className="p-4">
@@ -63,20 +65,18 @@ export function TeamCard({ team }: TeamCardProps) {
         <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{team.description}</p>
         <div className="space-y-2">
             <h4 className="text-xs font-semibold uppercase text-muted-foreground flex items-center gap-2"><Target className="h-4 w-4" /> Looking For</h4>
-            {isFull ? (
+            {isFull || rolesNeeded <= 0 ? (
                 <div className="p-2 bg-secondary/50 rounded-md text-center text-sm text-muted-foreground">
                     This team is full.
                 </div>
-            ) : (team.lookingFor || []).map((role, index) => (
-                <div key={index} className="p-2 bg-secondary/50 rounded-md">
-                    <p className="font-semibold text-sm">{role.role}</p>
-                    <div className="flex flex-wrap gap-1 mt-1">
-                        {role.skills.map(skill => (
-                            <Badge key={skill} variant="outline" className="text-xs font-normal">{skill}</Badge>
-                        ))}
+            ) : (
+                <div className="p-2 bg-secondary/50 rounded-md">
+                    <p className="font-semibold text-sm">{rolesNeeded} more member{rolesNeeded > 1 ? 's' : ''}</p>
+                     <div className="flex flex-wrap gap-1 mt-1">
+                        <Badge variant="outline" className="text-xs font-normal">Any Role</Badge>
                     </div>
                 </div>
-            ))}
+            )}
         </div>
       </CardContent>
       <CardFooter className="p-4 pt-0 flex flex-col items-stretch gap-2">

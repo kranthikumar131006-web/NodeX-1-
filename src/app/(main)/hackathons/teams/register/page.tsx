@@ -21,13 +21,20 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Plus, X } from 'lucide-react';
+import { ArrowLeft, Plus, X, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { Badge } from '@/components/ui/badge';
 import type { Hackathon } from '@/lib/types';
+import { Slider } from '@/components/ui/slider';
+
+type NewMember = {
+  name: string;
+  role: string;
+  skills: string[];
+};
 
 export default function RegisterTeamPage() {
   const router = useRouter();
@@ -44,33 +51,46 @@ export default function RegisterTeamPage() {
   const [teamName, setTeamName] = useState('');
   const [hackathonId, setHackathonId] = useState('');
   const [description, setDescription] = useState('');
-  const [lookingFor, setLookingFor] = useState<{ role: string; skills: string[] }[]>([]);
-  const [currentRole, setCurrentRole] = useState('');
-  const [currentSkills, setCurrentSkills] = useState('');
-  
+  const [totalParticipants, setTotalParticipants] = useState(1);
+  const [members, setMembers] = useState<NewMember[]>([]);
+
   const [hasMounted, setHasMounted] = useState(false);
   useEffect(() => {
     setHasMounted(true);
   }, []);
 
-  const handleAddRequirement = () => {
-    if (currentRole.trim() !== '') {
-      setLookingFor([
-        ...lookingFor,
-        {
-          role: currentRole.trim(),
-          skills: currentSkills.split(',').map(s => s.trim()).filter(Boolean),
-        },
-      ]);
-      setCurrentRole('');
-      setCurrentSkills('');
+  useEffect(() => {
+    // Adjust the number of member input fields based on totalParticipants
+    const leaderCount = 1;
+    const numberOfMemberFields = totalParticipants - leaderCount;
+    
+    // If shrinking, slice the array
+    if (members.length > numberOfMemberFields) {
+      setMembers(members.slice(0, numberOfMemberFields));
+    } 
+    // If growing, add new empty member objects
+    else if (members.length < numberOfMemberFields) {
+      const newMembersToAdd = Array(numberOfMemberFields - members.length).fill({
+        name: '',
+        role: '',
+        skills: [],
+      });
+      setMembers([...members, ...newMembersToAdd]);
     }
+  }, [totalParticipants]);
+
+  const handleMemberChange = (index: number, field: keyof NewMember, value: string) => {
+    const updatedMembers = [...members];
+    const member = updatedMembers[index];
+
+    if (field === 'skills') {
+      member.skills = value.split(',').map(s => s.trim()).filter(Boolean);
+    } else {
+      (member[field] as string) = value;
+    }
+    setMembers(updatedMembers);
   };
   
-  const handleRemoveRequirement = (index: number) => {
-    setLookingFor(lookingFor.filter((_, i) => i !== index));
-  }
-
   const handleRegister = async () => {
     if (!user) {
       toast({
@@ -90,6 +110,30 @@ export default function RegisterTeamPage() {
         return;
     }
     
+    const teamLead = {
+        id: user.uid,
+        name: user.displayName || user.email || 'Team Lead',
+        role: 'Team Lead',
+        avatarUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/64/64`,
+        imageHint: 'person portrait',
+    };
+
+    const additionalMembers = members
+      .filter(m => m.name && m.role) // Only include members with a name and role
+      .map((member, index) => ({
+        id: `member-${Date.now()}-${index}`, // Temporary unique ID
+        name: member.name,
+        role: member.role,
+        avatarUrl: `https://picsum.photos/seed/${member.name}/64/64`,
+        imageHint: 'person portrait',
+        skills: member.skills,
+      }));
+
+    const allMembers = [teamLead, ...additionalMembers];
+    const openSpots = 4 - allMembers.length;
+    const lookingFor = Array(openSpots).fill({ role: 'Any Role', skills: [] });
+
+
     try {
         const teamCollectionRef = collection(firestore, `hackathons/${hackathonId}/teams`);
         await addDoc(teamCollectionRef, {
@@ -97,17 +141,9 @@ export default function RegisterTeamPage() {
             hackathonId,
             description,
             lookingFor,
-            createdAt: new Date().toISOString(),
-            members: [
-                {
-                    id: user.uid,
-                    name: user.displayName || user.email,
-                    role: 'Team Lead',
-                    avatarUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/64/64`,
-                    imageHint: 'person portrait',
-                }
-            ],
-            memberIds: [user.uid],
+            createdAt: serverTimestamp(),
+            members: allMembers,
+            memberIds: allMembers.map(m => m.id),
         });
 
       toast({
@@ -127,7 +163,7 @@ export default function RegisterTeamPage() {
   };
   
   if (!hasMounted) {
-    return null; // Or a loading skeleton
+    return null; 
   }
 
   return (
@@ -181,39 +217,47 @@ export default function RegisterTeamPage() {
             </div>
 
             <div className="space-y-4">
-                <Label>Role Requirements (What are you looking for?)</Label>
-                <div className="space-y-2">
-                    {lookingFor.map((req, index) => (
-                        <div key={index} className="flex items-center justify-between p-2 bg-secondary rounded-md">
-                           <div>
-                             <p className="font-semibold">{req.role}</p>
-                             <div className="flex flex-wrap gap-1 mt-1">
-                                {req.skills.map(skill => (
-                                    <Badge key={skill} variant="outline" className="text-xs">{skill}</Badge>
-                                ))}
-                             </div>
-                           </div>
-                           <Button size="icon" variant="ghost" onClick={() => handleRemoveRequirement(index)}>
-                             <X className="h-4 w-4"/>
-                           </Button>
-                        </div>
-                    ))}
+                <div className="flex items-center justify-between">
+                    <Label htmlFor="total-participants">Total Team Size (including you)</Label>
+                    <Badge variant="outline" className="text-base font-bold">{totalParticipants} / 4</Badge>
                 </div>
-                <Card className="p-4 bg-secondary/50">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="role-needed">Role</Label>
-                            <Input id="role-needed" placeholder="e.g., Frontend Developer" value={currentRole} onChange={e => setCurrentRole(e.target.value)} />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="skills-needed">Skills (comma-separated)</Label>
-                            <Input id="skills-needed" placeholder="e.g., React, TypeScript" value={currentSkills} onChange={e => setCurrentSkills(e.target.value)} />
-                        </div>
-                    </div>
-                    <Button className="w-full mt-4" variant="outline" onClick={handleAddRequirement}><Plus className="mr-2 h-4 w-4" /> Add Requirement</Button>
-                </Card>
+                <Slider
+                    id="total-participants"
+                    min={1}
+                    max={4}
+                    step={1}
+                    value={[totalParticipants]}
+                    onValueChange={(value) => setTotalParticipants(value[0])}
+                />
             </div>
             
+            {members.length > 0 && (
+                 <div className="space-y-4">
+                    <Label>Add Your Current Team Members</Label>
+                     {members.map((member, index) => (
+                        <Card key={index} className="p-4 bg-secondary/50">
+                           <CardHeader className="p-0 mb-4">
+                            <CardTitle className="text-md">Team Member {index + 2}</CardTitle>
+                           </CardHeader>
+                           <CardContent className="p-0 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor={`member-name-${index}`}>Member Name</Label>
+                                    <Input id={`member-name-${index}`} placeholder="e.g., Jane Doe" value={member.name} onChange={e => handleMemberChange(index, 'name', e.target.value)} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor={`member-role-${index}`}>Role</Label>
+                                    <Input id={`member-role-${index}`} placeholder="e.g., Frontend Developer" value={member.role} onChange={e => handleMemberChange(index, 'role', e.target.value)} />
+                                </div>
+                                <div className="md:col-span-2 space-y-2">
+                                    <Label htmlFor={`member-skills-${index}`}>Skills (comma-separated)</Label>
+                                    <Input id={`member-skills-${index}`} placeholder="e.g., React, TypeScript, Figma" value={member.skills.join(', ')} onChange={e => handleMemberChange(index, 'skills', e.target.value)} />
+                                </div>
+                           </CardContent>
+                        </Card>
+                    ))}
+                </div>
+            )}
+
             <div className="flex justify-end">
               <Button size="lg" onClick={handleRegister}>
                 Create Team
