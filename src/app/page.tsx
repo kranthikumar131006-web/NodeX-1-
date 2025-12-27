@@ -97,6 +97,9 @@ export default function LoginPage() {
         case 'auth/invalid-credential':
           description = 'Invalid email or password. Please try again.';
           break;
+        case 'auth/invalid-email':
+          description = 'The email address is not valid. Please enter a valid email.';
+          break;
         case 'auth/too-many-requests':
           description = 'Too many login attempts. Please try again later.';
           break;

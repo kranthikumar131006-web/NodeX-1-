@@ -59,6 +59,9 @@ export default function SignupPage() {
         case 'auth/weak-password':
           description = 'The password is too weak. Please use at least 6 characters.';
           break;
+        case 'auth/invalid-email':
+            description = 'The email address is not valid. Please enter a valid email.';
+            break;
         default:
           description = error.message;
       }
