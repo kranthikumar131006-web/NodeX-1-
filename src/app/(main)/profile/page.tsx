@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -39,38 +39,72 @@ import {
 } from 'lucide-react';
 import { freelancers } from '@/lib/data';
 import { Switch } from '@/components/ui/switch';
+import type { Freelancer, Review, Project } from '@/lib/types';
+
+// Define initial data structures more robustly
+const initialFreelancerData = freelancers[0];
+const initialEducationData = {
+  university: 'University of California, Berkeley',
+  degree: 'Bachelor of Science in Computer Science',
+  years: '2021 - 2025 (Expected)',
+  current: true,
+};
+const initialCertificationsData = [
+  {
+    name: 'AWS Certified Cloud Practitioner',
+    issuer: 'Amazon Web Services (AWS)',
+    date: 'Issued Jan 2024',
+    credentialUrl: '#',
+    logo: '/aws-logo.svg',
+  },
+  {
+    name: 'Google UX Design Professional Certificate',
+    issuer: 'Google Career Certificates',
+    date: 'Issued Aug 2023',
+    credentialUrl: '#',
+    logo: '/google-logo.svg',
+  },
+];
+const initialSocialsData = {
+  resumeUrl: '#',
+  portfolioUrl: 'portfolio.alexj.dev',
+  githubUrl: 'github.com/alexj',
+  linkedinUrl: 'linkedin.com/in/alexj',
+  instagramUrl: '@alex_codes',
+};
 
 export default function ProfilePage() {
-  const [user, setUser] = useState(freelancers[0]);
-  const [education, setEducation] = useState({
-    university: 'University of California, Berkeley',
-    degree: 'Bachelor of Science in Computer Science',
-    years: '2021 - 2025 (Expected)',
-    current: true,
+  // Combine user profile state
+  const [userProfile, setUserProfile] = useState({
+      ...initialFreelancerData,
+      education: initialEducationData,
+      certifications: initialCertificationsData,
+      socials: initialSocialsData,
   });
-  const [certifications, setCertifications] = useState([
-    {
-      name: 'AWS Certified Cloud Practitioner',
-      issuer: 'Amazon Web Services (AWS)',
-      date: 'Issued Jan 2024',
-      credentialUrl: '#',
-      logo: '/aws-logo.svg',
-    },
-    {
-      name: 'Google UX Design Professional Certificate',
-      issuer: 'Google Career Certificates',
-      date: 'Issued Aug 2023',
-      credentialUrl: '#',
-      logo: '/google-logo.svg',
-    },
-  ]);
-  const [socials, setSocials] = useState({
-    resumeUrl: '#',
-    portfolioUrl: 'portfolio.alexj.dev',
-    githubUrl: 'github.com/alexj',
-    linkedinUrl: 'linkedin.com/in/alexj',
-    instagramUrl: '@alex_codes',
-  });
+
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    try {
+      const savedProfile = localStorage.getItem('userProfile');
+      if (savedProfile) {
+        setUserProfile(JSON.parse(savedProfile));
+      }
+    } catch (error) {
+      console.error("Failed to parse user profile from localStorage", error);
+    }
+    setIsLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (isLoaded) {
+      try {
+        localStorage.setItem('userProfile', JSON.stringify(userProfile));
+      } catch (error) {
+        console.error("Failed to save user profile to localStorage", error);
+      }
+    }
+  }, [userProfile, isLoaded]);
 
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -80,7 +114,7 @@ export default function ProfilePage() {
       const file = event.target.files[0];
       const newAvatarUrl = URL.createObjectURL(file);
       setAvatarPreview(newAvatarUrl);
-      setUser(prev => ({...prev, avatarUrl: newAvatarUrl}));
+      setUserProfile(prev => ({...prev, avatarUrl: newAvatarUrl}));
     }
   };
 
@@ -88,29 +122,11 @@ export default function ProfilePage() {
     fileInputRef.current?.click();
   };
 
-  // State for the edit form
-  const [formData, setFormData] = useState({
-    name: user.name,
-    tagline: user.tagline,
-    location: user.location,
-    skills: user.skills,
-    education: { ...education },
-    certifications: [...certifications],
-    socials: { ...socials }
-  });
+  const [formData, setFormData] = useState(userProfile);
 
-  // Reset form data when dialog opens
   const onOpenChange = (open: boolean) => {
     if (open) {
-      setFormData({
-        name: user.name,
-        tagline: user.tagline,
-        location: user.location,
-        skills: [...user.skills],
-        education: { ...education },
-        certifications: JSON.parse(JSON.stringify(certifications)), // Deep copy
-        socials: { ...socials }
-      });
+      setFormData(userProfile);
     }
   };
 
@@ -156,16 +172,11 @@ export default function ProfilePage() {
   }
 
   const handleSave = () => {
-     setUser(prevUser => ({
-        ...prevUser,
-        name: formData.name,
-        tagline: formData.tagline,
-        location: formData.location,
-        skills: formData.skills,
-     }));
-     setEducation(formData.education);
-     setCertifications(formData.certifications);
-     setSocials(formData.socials);
+     setUserProfile(formData);
+  }
+  
+  if (!isLoaded) {
+    return null; // Or a loading spinner
   }
 
   return (
@@ -178,8 +189,8 @@ export default function ProfilePage() {
               <CardContent className="p-6 text-center">
                 <div className="relative mx-auto mb-4 h-32 w-32">
                   <Avatar className="h-full w-full border-4 border-primary/20">
-                    <AvatarImage src={avatarPreview ?? user.avatarUrl} alt={user.name} />
-                    <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                    <AvatarImage src={avatarPreview ?? userProfile.avatarUrl} alt={userProfile.name} />
+                    <AvatarFallback>{userProfile.name.charAt(0)}</AvatarFallback>
                   </Avatar>
                   <input
                     type="file"
@@ -196,9 +207,9 @@ export default function ProfilePage() {
                     <Edit className="h-4 w-4" />
                   </Button>
                 </div>
-                <h2 className="text-2xl font-bold font-headline">{user.name}</h2>
+                <h2 className="text-2xl font-bold font-headline">{userProfile.name}</h2>
                 <p className="text-sm text-muted-foreground">
-                  {user.tagline}
+                  {userProfile.tagline}
                 </p>
 
                 <Dialog onOpenChange={onOpenChange}>
@@ -346,14 +357,14 @@ export default function ProfilePage() {
                     <MapPin className="h-5 w-5 text-muted-foreground" />
                     <div>
                       <p className="text-xs text-muted-foreground">Location</p>
-                      <p>{user.location}</p>
+                      <p>{userProfile.location}</p>
                     </div>
                   </li>
                   <li className="flex items-center gap-3">
                     <FileText className="h-5 w-5 text-muted-foreground" />
                     <div>
                       <p className="text-xs text-muted-foreground">Resume</p>
-                      <Link href={socials.resumeUrl} className="flex items-center hover:text-primary">
+                      <Link href={userProfile.socials.resumeUrl} className="flex items-center hover:text-primary">
                         View Resume <ExternalLink className="ml-1 h-3 w-3" />
                       </Link>
                     </div>
@@ -364,8 +375,8 @@ export default function ProfilePage() {
                       <p className="text-xs text-muted-foreground">
                         Past Projects
                       </p>
-                      <Link href={`https://${socials.portfolioUrl}`} target="_blank" className="flex items-center hover:text-primary">
-                        {socials.portfolioUrl}{' '}
+                      <Link href={`https://${userProfile.socials.portfolioUrl}`} target="_blank" className="flex items-center hover:text-primary">
+                        {userProfile.socials.portfolioUrl}{' '}
                         <ExternalLink className="ml-1 h-3 w-3" />
                       </Link>
                     </div>
@@ -387,8 +398,8 @@ export default function ProfilePage() {
                     </svg>
                     <div>
                       <p className="text-xs text-muted-foreground">GitHub</p>
-                      <Link href={`https://${socials.githubUrl}`} target="_blank" className="flex items-center hover:text-primary">
-                        {socials.githubUrl}{' '}
+                      <Link href={`https://${userProfile.socials.githubUrl}`} target="_blank" className="flex items-center hover:text-primary">
+                        {userProfile.socials.githubUrl}{' '}
                         <ExternalLink className="ml-1 h-3 w-3" />
                       </Link>
                     </div>
@@ -397,8 +408,8 @@ export default function ProfilePage() {
                     <Linkedin className="h-5 w-5 text-muted-foreground" />
                     <div>
                       <p className="text-xs text-muted-foreground">LinkedIn</p>
-                      <Link href={`https://${socials.linkedinUrl}`} target="_blank" className="flex items-center hover:text-primary">
-                        {socials.linkedinUrl}
+                      <Link href={`https://${userProfile.socials.linkedinUrl}`} target="_blank" className="flex items-center hover:text-primary">
+                        {userProfile.socials.linkedinUrl}
                         <ExternalLink className="ml-1 h-3 w-3" />
                       </Link>
                     </div>
@@ -407,8 +418,8 @@ export default function ProfilePage() {
                     <Instagram className="h-5 w-5 text-muted-foreground" />
                     <div>
                       <p className="text-xs text-muted-foreground">Instagram</p>
-                      <Link href={`https://instagram.com/${socials.instagramUrl.replace('@', '')}`} target="_blank" className="flex items-center hover:text-primary">
-                        {socials.instagramUrl}
+                      <Link href={`https://instagram.com/${userProfile.socials.instagramUrl.replace('@', '')}`} target="_blank" className="flex items-center hover:text-primary">
+                        {userProfile.socials.instagramUrl}
                         <ExternalLink className="ml-1 h-3 w-3" />
                       </Link>
                     </div>
@@ -431,14 +442,14 @@ export default function ProfilePage() {
                     <Image src="/uc-berkeley-logo.svg" alt="UC Berkeley Logo" width={32} height={32} />
                   </div>
                   <div>
-                    <p className="font-semibold">{education.university}</p>
+                    <p className="font-semibold">{userProfile.education.university}</p>
                     <p className="text-sm text-muted-foreground">
-                      {education.degree}
+                      {userProfile.education.degree}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">{education.years}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{userProfile.education.years}</p>
                   </div>
                   <Badge
-                    variant={education.current ? 'default' : 'secondary'}
+                    variant={userProfile.education.current ? 'default' : 'secondary'}
                     className="ml-auto shrink-0"
                   >
                     Current
@@ -453,7 +464,7 @@ export default function ProfilePage() {
                 <CardTitle className="text-lg">Skills</CardTitle>
               </CardHeader>
               <CardContent className="flex flex-wrap gap-2">
-                {user.skills.map((skill) => (
+                {userProfile.skills.map((skill) => (
                   <Badge key={skill} variant="outline" className="px-3 py-1 text-sm font-normal">
                     {skill}
                   </Badge>
@@ -470,7 +481,7 @@ export default function ProfilePage() {
                 {/* <Button variant="link" className="text-primary">Add New</Button> */}
               </CardHeader>
               <CardContent className="space-y-4">
-                {certifications.map((cert, index) => (
+                {userProfile.certifications.map((cert, index) => (
                   <div key={index} className="flex items-start gap-4">
                     <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-secondary">
                          <Image src={cert.logo} alt={`${cert.issuer} Logo`} width={32} height={32} />
