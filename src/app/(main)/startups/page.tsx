@@ -22,6 +22,12 @@ import {
 } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import type { Startup } from '@/lib/types';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 export default function StartupsPage() {
   const [startups, setStartups] = useState<Startup[]>(staticStartups);
@@ -143,12 +149,21 @@ export default function StartupsPage() {
         ))}
       </div>
 
-      <Button asChild className="fixed bottom-8 right-8 h-16 w-16 rounded-full shadow-lg p-0">
-        <Link href="#">
-          <Rocket className="h-8 w-8" />
-          <span className="sr-only">Register Startup</span>
-        </Link>
-      </Button>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button asChild className="fixed bottom-8 right-8 h-16 w-16 rounded-full shadow-lg p-0">
+              <Link href="#">
+                <Rocket className="h-8 w-8" />
+                <span className="sr-only">Register Startup</span>
+              </Link>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Register your startup</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     </div>
   );
 }
