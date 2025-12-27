@@ -92,14 +92,6 @@ export default function HackathonDetailPage() {
                         ))}
                     </CardContent>
                 </Card>
-
-                 <div className="flex justify-center">
-                   <Button asChild size="lg" className="w-full md:w-auto">
-                     <Link href="/hackathons/teams">
-                       <Users className="mr-2 h-4 w-4" /> Find or Create a Team
-                     </Link>
-                   </Button>
-                 </div>
             </div>
 
             {/* Sidebar */}
