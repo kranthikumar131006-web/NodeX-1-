@@ -3,7 +3,6 @@
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { hackathons } from '@/lib/data';
 import {
   Badge,
   CalendarDays,
@@ -17,11 +16,42 @@ import {
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
+import type { Hackathon } from '@/lib/types';
+import { doc } from 'firebase/firestore';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function HackathonDetailPage() {
   const params = useParams();
-  const hackathonId = params.id;
-  const hackathon = hackathons.find(h => h.id === hackathonId);
+  const hackathonId = params.id as string;
+  const firestore = useFirestore();
+
+  const hackathonRef = useMemoFirebase(
+    () => (firestore && hackathonId ? doc(firestore, 'hackathons', hackathonId) : null),
+    [firestore, hackAthonId]
+  );
+  const { data: hackathon, isLoading } = useDoc<Hackathon>(hackathonRef);
+
+  if (isLoading) {
+    return (
+        <div className="bg-secondary/30">
+        <div className="container mx-auto py-8 md:py-12">
+          <Skeleton className="h-6 w-1/2 mb-8" />
+          <Skeleton className="h-80 w-full mb-8" />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-8">
+              <Skeleton className="h-48 w-full" />
+              <Skeleton className="h-32 w-full" />
+            </div>
+            <div className="space-y-8">
+              <Skeleton className="h-48 w-full" />
+              <Skeleton className="h-12 w-full" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!hackathon) {
     return (
