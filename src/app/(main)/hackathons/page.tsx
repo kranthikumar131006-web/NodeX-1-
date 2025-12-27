@@ -3,7 +3,7 @@ import { hackathons } from '@/lib/data';
 import { HackathonCard } from '@/components/shared/hackathon-card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Filter, Search, Users } from 'lucide-react';
+import { Filter, Search, Users, Plus } from 'lucide-react';
 
 export default function HackathonsPage() {
   return (
@@ -28,6 +28,12 @@ export default function HackathonsPage() {
             <Link href="/hackathons/teams">
                 <Users className="mr-2 h-4 w-4" />
                 Find a Team
+            </Link>
+        </Button>
+        <Button asChild>
+            <Link href="/hackathons/register">
+                <Plus className="mr-2 h-4 w-4" />
+                Register Event
             </Link>
         </Button>
       </div>
