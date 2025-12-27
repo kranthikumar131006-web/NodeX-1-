@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Mail, Lock, ArrowRight, Briefcase } from 'lucide-react';
+import { Mail, Lock, ArrowRight, Briefcase, User as UserIcon } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/firebase';
@@ -29,7 +29,7 @@ export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [companyName, setCompanyName] = useState('');
-  const [contactName, setContactName] = useState('');
+  const [name, setName] = useState('');
   const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
@@ -60,7 +60,7 @@ export default function SignupPage() {
             id: user.uid,
             userId: user.uid,
             companyName: companyName,
-            contactName: contactName || user.email?.split('@')[0],
+            contactName: name || user.email?.split('@')[0],
             email: user.email,
         });
         toast({
@@ -124,8 +124,8 @@ export default function SignupPage() {
       handleError({ message: 'Email and password are required.' });
       return;
     }
-    if (role === 'client' && (!companyName || !contactName)) {
-        handleError({ message: 'Company and Contact Name are required.' });
+    if (role === 'client' && !name) {
+        handleError({ message: 'Name is a required field.' });
         return;
     }
     createUserWithEmailAndPassword(auth, email, password).then(handleSuccess).catch(handleError);
@@ -175,16 +175,17 @@ export default function SignupPage() {
                   </div>
                 </div>
                  <div className="space-y-2">
-                  <Label htmlFor="contactName">Contact Name</Label>
+                  <Label htmlFor="name">Name</Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                     <Input
-                      id="contactName"
+                      id="name"
                       type="text"
                       placeholder="Your Name"
                       className="pl-10"
-                      value={contactName}
-                      onChange={(e) => setContactName(e.target.value)}
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      required
                     />
                   </div>
                 </div>
@@ -204,6 +205,7 @@ export default function SignupPage() {
                   className="pl-10"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  required
                 />
               </div>
             </div>
@@ -219,6 +221,7 @@ export default function SignupPage() {
                   className="pl-10"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  required
                 />
               </div>
             </div>
