@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -46,6 +46,7 @@ function GoogleIcon() {
 
 export default function LoginPage() {
   const [loginType, setLoginType] = useState('student');
+  const [hasMounted, setHasMounted] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
   const auth = useAuth();
@@ -53,6 +54,10 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   const handleSuccess = async (userCredential: UserCredential) => {
     const user = userCredential.user;
@@ -99,8 +104,8 @@ export default function LoginPage() {
           description = 'Login process was cancelled.';
           break;
         case 'auth/operation-not-allowed':
-            description = 'Sign-in method is not enabled. Please enable it in the Firebase console.';
-            break;
+          description = 'Sign-in method is not enabled. Please enable it in the Firebase console.';
+          break;
         default:
           description = error.message;
       }
@@ -124,8 +129,12 @@ export default function LoginPage() {
     signInWithPopup(auth, provider).then(handleSuccess).catch(handleError);
   };
 
+  if (!hasMounted) {
+    return null;
+  }
+
   return (
-    <div className="flex flex-col items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-4xl text-center">
         <div className="mb-4 inline-block rounded-full bg-blue-100 px-3 py-1 text-sm font-semibold text-blue-600">
           WELCOME TO NEXUS HUB
