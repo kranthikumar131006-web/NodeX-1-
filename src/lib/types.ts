@@ -87,6 +87,7 @@ export type HackathonTeam = {
   name: string;
   hackathonId: string;
   description: string;
+  teamSize: number;
   createdAt: any; // Can be Date or FieldValue
   members: TeamMember[];
   memberIds: string[];

@@ -26,9 +26,10 @@ export function TeamCard({ team }: TeamCardProps) {
   const { data: teamHackathon } = useDoc<Hackathon>(hackathonRef);
   
   const memberCount = team.members?.length || 0;
-  const isFull = memberCount >= 4;
+  const teamSize = team.teamSize || 4;
+  const isFull = memberCount >= teamSize;
 
-  const rolesNeeded = 4 - memberCount;
+  const rolesNeeded = teamSize - memberCount;
 
   return (
     <Card className="flex flex-col h-full overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
@@ -60,7 +61,7 @@ export function TeamCard({ team }: TeamCardProps) {
       <CardContent className="p-4 pt-0 flex-1">
         <div className='flex items-center gap-2 text-sm text-muted-foreground mb-4'>
             <Users className="h-4 w-4" />
-            <span>{memberCount} / 4 members</span>
+            <span>{memberCount} / {teamSize} members</span>
         </div>
         <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{team.description}</p>
         <div className="space-y-2">

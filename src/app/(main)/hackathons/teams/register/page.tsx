@@ -28,7 +28,6 @@ import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebas
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { Badge } from '@/components/ui/badge';
 import type { Hackathon } from '@/lib/types';
-import { Slider } from '@/components/ui/slider';
 
 type NewMember = {
   name: string;
@@ -51,7 +50,7 @@ export default function RegisterTeamPage() {
   const [teamName, setTeamName] = useState('');
   const [hackathonId, setHackathonId] = useState('');
   const [description, setDescription] = useState('');
-  const [totalParticipants, setTotalParticipants] = useState(1);
+  const [teamSize, setTeamSize] = useState(4);
   const [members, setMembers] = useState<NewMember[]>([]);
 
   const [hasMounted, setHasMounted] = useState(false);
@@ -62,7 +61,7 @@ export default function RegisterTeamPage() {
   useEffect(() => {
     // Adjust the number of member input fields based on totalParticipants
     const leaderCount = 1;
-    const numberOfMemberFields = totalParticipants - leaderCount;
+    const numberOfMemberFields = teamSize - leaderCount;
     
     // If shrinking, slice the array
     if (members.length > numberOfMemberFields) {
@@ -77,7 +76,7 @@ export default function RegisterTeamPage() {
       });
       setMembers([...members, ...newMembersToAdd]);
     }
-  }, [totalParticipants]);
+  }, [teamSize, members.length]);
 
   const handleMemberChange = (index: number, field: keyof NewMember, value: string) => {
     const updatedMembers = [...members];
@@ -130,7 +129,7 @@ export default function RegisterTeamPage() {
       }));
 
     const allMembers = [teamLead, ...additionalMembers];
-    const openSpots = 4 - allMembers.length;
+    const openSpots = teamSize - allMembers.length;
     const lookingFor = Array(openSpots).fill({ role: 'Any Role', skills: [] });
 
 
@@ -141,6 +140,7 @@ export default function RegisterTeamPage() {
             hackathonId,
             description,
             lookingFor,
+            teamSize,
             createdAt: serverTimestamp(),
             members: allMembers,
             memberIds: allMembers.map(m => m.id),
@@ -218,16 +218,15 @@ export default function RegisterTeamPage() {
 
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                    <Label htmlFor="total-participants">Total Team Size (including you)</Label>
-                    <Badge variant="outline" className="text-base font-bold">{totalParticipants} / 4</Badge>
+                    <Label htmlFor="team-size">Total Team Size (including you)</Label>
                 </div>
-                <Slider
-                    id="total-participants"
-                    min={1}
-                    max={4}
-                    step={1}
-                    value={[totalParticipants]}
-                    onValueChange={(value) => setTotalParticipants(value[0])}
+                <Input
+                    id="team-size"
+                    type="number"
+                    min="1"
+                    placeholder="Enter team size"
+                    value={teamSize}
+                    onChange={(e) => setTeamSize(parseInt(e.target.value) || 1)}
                 />
             </div>
             

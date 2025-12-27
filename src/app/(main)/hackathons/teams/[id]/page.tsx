@@ -67,8 +67,9 @@ export default function TeamDetailPage() {
   const isLoading = isTeamLoading || isLoadingDetails;
   
   const memberCount = team?.members?.length || 0;
-  const isFull = memberCount >= 4;
-  const rolesNeeded = 4 - memberCount;
+  const teamSize = team?.teamSize || 4;
+  const isFull = memberCount >= teamSize;
+  const rolesNeeded = teamSize - memberCount;
 
   if (isLoading) {
     return (
@@ -136,7 +137,7 @@ export default function TeamDetailPage() {
             <div className="flex-1 text-center md:text-left">
                 <div className='flex items-center gap-4 justify-center md:justify-start'>
                     <h1 className="font-headline text-4xl font-bold">{team.name}</h1>
-                    <Badge variant={isFull ? 'destructive' : 'secondary'} className='text-base'>{memberCount} / 4 members</Badge>
+                    <Badge variant={isFull ? 'destructive' : 'secondary'} className='text-base'>{memberCount} / {teamSize} members</Badge>
                 </div>
                 {hackathon && (
                     <p className="mt-1 text-lg text-muted-foreground">
