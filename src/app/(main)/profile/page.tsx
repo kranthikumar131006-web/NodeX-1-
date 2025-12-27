@@ -73,6 +73,14 @@ const initialSocialsData = {
   instagramUrl: '@alex_codes',
 };
 
+const ensureProtocol = (url: string) => {
+    if (!url || url === '#') return '#';
+    if (!/^https?:\/\//i.test(url)) {
+      return `https://${url}`;
+    }
+    return url;
+};
+
 export default function ProfilePage() {
   // Combine user profile state
   const [userProfile, setUserProfile] = useState({
@@ -364,9 +372,9 @@ export default function ProfilePage() {
                     <FileText className="h-5 w-5 text-muted-foreground" />
                     <div>
                       <p className="text-xs text-muted-foreground">Resume</p>
-                      <Link href={userProfile.socials.resumeUrl} className="flex items-center hover:text-primary">
+                      <a href={ensureProtocol(userProfile.socials.resumeUrl)} target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-primary">
                         View Resume <ExternalLink className="ml-1 h-3 w-3" />
-                      </Link>
+                      </a>
                     </div>
                   </li>
                   <li className="flex items-center gap-3">
@@ -375,10 +383,10 @@ export default function ProfilePage() {
                       <p className="text-xs text-muted-foreground">
                         Past Projects
                       </p>
-                      <Link href={`https://${userProfile.socials.portfolioUrl}`} target="_blank" className="flex items-center hover:text-primary">
+                      <a href={ensureProtocol(userProfile.socials.portfolioUrl)} target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-primary">
                         {userProfile.socials.portfolioUrl}{' '}
                         <ExternalLink className="ml-1 h-3 w-3" />
-                      </Link>
+                      </a>
                     </div>
                   </li>
                   <li className="flex items-center gap-3">
@@ -398,30 +406,30 @@ export default function ProfilePage() {
                     </svg>
                     <div>
                       <p className="text-xs text-muted-foreground">GitHub</p>
-                      <Link href={`https://${userProfile.socials.githubUrl}`} target="_blank" className="flex items-center hover:text-primary">
+                      <a href={ensureProtocol(userProfile.socials.githubUrl)} target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-primary">
                         {userProfile.socials.githubUrl}{' '}
                         <ExternalLink className="ml-1 h-3 w-3" />
-                      </Link>
+                      </a>
                     </div>
                   </li>
                   <li className="flex items-center gap-3">
                     <Linkedin className="h-5 w-5 text-muted-foreground" />
                     <div>
                       <p className="text-xs text-muted-foreground">LinkedIn</p>
-                      <Link href={`https://${userProfile.socials.linkedinUrl}`} target="_blank" className="flex items-center hover:text-primary">
+                      <a href={ensureProtocol(userProfile.socials.linkedinUrl)} target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-primary">
                         {userProfile.socials.linkedinUrl}
                         <ExternalLink className="ml-1 h-3 w-3" />
-                      </Link>
+                      </a>
                     </div>
                   </li>
                   <li className="flex items-center gap-3">
                     <Instagram className="h-5 w-5 text-muted-foreground" />
                     <div>
                       <p className="text-xs text-muted-foreground">Instagram</p>
-                      <Link href={`https://instagram.com/${userProfile.socials.instagramUrl.replace('@', '')}`} target="_blank" className="flex items-center hover:text-primary">
+                      <a href={`https://instagram.com/${userProfile.socials.instagramUrl.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-primary">
                         {userProfile.socials.instagramUrl}
                         <ExternalLink className="ml-1 h-3 w-3" />
-                      </Link>
+                      </a>
                     </div>
                   </li>
                 </ul>
@@ -489,12 +497,14 @@ export default function ProfilePage() {
                     <div className="flex-1">
                       <p className="font-semibold">{cert.name}</p>
                       <p className="text-sm text-muted-foreground">{cert.issuer}</p>
-                      <Link
-                        href={cert.credentialUrl}
+                      <a
+                        href={ensureProtocol(cert.credentialUrl)}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="mt-1 flex items-center text-sm text-primary hover:underline"
                       >
                         Show Credential <ExternalLink className="ml-1 h-3 w-3" />
-                      </Link>
+                      </a>
                     </div>
                     <p className="text-xs text-muted-foreground shrink-0">{cert.date}</p>
                   </div>
