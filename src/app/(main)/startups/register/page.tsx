@@ -35,10 +35,16 @@ import {
 import type { Startup } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
+import { useUser, useFirestore } from '@/firebase';
+import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { collection } from 'firebase/firestore';
 
 export default function RegisterStartupPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { user } = useUser();
+  const firestore = useFirestore();
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -99,22 +105,38 @@ export default function RegisterStartupPage() {
 
 
   const handleRegister = () => {
+    if (!user) {
+      toast({
+        variant: 'destructive',
+        title: 'Authentication Error',
+        description: 'You must be logged in to register a startup.',
+      });
+      return;
+    }
     if (!validateForm()) {
         return;
     }
 
-    const newStartup: Partial<Startup> = {
-      id: `s${Date.now()}`,
+    const newStartup = {
+      // id will be auto-generated
+      userId: user.uid,
       name: formData.name,
       logoUrl: 'https://picsum.photos/seed/new-startup/64/64',
       imageHint: 'abstract logo',
       tagline: formData.tagline,
       industry: formData.industry,
+      location: 'Not specified',
+      foundingYear: new Date().getFullYear(),
       yearsInIndustry: parseInt(formData.yearsInIndustry) || 0,
       problem: formData.description,
       solution: formData.offerings,
+      vision: formData.vision,
+      marketSize: formData.marketSize,
+      contactEmail: formData.email,
+      offerings: [], // simplified for db
+      milestones: [], // simplified for db
       fundingStage: 'Pre-Seed', // Default value
-      status: 'Accepting Partnerships', // Default value
+      status: 'Accepting Partnerships' as 'Hiring' | 'Funding Open' | 'Accepting Partnerships', // Default value
       founders: [{
         id: `f${Date.now()}`,
         name: formData.founderName,
@@ -125,9 +147,8 @@ export default function RegisterStartupPage() {
     };
 
     try {
-        const existingStartups = JSON.parse(localStorage.getItem('userStartups') || '[]');
-        const updatedStartups = [...existingStartups, newStartup];
-        localStorage.setItem('userStartups', JSON.stringify(updatedStartups));
+        const startupsCollection = collection(firestore, 'startups');
+        addDocumentNonBlocking(startupsCollection, newStartup);
 
         toast({
             title: (
@@ -141,7 +162,7 @@ export default function RegisterStartupPage() {
 
         router.push('/startups');
     } catch (error) {
-        console.error("Failed to save startup to localStorage", error);
+        console.error("Failed to save startup to firestore", error);
         toast({
             variant: "destructive",
             title: "Uh oh! Something went wrong.",

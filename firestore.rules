@@ -6,8 +6,7 @@
  * Core Philosophy:
  * - A user has complete control over their own data.
  * - Publicly listed data (like hackathons and startups) is readable by anyone
- *   to encourage discovery, but write access is currently restricted pending
- *   the implementation of ownership or admin roles.
+ *   to encourage discovery, but write access is restricted to the document owner.
  * - Collaborative data (like teams) is accessible only to its members.
  *
  * Data Structure:
@@ -23,11 +22,8 @@
  * - Default Deny: All paths are closed by default. Access is granted explicitly.
  * - No User Listing: It is not possible to list all documents in the `/users`
  *   collection, protecting user privacy.
- * - Owner-Only Writes for Public Data: For collections intended for public
- *   viewing, writes are locked down. This is a secure default because the
- *   current data models lack an `ownerId` field to securely grant write
- *   permissions. These rules include placeholder TODOs for developers to
- *   implement this once the data models are updated.
+ * - Owner-Only Writes: Writes to public data collections like hackathons and
+ *   startups are restricted to the user who created them, identified by a `userId` field.
  *
  * Denormalization for Authorization:
  * - The rules for `/hackathons/{hackathonId}/teams/{teamId}` rely on the
@@ -53,6 +49,11 @@ service cloud.firestore {
     // Checks if the requesting user's UID matches the document's path ID.
     function isOwner(userId) {
       return request.auth.uid == userId;
+    }
+    
+    // Checks if the requesting user is the owner based on a 'userId' field in the document.
+    function isDocumentOwner() {
+      return isSignedIn() && resource.data.userId == request.auth.uid;
     }
 
     // Checks if a document currently exists. Crucial for safe updates and deletes.
@@ -135,14 +136,14 @@ service cloud.firestore {
     /**
      * @description Stores public hackathon event information.
      * @path /hackathons/{hackathonId}
-     * @allow (read) Any user, signed in or not, can read hackathon details: `get /hackathons/h123`
-     * @deny (write) Any user trying to create or modify a hackathon: `create /hackathons/h456`
-     * @principle Data is public-read to promote discovery. Writes are disabled until an ownership model is defined.
+     * @allow (read) Any user, signed in or not, can read hackathon details.
+     * @allow (write) Only the authenticated user who created the hackathon can write to it.
+     * @principle Data is public-read. Writes are owner-only.
      */
     match /hackathons/{hackathonId} {
       allow get, list: if true;
-      // CRITICAL: Cannot implement owner-only writes. The 'Hackathon' entity is missing an 'ownerId' or 'organizerId' field.
-      allow create, update, delete: if false; // TODO: Add owner validation once the schema is updated with an ownership field.
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isExistingDoc() && isDocumentOwner();
     }
 
     /**
@@ -163,27 +164,29 @@ service cloud.firestore {
     /**
      * @description Stores public information about startups.
      * @path /startups/{startupId}
-     * @allow (read) Any user, signed in or not, can view startup profiles: `get /startups/s123`
-     * @deny (write) Any user trying to create or modify a startup: `create /startups/s456`
-     * @principle Data is public-read to promote discovery. Writes are disabled until an ownership model is defined.
+     * @allow (read) Any user, signed in or not, can view startup profiles.
+     * @allow (write) Only the authenticated user who created the startup can write to it.
+     * @principle Data is public-read. Writes are owner-only.
      */
     match /startups/{startupId} {
       allow get, list: if true;
-      // CRITICAL: Cannot implement owner-only writes. The 'Startup' entity is missing an 'ownerId' or 'creatorId' field.
-      allow create, update, delete: if false; // TODO: Add owner validation once the schema is updated with an ownership field.
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isExistingDoc() && isDocumentOwner();
     }
 
     /**
      * @description Stores public profiles for team members, linkable to multiple startups.
      * @path /team_members/{teamMemberId}
-     * @allow (read) Any user, signed in or not, can view team member profiles: `get /team_members/tm123`
-     * @deny (write) Any user trying to create or modify a profile: `create /team_members/tm456`
-     * @principle Data is public-read. Writes are disabled until a link to an authenticated user (`userId`) is added.
+     * @allow (read) Any user, signed in or not, can view team member profiles.
+     * @allow (write) Only the authenticated user associated with the team member profile can write to it.
+     * @principle Data is public-read. Writes are owner-only.
      */
     match /team_members/{teamMemberId} {
       allow get, list: if true;
-      // CRITICAL: Cannot implement owner-only writes. The 'TeamMember' entity is missing a 'userId' or 'ownerId' field to link it to an authenticated user.
-      allow create, update, delete: if false; // TODO: Add owner validation once the schema is updated with an ownership field.
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isExistingDoc() && isDocumentOwner();
     }
   }
 }
+
+    

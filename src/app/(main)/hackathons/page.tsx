@@ -3,7 +3,6 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { hackathons as staticHackathons } from '@/lib/data';
 import { HackathonCard } from '@/components/shared/hackathon-card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -26,14 +25,17 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
 
 export default function HackathonsPage() {
-  const [hackathons, setHackathons] = useState<Hackathon[]>([]);
+  const firestore = useFirestore();
+  const hackathonsQuery = useMemoFirebase(() => collection(firestore, 'hackathons'), [firestore]);
+  const { data: liveHackathons, isLoading: isLoadingHackathons } = useCollection<Hackathon>(hackathonsQuery);
+
   const [filteredHackathons, setFilteredHackathons] = useState<Hackathon[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [hasMounted, setHasMounted] = useState(false);
-  const { toast } = useToast();
-
+  
   // State for applied filters
   const [modeFilter, setModeFilter] = useState('All');
   const [sortFilter, setSortFilter] = useState('newest');
@@ -42,47 +44,16 @@ export default function HackathonsPage() {
   const [tempModeFilter, setTempModeFilter] = useState('All');
   const [tempSortFilter, setTempSortFilter] = useState('newest');
 
-  const updateUserHackathons = () => {
-      try {
-          const savedHackathons = localStorage.getItem('userHackathons');
-          let allHackathons = [...staticHackathons];
-          if (savedHackathons) {
-              const userHackathons = JSON.parse(savedHackathons);
-              const staticIds = new Set(staticHackathons.map(h => h.id));
-              userHackathons.forEach((hackathon: Hackathon) => {
-                  if (!staticIds.has(hackathon.id)) {
-                    allHackathons.push(hackathon);
-                  }
-              });
-          }
-          setHackathons(allHackathons);
-      } catch (error) {
-          console.error("Failed to load user hackathons from localStorage", error);
-          setHackathons(staticHackathons);
-      }
-  };
-
   useEffect(() => {
-    updateUserHackathons();
-    setHasMounted(true);
-    
-    window.addEventListener('storage', updateUserHackathons);
-    
-    return () => {
-      window.removeEventListener('storage', updateUserHackathons);
-    }
-  }, []);
-
-  useEffect(() => {
-    let result = [...hackathons];
+    let result = liveHackathons || [];
 
     if (modeFilter !== 'All') {
       result = result.filter(h => h.mode === modeFilter);
     }
     
     result.sort((a, b) => {
-        const dateA = new Date(a.date.split(',')[1]);
-        const dateB = new Date(b.date.split(',')[1]);
+        const dateA = new Date(a.date.split(',')[1] || 0);
+        const dateB = new Date(b.date.split(',')[1] || 0);
         if (sortFilter === 'newest') {
             return dateB.getTime() - dateA.getTime();
         } else {
@@ -91,7 +62,7 @@ export default function HackathonsPage() {
     });
 
     setFilteredHackathons(result);
-  }, [modeFilter, sortFilter, hackathons]);
+  }, [modeFilter, sortFilter, liveHackathons]);
 
 
   const handleApplyFilters = () => {
@@ -126,7 +97,7 @@ export default function HackathonsPage() {
         </p>
       </div>
 
-      {hasMounted ? (
+      { !isLoadingHackathons ? (
         <>
           <div className="mt-8 flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">
@@ -245,3 +216,5 @@ export default function HackathonsPage() {
     </div>
   );
 }
+
+    

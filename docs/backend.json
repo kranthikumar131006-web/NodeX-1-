@@ -123,6 +123,10 @@
           "type": "string",
           "description": "Unique identifier for the hackathon event."
         },
+        "userId": {
+          "type": "string",
+          "description": "The ID of the user who created the hackathon."
+        },
         "organizer": {
           "type": "string",
           "description": "The organization or individual hosting the hackathon."
@@ -164,6 +168,7 @@
       },
       "required": [
         "id",
+        "userId",
         "organizer",
         "name",
         "description",
@@ -182,6 +187,10 @@
         "id": {
           "type": "string",
           "description": "Unique identifier for the startup."
+        },
+        "userId": {
+          "type": "string",
+          "description": "The ID of the user who created the startup."
         },
         "name": {
           "type": "string",
@@ -246,6 +255,7 @@
       },
       "required": [
         "id",
+        "userId",
         "name",
         "description",
         "visionStatement",
@@ -313,6 +323,10 @@
           "type": "string",
           "description": "Reference to Startup. (Relationship: Startup 1:N TeamMember)"
         },
+        "userId": {
+          "type": "string",
+          "description": "The ID of the user this team member is associated with."
+        },
         "name": {
           "type": "string",
           "description": "Team member's name."
@@ -329,6 +343,7 @@
       "required": [
         "id",
         "startupId",
+        "userId",
         "name",
         "role",
         "bio"
@@ -508,3 +523,5 @@
     "reasoning": "The Firestore structure is designed to ensure authorization independence, clarity, and scalability. User profiles (Student and Client) are stored under `/users/{userId}` with separate subcollections for `studentProfiles` and `clientProfiles`, respectively, to enforce different security rules based on user type. This also aligns with path-based ownership, ensuring that only the user can modify their profile.\n\nHackathons are stored in the `/hackathons` collection, allowing easy listing and discovery. Teams are stored in a subcollection `/hackathons/{hackathonId}/teams/{teamId}` to keep associated data together.\n\nStartups are stored in the `/startups/{startupId}` collection with `teamMemberIds` to connect to `/team_members/{teamMemberId}`. Team Members are stored at the root level to avoid deep nesting with startups and teams, also enabling easier listing and discoverability across multiple startups the same person might be working on.\n\n**Authorization Independence:** Each document's access control is managed via path-based ownership (`/users/{userId}`) or role-based access stored directly within the document (not demonstrated in this initial schema but applicable for collaborative features later).  There are no `get()` calls to parent documents in the proposed structure.\n\n**QAPs Support:**\n*   Secure listing of Hackathons is supported by storing them in a dedicated `/hackathons` collection.\n*   User profiles are secured using path-based rules, ensuring only the authenticated user can access their data.\n\nThis structure promotes clear security rules by segregating data based on access patterns and denormalizing authorization information where necessary."
   }
 }
+
+    

@@ -3,11 +3,10 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { startups as staticStartups } from '@/lib/data';
 import { StartupCard } from '@/components/shared/startup-card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Filter, Search, Rocket, BadgeCheck } from 'lucide-react';
+import { Filter, Search, Rocket } from 'lucide-react';
 import {
   Popover,
   PopoverContent,
@@ -29,9 +28,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
 
 export default function StartupsPage() {
-  const [startups, setStartups] = useState<Startup[]>(staticStartups);
+  const firestore = useFirestore();
+  const startupsQuery = useMemoFirebase(() => collection(firestore, 'startups'), [firestore]);
+  const { data: startups, isLoading: isLoadingStartups } = useCollection<Startup>(startupsQuery);
+  
   const [filteredStartups, setFilteredStartups] = useState<Startup[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   
@@ -44,38 +48,14 @@ export default function StartupsPage() {
   const [allIndustries, setAllIndustries] = useState<string[]>([]);
 
   useEffect(() => {
-    const updateUserStartups = () => {
-        try {
-            const savedStartups = localStorage.getItem('userStartups');
-            if (savedStartups) {
-                const userStartups = JSON.parse(savedStartups);
-                // Avoid duplicates by checking IDs
-                const combined = [...staticStartups];
-                const staticIds = new Set(staticStartups.map(s => s.id));
-                userStartups.forEach((startup: Startup) => {
-                    if (!staticIds.has(startup.id)) {
-                        combined.push(startup);
-                    }
-                });
-                setStartups(combined);
-            } else {
-                setStartups(staticStartups);
-            }
-        } catch (error) {
-            console.error("Failed to load user startups from localStorage", error);
-            setStartups(staticStartups);
-        }
-    };
-    updateUserStartups();
-  }, []);
-
-  useEffect(() => {
-    setAllIndustries(['All', ...Array.from(new Set(startups.map(s => s.industry)))]);
+    if (startups) {
+      setAllIndustries(['All', ...Array.from(new Set(startups.map(s => s.industry)))]);
+    }
   }, [startups]);
 
 
   useEffect(() => {
-    let result = startups;
+    let result = startups || [];
 
     if (industryFilter !== 'All') {
       result = result.filter(s => s.industry === industryFilter);
@@ -199,3 +179,5 @@ export default function StartupsPage() {
     </div>
   );
 }
+
+    
