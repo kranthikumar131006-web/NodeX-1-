@@ -154,6 +154,16 @@ export default function TeamDetailPage() {
                                 )}
                             </div>
                         ))}
+                         {hackathon && !isFull && (
+                            <div className='mt-4'>
+                                <p className="text-xs text-muted-foreground mb-2">Team is aligned with hackathon tech stack:</p>
+                                <div className="flex flex-wrap gap-1">
+                                    {hackathon.techStack.map(tech => (
+                                        <Badge key={tech} variant="secondary">{tech}</Badge>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
 

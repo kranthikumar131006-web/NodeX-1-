@@ -222,11 +222,11 @@ export const hackathonTeams: HackathonTeam[] = [
         description: 'Building an AI-powered app to help reduce food waste. We are a balanced team looking for one more member.',
         createdAt: '2024-07-20T10:00:00Z',
         members: [
-            { id: 'm1', name: 'Ivy Lee', role: 'Team Lead / Frontend', avatarUrl: getImage('avatar8').url, imageHint: getImage('avatar8').hint },
+            { id: 'm1', name: 'Ivy Lee', role: 'Team Lead / AI Specialist', avatarUrl: getImage('avatar8').url, imageHint: getImage('avatar8').hint },
             { id: 'm2', name: 'Jack Daniels', role: 'Data Scientist', avatarUrl: getImage('avatar9').url, imageHint: getImage('avatar9').hint },
         ],
         lookingFor: [
-            { role: 'Backend Developer', skills: ['Node.js', 'Python', 'API Design'] }
+            { role: 'Python Developer', skills: ['Python', 'Web3'] }
         ],
     },
     {
@@ -239,7 +239,8 @@ export const hackathonTeams: HackathonTeam[] = [
             { id: 'm3', name: 'Alice Johnson', role: 'Team Lead / Full-Stack', avatarUrl: getImage('avatar1').url, imageHint: getImage('avatar1').hint },
         ],
         lookingFor: [
-            { role: 'UI/UX Designer', skills: ['Figma', 'Prototyping'] }
+            { role: 'Backend Developer', skills: ['Node.js'] },
+            { role: 'Frontend Developer', skills: ['React'] }
         ],
     }
 ];
