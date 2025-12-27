@@ -17,7 +17,8 @@ import {
   MapPin,
   Star,
   Users,
-  Target
+  Target,
+  UserX,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -29,6 +30,7 @@ export default function TeamDetailPage() {
   const team = hackathonTeams.find(t => t.id === teamId);
   const hackathon = team ? hackathons.find(h => h.id === team.hackathonId) : undefined;
   const teamLead = team ? freelancers.find(f => f.name === team.members.find(m => m.role.includes('Lead'))?.name) : undefined;
+  const isFull = team ? team.members.length >= 4 : false;
 
 
   if (!team) {
@@ -76,7 +78,10 @@ export default function TeamDetailPage() {
                 </div>
             </div>
             <div className="flex-1 text-center md:text-left">
-                <h1 className="font-headline text-4xl font-bold">{team.name}</h1>
+                <div className='flex items-center gap-4 justify-center md:justify-start'>
+                    <h1 className="font-headline text-4xl font-bold">{team.name}</h1>
+                    <Badge variant={isFull ? 'destructive' : 'secondary'} className='text-base'>{team.members.length} / 4 members</Badge>
+                </div>
                 {hackathon && (
                     <p className="mt-1 text-lg text-muted-foreground">
                         Participating in <Link href={`/hackathons/${hackathon.id}`} className="text-primary hover:underline font-semibold">{hackathon.title}</Link>
@@ -131,7 +136,12 @@ export default function TeamDetailPage() {
                         <CardTitle className="flex items-center gap-3 text-xl"><Target className="h-5 w-5 text-primary"/>We're Looking For</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        {team.lookingFor.map((role, index) => (
+                        {isFull ? (
+                             <div className="p-3 bg-secondary/50 rounded-lg text-center text-muted-foreground">
+                                <UserX className="h-6 w-6 mx-auto mb-2" />
+                                This team is currently full.
+                            </div>
+                        ) : team.lookingFor.map((role, index) => (
                             <div key={index} className="p-3 bg-secondary/50 rounded-lg">
                                 <p className="font-semibold">{role.role}</p>
 
@@ -148,9 +158,9 @@ export default function TeamDetailPage() {
                 </Card>
 
                  {teamLead && (
-                    <Button asChild className="w-full" size="lg">
-                        <a href={`https://mail.google.com/mail/?view=cm&fs=1&to=${teamLead.email}`} target="_blank" rel="noopener noreferrer">
-                            <Mail className="mr-2 h-4 w-4" /> Contact Team Lead
+                    <Button asChild className="w-full" size="lg" disabled={isFull}>
+                        <a href={isFull ? '#' : `https://mail.google.com/mail/?view=cm&fs=1&to=${teamLead.email}`} target="_blank" rel="noopener noreferrer">
+                            <Mail className="mr-2 h-4 w-4" /> {isFull ? 'Team Full' : 'Contact Team Lead'}
                         </a>
                     </Button>
                  )}

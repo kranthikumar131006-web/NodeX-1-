@@ -4,10 +4,11 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription }
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Users, Mail, Target, ArrowRight } from 'lucide-react';
+import { Users, Mail, Target, ArrowRight, UserX } from 'lucide-react';
 import type { HackathonTeam } from '@/lib/types';
 import { Badge } from '../ui/badge';
 import { hackathons } from '@/lib/data';
+import { cn } from '@/lib/utils';
 
 
 interface TeamCardProps {
@@ -16,6 +17,7 @@ interface TeamCardProps {
 
 export function TeamCard({ team }: TeamCardProps) {
   const teamHackathon = hackathons.find(h => h.id === team.hackathonId);
+  const isFull = team.members.length >= 4;
 
   return (
     <Card className="flex flex-col h-full overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
@@ -47,12 +49,16 @@ export function TeamCard({ team }: TeamCardProps) {
       <CardContent className="p-4 pt-0 flex-1">
         <div className='flex items-center gap-2 text-sm text-muted-foreground mb-4'>
             <Users className="h-4 w-4" />
-            <span>{team.members.length} member{team.members.length !== 1 ? 's' : ''}</span>
+            <span>{team.members.length} / 4 members</span>
         </div>
         <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{team.description}</p>
         <div className="space-y-2">
             <h4 className="text-xs font-semibold uppercase text-muted-foreground flex items-center gap-2"><Target className="h-4 w-4" /> Looking For</h4>
-            {team.lookingFor.map((role, index) => (
+            {isFull ? (
+                <div className="p-2 bg-secondary/50 rounded-md text-center text-sm text-muted-foreground">
+                    This team is full.
+                </div>
+            ) : team.lookingFor.map((role, index) => (
                 <div key={index} className="p-2 bg-secondary/50 rounded-md">
                     <p className="font-semibold text-sm">{role.role}</p>
                     <div className="flex flex-wrap gap-1 mt-1">
@@ -65,10 +71,10 @@ export function TeamCard({ team }: TeamCardProps) {
         </div>
       </CardContent>
       <CardFooter className="p-4 pt-0">
-        <Button asChild className="w-full">
+        <Button asChild className="w-full" disabled={isFull}>
           <Link href={`/hackathons/teams/${team.id}`}>
-            View Details
-            <ArrowRight className="ml-2 h-4 w-4" />
+            {isFull ? 'Team Full' : 'View Details'}
+            <ArrowRight className={cn("ml-2 h-4 w-4", isFull && "hidden")} />
           </Link>
         </Button>
       </CardFooter>
