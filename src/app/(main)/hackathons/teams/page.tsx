@@ -44,6 +44,11 @@ export default function HackathonTeamsPage() {
   const [tempSortFilter, setTempSortFilter] = useState('newest');
 
   const [allRoles, setAllRoles] = useState<string[]>([]);
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   useEffect(() => {
     if (liveTeams) {
@@ -96,6 +101,34 @@ export default function HackathonTeamsPage() {
     }
   };
 
+  const renderSkeleton = () => (
+     <div className="mt-8">
+        <div className="flex flex-col md:flex-row gap-4">
+            <Skeleton className="h-10 flex-1" />
+            <Skeleton className="h-10 w-24" />
+            <Skeleton className="h-10 w-32" />
+        </div>
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {Array.from({ length: 3 }).map((_, index) => (
+            <Card key={index} className="overflow-hidden">
+                <div className="p-4">
+                    <Skeleton className="h-6 w-3/4 mb-2" />
+                    <Skeleton className="h-4 w-1/2 mb-4" />
+                    <Skeleton className="h-4 w-full mb-2" />
+                    <div className="space-y-2">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-2/3" />
+                    </div>
+                </div>
+                 <div className="p-4 pt-0">
+                    <Skeleton className="h-9 w-full" />
+                 </div>
+            </Card>
+        ))}
+        </div>
+    </div>
+  );
+
 
   return (
     <div className="container py-8 md:py-12">
@@ -106,7 +139,7 @@ export default function HackathonTeamsPage() {
         </p>
       </div>
       
-      { !isLoadingTeams ? (
+      { !hasMounted || isLoadingTeams ? renderSkeleton() : (
         <>
           <div className="mt-8 flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">
@@ -183,32 +216,6 @@ export default function HackathonTeamsPage() {
             ))}
           </div>
         </>
-      ) : (
-        <div className="mt-8">
-            <div className="flex flex-col md:flex-row gap-4">
-                <Skeleton className="h-10 flex-1" />
-                <Skeleton className="h-10 w-24" />
-                <Skeleton className="h-10 w-32" />
-            </div>
-            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array.from({ length: 3 }).map((_, index) => (
-                <Card key={index} className="overflow-hidden">
-                    <div className="p-4">
-                        <Skeleton className="h-6 w-3/4 mb-2" />
-                        <Skeleton className="h-4 w-1/2 mb-4" />
-                        <Skeleton className="h-4 w-full mb-2" />
-                        <div className="space-y-2">
-                            <Skeleton className="h-4 w-full" />
-                            <Skeleton className="h-4 w-2/3" />
-                        </div>
-                    </div>
-                     <div className="p-4 pt-0">
-                        <Skeleton className="h-9 w-full" />
-                     </div>
-                </Card>
-            ))}
-            </div>
-        </div>
       )}
     </div>
   );
