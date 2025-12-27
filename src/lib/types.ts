@@ -36,6 +36,7 @@ export type TeamMember = {
   role: string;
   avatarUrl: string;
   imageHint: string;
+  bio?: string;
 };
 
 export type Startup = {
@@ -45,12 +46,20 @@ export type Startup = {
   imageHint: string;
   tagline: string;
   industry: string;
+  location: string;
+  foundingYear: number;
   yearsInIndustry: number;
   problem: string;
   solution: string;
+  vision: string;
+  marketSize: string;
+  contactEmail: string;
+  offerings: { name: string; description: string }[];
+  milestones: { date: string; description: string }[];
   fundingStage: string;
   status: 'Hiring' | 'Funding Open' | 'Accepting Partnerships';
   founders: TeamMember[];
+  team?: TeamMember[];
 };
 
 export type Hackathon = {
