@@ -21,11 +21,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function FreelancersPage() {
   const [freelancers, setFreelancers] = useState<Freelancer[]>([]);
   const [filteredFreelancers, setFilteredFreelancers] = useState<Freelancer[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [hasMounted, setHasMounted] = useState(false);
 
   // State for applied filters
   const [availabilityFilter, setAvailabilityFilter] = useState('All');
@@ -34,6 +36,10 @@ export default function FreelancersPage() {
   // Temporary state for filters inside popover
   const [tempAvailabilityFilter, setTempAvailabilityFilter] = useState('All');
   const [tempRatingFilter, setTempRatingFilter] = useState(0);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   useEffect(() => {
     const updateFreelancersList = () => {
@@ -194,9 +200,35 @@ export default function FreelancersPage() {
       </div>
 
       <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filteredFreelancers.map((freelancer) => (
-          <FreelancerCard key={freelancer.id} freelancer={freelancer} />
-        ))}
+        {!hasMounted ? (
+            Array.from({ length: 8 }).map((_, index) => (
+              <Card key={index} className="flex flex-col h-full overflow-hidden">
+                <CardHeader className="flex flex-row items-start gap-4 p-4">
+                  <Skeleton className="h-16 w-16 rounded-full" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                    <Skeleton className="h-3 w-1/4" />
+                  </div>
+                </CardHeader>
+                <CardContent className="p-4 pt-0 flex-1">
+                  <div className="flex flex-wrap gap-2">
+                    <Skeleton className="h-5 w-12" />
+                    <Skeleton className="h-5 w-16" />
+                    <Skeleton className="h-5 w-10" />
+                  </div>
+                </CardContent>
+                <CardFooter className="p-4 pt-0 flex justify-between items-center">
+                  <Skeleton className="h-5 w-24" />
+                  <Skeleton className="h-9 w-28" />
+                </CardFooter>
+              </Card>
+            ))
+          ) : (
+            filteredFreelancers.map((freelancer) => (
+              <FreelancerCard key={freelancer.id} freelancer={freelancer} />
+            ))
+        )}
       </div>
     </div>
   );
