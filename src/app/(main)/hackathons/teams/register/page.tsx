@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -59,20 +60,20 @@ export default function RegisterTeamPage() {
   }, []);
 
   useEffect(() => {
+    if (!user) return;
+    
     const leaderCount = 1;
     const numberOfMemberFields = Math.max(0, teamSize - leaderCount);
 
-    if (members.length > numberOfMemberFields) {
-      setMembers(members.slice(0, numberOfMemberFields));
-    } else if (members.length < numberOfMemberFields) {
-      const newMembersToAdd = Array.from({ length: numberOfMemberFields - members.length }, () => ({
-        name: '',
-        role: '',
-        skills: [],
-      }));
-      setMembers(currentMembers => [...currentMembers, ...newMembersToAdd]);
-    }
-  }, [teamSize]);
+    setMembers(currentMembers => {
+      const newMembers = [...currentMembers];
+      while (newMembers.length < numberOfMemberFields) {
+        newMembers.push({ name: '', role: '', skills: [] });
+      }
+      return newMembers.slice(0, numberOfMemberFields);
+    });
+
+  }, [teamSize, user]);
 
   const handleMemberChange = (index: number, field: keyof NewMember, value: string | string[]) => {
     const updatedMembers = members.map((member, i) => {
@@ -107,6 +108,7 @@ export default function RegisterTeamPage() {
         id: user.uid,
         name: user.displayName || user.email || 'Team Lead',
         role: 'Team Lead',
+        email: user.email || '',
         avatarUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/64/64`,
         imageHint: 'person portrait',
         skills: [],

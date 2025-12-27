@@ -1,4 +1,5 @@
 
+
 export type Review = {
   id: string;
   name: string;
@@ -38,6 +39,7 @@ export type TeamMember = {
   role: string;
   avatarUrl: string;
   imageHint: string;
+  email?: string;
   bio?: string;
   skills?: string[];
 };
