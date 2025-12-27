@@ -36,6 +36,7 @@ import {
   Award,
   X,
   Plus,
+  Rocket,
 } from 'lucide-react';
 import { freelancers } from '@/lib/data';
 import { Switch } from '@/components/ui/switch';
@@ -89,6 +90,7 @@ export default function ProfilePage() {
       certifications: initialCertificationsData,
       socials: initialSocialsData,
       isFreelancing: true,
+      isStartupRegistered: false,
   }));
 
   const [isLoaded, setIsLoaded] = useState(false);
@@ -187,6 +189,10 @@ export default function ProfilePage() {
   
   const handleFreelancingToggle = (checked: boolean) => {
     setUserProfile(prev => ({...prev, isFreelancing: checked}));
+  };
+  
+  const handleStartupToggle = (checked: boolean) => {
+    setUserProfile(prev => ({...prev, isStartupRegistered: checked}));
   };
 
   const handleSave = () => {
@@ -521,19 +527,34 @@ export default function ProfilePage() {
                 ))}
               </CardContent>
             </Card>
-            <Card>
-              <CardContent className="p-4 flex items-center justify-between">
-                 <Label htmlFor="freelancing" className="flex items-center gap-3 cursor-pointer">
-                    <Check className="h-5 w-5 text-primary" />
-                    <span className="font-medium">Interested in freelancing</span>
-                </Label>
-                <Switch
-                    id="freelancing"
-                    checked={userProfile.isFreelancing}
-                    onCheckedChange={handleFreelancingToggle}
-                />
-              </CardContent>
-            </Card>
+            <div className="flex flex-col gap-4">
+              <Card>
+                <CardContent className="p-4 flex items-center justify-between">
+                  <Label htmlFor="freelancing" className="flex items-center gap-3 cursor-pointer">
+                      <Check className="h-5 w-5 text-primary" />
+                      <span className="font-medium">Interested in freelancing</span>
+                  </Label>
+                  <Switch
+                      id="freelancing"
+                      checked={userProfile.isFreelancing}
+                      onCheckedChange={handleFreelancingToggle}
+                  />
+                </CardContent>
+              </Card>
+              <Card>
+                  <CardContent className="p-4 flex items-center justify-between">
+                    <Label htmlFor="startup" className="flex items-center gap-3 cursor-pointer">
+                        <Rocket className="h-5 w-5 text-primary" />
+                        <span className="font-medium">Register your startup</span>
+                    </Label>
+                    <Switch
+                        id="startup"
+                        checked={userProfile.isStartupRegistered}
+                        onCheckedChange={handleStartupToggle}
+                    />
+                  </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </div>
