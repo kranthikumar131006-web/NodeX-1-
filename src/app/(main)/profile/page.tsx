@@ -35,6 +35,7 @@ import {
   Sparkles,
   Award,
   X,
+  Plus,
 } from 'lucide-react';
 import { freelancers } from '@/lib/data';
 import { Switch } from '@/components/ui/switch';
@@ -63,6 +64,13 @@ export default function ProfilePage() {
       logo: '/google-logo.svg',
     },
   ]);
+  const [socials, setSocials] = useState({
+    resumeUrl: '#',
+    portfolioUrl: 'portfolio.alexj.dev',
+    githubUrl: 'github.com/alexj',
+    linkedinUrl: 'linkedin.com/in/alexj',
+    instagramUrl: '@alex_codes',
+  });
 
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -70,7 +78,9 @@ export default function ProfilePage() {
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
-      setAvatarPreview(URL.createObjectURL(file));
+      const newAvatarUrl = URL.createObjectURL(file);
+      setAvatarPreview(newAvatarUrl);
+      setUser(prev => ({...prev, avatarUrl: newAvatarUrl}));
     }
   };
 
@@ -84,11 +94,61 @@ export default function ProfilePage() {
     tagline: user.tagline,
     location: user.location,
     skills: user.skills,
+    education: { ...education },
+    certifications: [...certifications],
+    socials: { ...socials }
   });
+
+  // Reset form data when dialog opens
+  const onOpenChange = (open: boolean) => {
+    if (open) {
+      setFormData({
+        name: user.name,
+        tagline: user.tagline,
+        location: user.location,
+        skills: [...user.skills],
+        education: { ...education },
+        certifications: JSON.parse(JSON.stringify(certifications)), // Deep copy
+        socials: { ...socials }
+      });
+    }
+  };
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({...prev, [name]: value}));
+  };
+  
+  const handleEducationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({...prev, education: {...prev.education, [name]: value}}));
+  };
+
+  const handleCertificationChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const newCerts = [...formData.certifications];
+    newCerts[index] = { ...newCerts[index], [name]: value };
+    setFormData(prev => ({ ...prev, certifications: newCerts }));
+  }
+
+  const handleAddCertification = () => {
+    setFormData(prev => ({
+      ...prev,
+      certifications: [
+        ...prev.certifications,
+        { name: '', issuer: '', date: 'Not specified', credentialUrl: '#', logo: '/generic-logo.svg' }
+      ]
+    }));
+  };
+
+  const handleRemoveCertification = (index: number) => {
+    const newCerts = formData.certifications.filter((_, i) => i !== index);
+    setFormData(prev => ({...prev, certifications: newCerts}));
+  }
+
+  const handleSocialsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, socials: {...prev.socials, [name]: value}}));
   }
 
   const handleSkillsChange = (newSkills: string[]) => {
@@ -103,7 +163,9 @@ export default function ProfilePage() {
         location: formData.location,
         skills: formData.skills,
      }));
-     // Here you would typically also save education, certifications, and social links
+     setEducation(formData.education);
+     setCertifications(formData.certifications);
+     setSocials(formData.socials);
   }
 
   return (
@@ -139,7 +201,7 @@ export default function ProfilePage() {
                   {user.tagline}
                 </p>
 
-                <Dialog>
+                <Dialog onOpenChange={onOpenChange}>
                   <DialogTrigger asChild>
                     <Button className="mt-4 w-full">
                       <Edit className="mr-2 h-4 w-4" /> Edit Profile
@@ -199,58 +261,64 @@ export default function ProfilePage() {
                         <h3 className="font-semibold text-lg">Education</h3>
                          <div className="grid gap-2">
                             <Label htmlFor="university">University</Label>
-                            <Input id="university" defaultValue={education.university} />
+                            <Input id="university" name="university" value={formData.education.university} onChange={handleEducationChange} />
                          </div>
                          <div className="grid gap-2">
                             <Label htmlFor="degree">Degree</Label>
-                            <Input id="degree" defaultValue={education.degree} />
+                            <Input id="degree" name="degree" value={formData.education.degree} onChange={handleEducationChange} />
                          </div>
                          <div className="grid gap-2">
                             <Label htmlFor="years">Years</Label>
-                            <Input id="years" defaultValue={education.years} />
+                            <Input id="years" name="years" value={formData.education.years} onChange={handleEducationChange} />
                          </div>
                       </div>
 
                        {/* Certifications */}
                       <div className="space-y-4">
                         <h3 className="font-semibold text-lg">Certifications</h3>
-                        {certifications.map((cert, index) => (
-                           <div key={index} className="p-4 border rounded-md space-y-2">
+                        {formData.certifications.map((cert, index) => (
+                           <div key={index} className="p-4 border rounded-md space-y-2 relative">
                              <div className="grid gap-2">
                                <Label>Certification Name</Label>
-                               <Input defaultValue={cert.name} />
+                               <Input name="name" value={cert.name} onChange={(e) => handleCertificationChange(index, e)} />
                              </div>
                               <div className="grid gap-2">
                                <Label>Issuer</Label>
-                               <Input defaultValue={cert.issuer} />
+                               <Input name="issuer" value={cert.issuer} onChange={(e) => handleCertificationChange(index, e)} />
                              </div>
+                             <Button size="icon" variant="destructive" className="absolute top-2 right-2 h-6 w-6" onClick={() => handleRemoveCertification(index)}>
+                                <X className="h-4 w-4" />
+                             </Button>
                            </div>
                         ))}
-                        <Button variant="outline" className="w-full">Add Certification</Button>
+                        <Button variant="outline" className="w-full" onClick={handleAddCertification}>
+                          <Plus className="mr-2 h-4 w-4" />
+                          Add Certification
+                        </Button>
                       </div>
 
                        {/* Contact & Socials */}
                       <div className="space-y-4">
                         <h3 className="font-semibold text-lg">Contact & Socials</h3>
                          <div className="grid gap-2">
-                            <Label>Resume URL</Label>
-                            <Input defaultValue="#" />
+                            <Label htmlFor="resumeUrl">Resume URL</Label>
+                            <Input id="resumeUrl" name="resumeUrl" value={socials.resumeUrl} onChange={handleSocialsChange} />
                          </div>
                           <div className="grid gap-2">
-                            <Label>Portfolio URL</Label>
-                            <Input defaultValue="portfolio.alexj.dev" />
+                            <Label htmlFor="portfolioUrl">Portfolio URL</Label>
+                            <Input id="portfolioUrl" name="portfolioUrl" value={socials.portfolioUrl} onChange={handleSocialsChange} />
                          </div>
                           <div className="grid gap-2">
-                            <Label>GitHub Profile</Label>
-                            <Input defaultValue="github.com/alexj" />
+                            <Label htmlFor="githubUrl">GitHub Profile</Label>
+                            <Input id="githubUrl" name="githubUrl" value={socials.githubUrl} onChange={handleSocialsChange} />
                          </div>
                           <div className="grid gap-2">
-                            <Label>LinkedIn Profile</Label>
-                            <Input defaultValue="linkedin.com/in/alexj" />
+                            <Label htmlFor="linkedinUrl">LinkedIn Profile</Label>
+                            <Input id="linkedinUrl" name="linkedinUrl" value={socials.linkedinUrl} onChange={handleSocialsChange} />
                          </div>
                           <div className="grid gap-2">
-                            <Label>Instagram Handle</Label>
-                            <Input defaultValue="@alex_codes" />
+                            <Label htmlFor="instagramUrl">Instagram Handle</Label>
+                            <Input id="instagramUrl" name="instagramUrl" value={socials.instagramUrl} onChange={handleSocialsChange} />
                          </div>
                       </div>
 
@@ -285,7 +353,7 @@ export default function ProfilePage() {
                     <FileText className="h-5 w-5 text-muted-foreground" />
                     <div>
                       <p className="text-xs text-muted-foreground">Resume</p>
-                      <Link href="#" className="flex items-center hover:text-primary">
+                      <Link href={socials.resumeUrl} className="flex items-center hover:text-primary">
                         View Resume <ExternalLink className="ml-1 h-3 w-3" />
                       </Link>
                     </div>
@@ -296,8 +364,8 @@ export default function ProfilePage() {
                       <p className="text-xs text-muted-foreground">
                         Past Projects
                       </p>
-                      <Link href="#" className="flex items-center hover:text-primary">
-                        portfolio.alexj.dev{' '}
+                      <Link href={`https://${socials.portfolioUrl}`} target="_blank" className="flex items-center hover:text-primary">
+                        {socials.portfolioUrl}{' '}
                         <ExternalLink className="ml-1 h-3 w-3" />
                       </Link>
                     </div>
@@ -319,8 +387,8 @@ export default function ProfilePage() {
                     </svg>
                     <div>
                       <p className="text-xs text-muted-foreground">GitHub</p>
-                      <Link href="#" className="flex items-center hover:text-primary">
-                        github.com/alexj{' '}
+                      <Link href={`https://${socials.githubUrl}`} target="_blank" className="flex items-center hover:text-primary">
+                        {socials.githubUrl}{' '}
                         <ExternalLink className="ml-1 h-3 w-3" />
                       </Link>
                     </div>
@@ -329,8 +397,8 @@ export default function ProfilePage() {
                     <Linkedin className="h-5 w-5 text-muted-foreground" />
                     <div>
                       <p className="text-xs text-muted-foreground">LinkedIn</p>
-                      <Link href="#" className="flex items-center hover:text-primary">
-                        linkedin.com/in/alexj
+                      <Link href={`https://${socials.linkedinUrl}`} target="_blank" className="flex items-center hover:text-primary">
+                        {socials.linkedinUrl}
                         <ExternalLink className="ml-1 h-3 w-3" />
                       </Link>
                     </div>
@@ -339,8 +407,8 @@ export default function ProfilePage() {
                     <Instagram className="h-5 w-5 text-muted-foreground" />
                     <div>
                       <p className="text-xs text-muted-foreground">Instagram</p>
-                      <Link href="#" className="flex items-center hover:text-primary">
-                        @alex_codes
+                      <Link href={`https://instagram.com/${socials.instagramUrl.replace('@', '')}`} target="_blank" className="flex items-center hover:text-primary">
+                        {socials.instagramUrl}
                         <ExternalLink className="ml-1 h-3 w-3" />
                       </Link>
                     </div>
@@ -399,7 +467,7 @@ export default function ProfilePage() {
                   <Award className="h-6 w-6 text-primary" />
                   <CardTitle className="text-lg">Certifications</CardTitle>
                 </div>
-                <Button variant="link" className="text-primary">Add New</Button>
+                {/* <Button variant="link" className="text-primary">Add New</Button> */}
               </CardHeader>
               <CardContent className="space-y-4">
                 {certifications.map((cert, index) => (
@@ -437,3 +505,5 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+    
