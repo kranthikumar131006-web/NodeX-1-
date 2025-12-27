@@ -13,6 +13,7 @@ export const freelancers: Freelancer[] = [
   {
     id: '1',
     name: 'Alice Johnson',
+    email: 'alice.j@example.com',
     avatarUrl: getImage('avatar1').url,
     imageHint: getImage('avatar1').hint,
     tagline: 'Full-Stack Developer | React, Node.js, TypeScript',
@@ -31,6 +32,7 @@ export const freelancers: Freelancer[] = [
   {
     id: '2',
     name: 'Bob Williams',
+    email: 'bob.w@example.com',
     avatarUrl: getImage('avatar2').url,
     imageHint: getImage('avatar2').hint,
     tagline: 'Mobile & Web UI/UX Designer',
@@ -47,6 +49,7 @@ export const freelancers: Freelancer[] = [
   {
     id: '3',
     name: 'Charlie Brown',
+    email: 'charlie.b@example.com',
     avatarUrl: getImage('avatar3').url,
     imageHint: getImage('avatar3').hint,
     tagline: 'Backend Specialist | Python, Django, DevOps',
@@ -65,6 +68,7 @@ export const freelancers: Freelancer[] = [
   {
     id: '4',
     name: 'Diana Prince',
+    email: 'diana.p@example.com',
     avatarUrl: getImage('avatar4').url,
     imageHint: getImage('avatar4').hint,
     tagline: 'AI & Machine Learning Engineer',

@@ -161,8 +161,10 @@ export default function FreelancerDetailPage() {
                     </CardContent>
                 </Card>
 
-                 <Button className="w-full" size="lg">
-                    <Mail className="mr-2 h-4 w-4" /> Contact {freelancer.name.split(' ')[0]}
+                 <Button asChild className="w-full" size="lg">
+                    <a href={`mailto:${freelancer.email}`}>
+                        <Mail className="mr-2 h-4 w-4" /> Contact {freelancer.name.split(' ')[0]}
+                    </a>
                 </Button>
             </div>
         </div>

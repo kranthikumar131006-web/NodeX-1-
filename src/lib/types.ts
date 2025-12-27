@@ -18,6 +18,7 @@ export type Project = {
 export type Freelancer = {
   id: string;
   name: string;
+  email: string;
   avatarUrl: string;
   imageHint: string;
   tagline: string;
