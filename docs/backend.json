@@ -1,0 +1,508 @@
+{
+  "entities": {
+    "StudentProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "StudentProfile",
+      "type": "object",
+      "description": "Represents a student's profile on the platform.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the student profile."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:1 StudentProfile)"
+        },
+        "firstName": {
+          "type": "string",
+          "description": "Student's first name."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "Student's last name."
+        },
+        "email": {
+          "type": "string",
+          "description": "Student's email address.",
+          "format": "email"
+        },
+        "bio": {
+          "type": "string",
+          "description": "A short biography of the student."
+        },
+        "location": {
+          "type": "string",
+          "description": "Student's location."
+        },
+        "portfolioLinks": {
+          "type": "array",
+          "description": "Links to the student's online portfolio.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "skills": {
+          "type": "array",
+          "description": "An array of skills the student possesses.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "availability": {
+          "type": "string",
+          "description": "The student's availability status (e.g., Available, Busy)."
+        },
+        "socialMediaLinks": {
+          "type": "array",
+          "description": "Links to the student's social media profiles.",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "firstName",
+        "lastName",
+        "email"
+      ]
+    },
+    "ClientProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ClientProfile",
+      "type": "object",
+      "description": "Represents a client's profile on the platform.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the client profile."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:1 ClientProfile)"
+        },
+        "companyName": {
+          "type": "string",
+          "description": "The name of the client's company."
+        },
+        "contactName": {
+          "type": "string",
+          "description": "The name of the contact person for the client."
+        },
+        "email": {
+          "type": "string",
+          "description": "The client's email address.",
+          "format": "email"
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the client's company or needs."
+        },
+        "website": {
+          "type": "string",
+          "description": "The client's website URL."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "companyName",
+        "contactName",
+        "email"
+      ]
+    },
+    "Hackathon": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Hackathon",
+      "type": "object",
+      "description": "Represents a hackathon event.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the hackathon event."
+        },
+        "organizer": {
+          "type": "string",
+          "description": "The organization or individual hosting the hackathon."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the hackathon."
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the hackathon."
+        },
+        "startDate": {
+          "type": "string",
+          "description": "The start date and time of the hackathon.",
+          "format": "date-time"
+        },
+        "endDate": {
+          "type": "string",
+          "description": "The end date and time of the hackathon.",
+          "format": "date-time"
+        },
+        "location": {
+          "type": "string",
+          "description": "The location of the hackathon."
+        },
+        "registrationLink": {
+          "type": "string",
+          "description": "Link to register for the hackathon.",
+          "format": "uri"
+        },
+        "techStack": {
+          "type": "array",
+          "description": "An array of technologies relevant to the hackathon.",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "organizer",
+        "name",
+        "description",
+        "startDate",
+        "endDate",
+        "location",
+        "registrationLink"
+      ]
+    },
+    "Startup": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Startup",
+      "type": "object",
+      "description": "Represents a startup registered on the platform.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the startup."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the startup."
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the startup and its mission."
+        },
+        "visionStatement": {
+          "type": "string",
+          "description": "The startup's vision statement."
+        },
+        "industry": {
+          "type": "string",
+          "description": "The industry the startup operates in."
+        },
+        "incorporationDate": {
+          "type": "string",
+          "description": "The date the startup was incorporated.",
+          "format": "date-time"
+        },
+        "targetMarket": {
+          "type": "string",
+          "description": "The startup's target market."
+        },
+        "problemStatement": {
+          "type": "string",
+          "description": "The problem the startup is trying to solve."
+        },
+        "productsServices": {
+          "type": "string",
+          "description": "Description of the startup's products/services."
+        },
+        "founderDetails": {
+          "type": "string",
+          "description": "Details about the startup's founders."
+        },
+        "contactInformation": {
+          "type": "string",
+          "description": "Contact information for the startup."
+        },
+        "fundingStage": {
+          "type": "string",
+          "description": "The startup's current funding stage."
+        },
+        "investorInformation": {
+          "type": "string",
+          "description": "Information about the startup's investors."
+        },
+        "teamMemberIds": {
+          "type": "array",
+          "description": "References to TeamMember. (Relationship: Startup 1:N TeamMember)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "companyMetrics": {
+          "type": "string",
+          "description": "Metrics for the startup."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "visionStatement",
+        "industry",
+        "incorporationDate",
+        "targetMarket",
+        "problemStatement",
+        "productsServices",
+        "founderDetails",
+        "contactInformation"
+      ]
+    },
+    "Team": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Team",
+      "type": "object",
+      "description": "Represents a hackathon team.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the team."
+        },
+        "hackathonId": {
+          "type": "string",
+          "description": "Reference to Hackathon. (Relationship: Hackathon 1:N Team)"
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the team."
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the team and its goals."
+        },
+        "memberIds": {
+          "type": "array",
+          "description": "References to StudentProfile. (Relationship: StudentProfile N:N Team)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "roleRequirements": {
+          "type": "string",
+          "description": "Role Requirements (Backend, Frontend, Design, DevOps, etc.)"
+        }
+      },
+      "required": [
+        "id",
+        "hackathonId",
+        "name",
+        "description"
+      ]
+    },
+    "TeamMember": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "TeamMember",
+      "type": "object",
+      "description": "Represents a team member.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the team member."
+        },
+        "startupId": {
+          "type": "string",
+          "description": "Reference to Startup. (Relationship: Startup 1:N TeamMember)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Team member's name."
+        },
+        "role": {
+          "type": "string",
+          "description": "Team member's role."
+        },
+        "bio": {
+          "type": "string",
+          "description": "A short biography of the team member."
+        }
+      },
+      "required": [
+        "id",
+        "startupId",
+        "name",
+        "role",
+        "bio"
+      ]
+    },
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the platform (either a student or a client).",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user."
+        },
+        "username": {
+          "type": "string",
+          "description": "The user's username."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address.",
+          "format": "email"
+        },
+        "role": {
+          "type": "string",
+          "description": "The user's role (e.g., student, client)."
+        },
+        "authProvider": {
+          "type": "string",
+          "description": "Authentication Provider such as Google, Github, etc."
+        }
+      },
+      "required": [
+        "id",
+        "username",
+        "email",
+        "role"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user authentication information. Used for login and role-based access control.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/studentProfiles/{studentProfileId}",
+        "definition": {
+          "entityName": "StudentProfile",
+          "schema": {
+            "$ref": "#/backend/entities/StudentProfile"
+          },
+          "description": "Stores student profile information. Path-based ownership: only the user can access their own profile.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "studentProfileId",
+              "description": "The unique identifier for the student profile."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/clientProfiles/{clientProfileId}",
+        "definition": {
+          "entityName": "ClientProfile",
+          "schema": {
+            "$ref": "#/backend/entities/ClientProfile"
+          },
+          "description": "Stores client profile information. Path-based ownership: only the user can access their own profile.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "clientProfileId",
+              "description": "The unique identifier for the client profile."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/hackathons/{hackathonId}",
+        "definition": {
+          "entityName": "Hackathon",
+          "schema": {
+            "$ref": "#/backend/entities/Hackathon"
+          },
+          "description": "Stores information about hackathon events.",
+          "params": [
+            {
+              "name": "hackathonId",
+              "description": "The unique identifier for the hackathon."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/hackathons/{hackathonId}/teams/{teamId}",
+        "definition": {
+          "entityName": "Team",
+          "schema": {
+            "$ref": "#/backend/entities/Team"
+          },
+          "description": "Stores information about teams participating in a specific hackathon.",
+          "params": [
+            {
+              "name": "hackathonId",
+              "description": "The unique identifier for the hackathon."
+            },
+            {
+              "name": "teamId",
+              "description": "The unique identifier for the team."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/startups/{startupId}",
+        "definition": {
+          "entityName": "Startup",
+          "schema": {
+            "$ref": "#/backend/entities/Startup"
+          },
+          "description": "Stores information about startups.",
+          "params": [
+            {
+              "name": "startupId",
+              "description": "The unique identifier for the startup."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/team_members/{teamMemberId}",
+        "definition": {
+          "entityName": "TeamMember",
+          "schema": {
+            "$ref": "#/backend/entities/TeamMember"
+          },
+          "description": "Stores information about team members.  Placed at the root to enable easier listing and discoverability across multiple startups a person might be working on.",
+          "params": [
+            {
+              "name": "teamMemberId",
+              "description": "The unique identifier for the team member."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to ensure authorization independence, clarity, and scalability. User profiles (Student and Client) are stored under `/users/{userId}` with separate subcollections for `studentProfiles` and `clientProfiles`, respectively, to enforce different security rules based on user type. This also aligns with path-based ownership, ensuring that only the user can modify their profile.\n\nHackathons are stored in the `/hackathons` collection, allowing easy listing and discovery. Teams are stored in a subcollection `/hackathons/{hackathonId}/teams/{teamId}` to keep associated data together.\n\nStartups are stored in the `/startups/{startupId}` collection with `teamMemberIds` to connect to `/team_members/{teamMemberId}`. Team Members are stored at the root level to avoid deep nesting with startups and teams, also enabling easier listing and discoverability across multiple startups the same person might be working on.\n\n**Authorization Independence:** Each document's access control is managed via path-based ownership (`/users/{userId}`) or role-based access stored directly within the document (not demonstrated in this initial schema but applicable for collaborative features later).  There are no `get()` calls to parent documents in the proposed structure.\n\n**QAPs Support:**\n*   Secure listing of Hackathons is supported by storing them in a dedicated `/hackathons` collection.\n*   User profiles are secured using path-based rules, ensuring only the authenticated user can access their data.\n\nThis structure promotes clear security rules by segregating data based on access patterns and denormalizing authorization information where necessary."
+  }
+}
