@@ -45,6 +45,10 @@ export function TeamCard({ team }: TeamCardProps) {
         </div>
       </CardHeader>
       <CardContent className="p-4 pt-0 flex-1">
+        <div className='flex items-center gap-2 text-sm text-muted-foreground mb-4'>
+            <Users className="h-4 w-4" />
+            <span>{team.members.length} member{team.members.length !== 1 ? 's' : ''}</span>
+        </div>
         <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{team.description}</p>
         <div className="space-y-2">
             <h4 className="text-xs font-semibold uppercase text-muted-foreground flex items-center gap-2"><Target className="h-4 w-4" /> Looking For</h4>
