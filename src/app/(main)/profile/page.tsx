@@ -41,6 +41,9 @@ import {
 import { freelancers } from '@/lib/data';
 import { Switch } from '@/components/ui/switch';
 import type { Freelancer, Review, Project } from '@/lib/types';
+import { useUser, useFirestore, useMemoFirebase } from '@/firebase';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { useToast } from '@/hooks/use-toast';
 
 // Define initial data structures more robustly
 const initialFreelancerData = freelancers[0];
@@ -83,6 +86,10 @@ const ensureProtocol = (url: string) => {
 };
 
 export default function ProfilePage() {
+  const { user, isUserLoading } = useUser();
+  const firestore = useFirestore();
+  const { toast } = useToast();
+
   // Combine user profile state
   const [userProfile, setUserProfile] = useState(() => ({
       ...initialFreelancerData,
@@ -94,30 +101,43 @@ export default function ProfilePage() {
 
   const [isLoaded, setIsLoaded] = useState(false);
 
+  const userProfileRef = useMemoFirebase(
+    () => (firestore && user ? doc(firestore, 'users', user.uid, 'studentProfiles', user.uid) : null),
+    [firestore, user]
+  );
+  
   useEffect(() => {
-    try {
-      const savedProfile = localStorage.getItem('userProfile');
-      if (savedProfile) {
-        // Merge saved data with initial data to ensure all keys are present
-        const parsedProfile = JSON.parse(savedProfile);
-        setUserProfile(prevProfile => ({ ...prevProfile, ...parsedProfile }));
+    const fetchProfile = async () => {
+      if (userProfileRef) {
+        try {
+          const docSnap = await getDoc(userProfileRef);
+          if (docSnap.exists()) {
+            setUserProfile(prev => ({ ...prev, ...docSnap.data() }));
+          } else {
+            // If no profile exists, maybe pre-fill with some user data
+            if(user) {
+              setUserProfile(prev => ({
+                ...prev,
+                name: user.displayName || '',
+                email: user.email || '',
+                avatarUrl: user.photoURL || prev.avatarUrl,
+              }))
+            }
+          }
+        } catch (error) {
+          console.error("Failed to fetch user profile from Firestore", error);
+        }
       }
-    } catch (error) {
-      console.error("Failed to parse user profile from localStorage", error);
-    }
-    setIsLoaded(true);
-  }, []);
+      setIsLoaded(true);
+    };
 
-  useEffect(() => {
-    if (isLoaded) {
-      try {
-        localStorage.setItem('userProfile', JSON.stringify(userProfile));
-        window.dispatchEvent(new CustomEvent('profileUpdated'));
-      } catch (error) {
-        console.error("Failed to save user profile to localStorage", error);
-      }
+    if (user && firestore) {
+      fetchProfile();
+    } else if (!isUserLoading) {
+      setIsLoaded(true); // Stop loading if there's no user
     }
-  }, [userProfile, isLoaded]);
+  }, [user, firestore, isUserLoading, userProfileRef]);
+
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -190,12 +210,46 @@ export default function ProfilePage() {
     setUserProfile(prev => ({...prev, isFreelancing: checked}));
   };
   
-  const handleSave = () => {
-     setUserProfile(formData);
+  const handleSave = async () => {
+    if (!userProfileRef) {
+       toast({
+         variant: 'destructive',
+         title: 'Error',
+         description: 'You must be logged in to save your profile.',
+       });
+       return;
+     }
+
+    try {
+      await setDoc(userProfileRef, formData, { merge: true });
+      setUserProfile(formData);
+      toast({
+        title: 'Profile Updated',
+        description: 'Your profile has been saved successfully.',
+      });
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error Saving Profile',
+        description:
+          (error as Error).message ||
+          'There was a problem saving your profile. Please try again.',
+      });
+    }
   }
   
-  if (!isLoaded) {
+  if (!isLoaded || isUserLoading) {
     return null; // Or a loading spinner
+  }
+
+  if (!user) {
+    return (
+      <div className="container text-center py-12">
+        <p>Please log in to view your profile.</p>
+        <Button asChild className="mt-4"><Link href="/">Login</Link></Button>
+      </div>
+    )
   }
 
   return (

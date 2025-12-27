@@ -82,9 +82,9 @@ export default function LoginPage() {
     }
     toast({
       title: 'Login Successful',
-      description: 'Redirecting to your dashboard...',
+      description: 'Redirecting to your profile...',
     });
-    router.push('/home');
+    router.push('/profile');
   };
 
   const handleError = (error: any) => {
