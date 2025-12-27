@@ -3,7 +3,6 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { format, parse } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -25,7 +24,6 @@ import { Textarea } from '@/components/ui/textarea';
 import {
   ArrowRight,
   BadgeCheck,
-  CalendarIcon,
   Globe,
   HeartHandshake,
   Lightbulb,
@@ -34,27 +32,9 @@ import {
   Star,
   Users,
 } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
-import { cn } from '@/lib/utils';
 
 export default function RegisterStartupPage() {
-  const [date, setDate] = useState<Date | undefined>();
-
-  const handleDateSelect = (selectedDate: Date | undefined) => {
-    setDate(selectedDate);
-  };
   
-  const handleDateInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const dateString = e.target.value;
-    const parsedDate = parse(dateString, 'dd/MM/yyyy', new Date());
-    if (!isNaN(parsedDate.getTime())) {
-      setDate(parsedDate);
-    } else if (dateString === '') {
-        setDate(undefined);
-    }
-  };
-
   return (
     <div className="bg-secondary/30">
       <div className="container mx-auto py-8 md:py-12">
@@ -115,37 +95,12 @@ export default function RegisterStartupPage() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="incorporation-date">Incorporation Date</Label>
-                  <Popover>
-                    <div className="relative">
-                      <Input
-                          id="incorporation-date"
-                          placeholder="dd/mm/yyyy"
-                          value={date ? format(date, 'dd/MM/yyyy') : ''}
-                          onChange={handleDateInputChange}
-                          className="pr-10"
-                      />
-                      <PopoverTrigger asChild>
-                          <Button
-                              variant={"ghost"}
-                              className="absolute right-0 top-0 h-full px-3"
-                          >
-                            <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                          </Button>
-                      </PopoverTrigger>
-                    </div>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={date}
-                        onSelect={handleDateSelect}
-                        captionLayout="dropdown-buttons"
-                        fromYear={new Date().getFullYear() - 30}
-                        toYear={new Date().getFullYear()}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <Label htmlFor="years-experience">Years of Experience</Label>
+                   <Input
+                    id="years-experience"
+                    type="number"
+                    placeholder="e.g. 5"
+                  />
                 </div>
                 <div className="md:col-span-2 space-y-2">
                   <Label htmlFor="tagline">Tagline</Label>
