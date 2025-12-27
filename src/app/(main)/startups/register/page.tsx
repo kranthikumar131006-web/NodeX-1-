@@ -67,7 +67,42 @@ export default function RegisterStartupPage() {
     setFormData(prev => ({ ...prev, industry: value }));
   };
 
+  const validateForm = () => {
+    const requiredFields: (keyof typeof formData)[] = [
+      'name',
+      'email',
+      'industry',
+      'yearsInIndustry',
+      'tagline',
+      'marketSize',
+      'offerings',
+      'description',
+      'vision',
+      'founderName',
+      'founderEmail',
+      'website',
+      'linkedin',
+    ];
+
+    for (const field of requiredFields) {
+      if (!formData[field]) {
+        toast({
+            variant: "destructive",
+            title: "Missing Information",
+            description: `Please fill out the "${field.replace(/([A-Z])/g, ' $1')}" field.`,
+        });
+        return false;
+      }
+    }
+    return true;
+  };
+
+
   const handleRegister = () => {
+    if (!validateForm()) {
+        return;
+    }
+
     const newStartup: Partial<Startup> = {
       id: `s${Date.now()}`,
       name: formData.name,
@@ -152,6 +187,7 @@ export default function RegisterStartupPage() {
                     placeholder="e.g. Acme Innovations"
                     value={formData.name}
                     onChange={handleInputChange}
+                    required
                   />
                 </div>
                 <div className="space-y-2">
@@ -162,6 +198,7 @@ export default function RegisterStartupPage() {
                     placeholder="contact@startup.com"
                      value={formData.email}
                     onChange={handleInputChange}
+                    required
                   />
                 </div>
                 <div className="space-y-2">
@@ -180,31 +217,34 @@ export default function RegisterStartupPage() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="yearsInIndustry">Years of Experience</Label>
+                  <Label htmlFor="yearsInIndustry">Years of Experience *</Label>
                    <Input
                     id="yearsInIndustry"
                     type="number"
                     placeholder="e.g. 5"
                     value={formData.yearsInIndustry}
                     onChange={handleInputChange}
+                    required
                   />
                 </div>
                 <div className="md:col-span-2 space-y-2">
-                  <Label htmlFor="tagline">Tagline</Label>
+                  <Label htmlFor="tagline">Tagline *</Label>
                   <Input
                     id="tagline"
                     placeholder="A catchy one-liner describing your venture"
                     value={formData.tagline}
                     onChange={handleInputChange}
+                    required
                   />
                 </div>
                 <div className="md:col-span-2 space-y-2">
-                  <Label htmlFor="marketSize">Target Market Size</Label>
+                  <Label htmlFor="marketSize">Target Market Size *</Label>
                   <Input
                     id="marketSize"
                     placeholder="e.g. $10B Global Market"
                     value={formData.marketSize}
                     onChange={handleInputChange}
+                    required
                   />
                 </div>
               </CardContent>
@@ -221,7 +261,7 @@ export default function RegisterStartupPage() {
               <CardContent className="space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="offerings">
-                    What do you provide? (Offerings/Services)
+                    What do you provide? (Offerings/Services) *
                   </Label>
                   <Textarea
                     id="offerings"
@@ -229,11 +269,12 @@ export default function RegisterStartupPage() {
                     rows={3}
                      value={formData.offerings}
                     onChange={handleInputChange}
+                    required
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="description">
-                    Description (Detailed Pitch)
+                    Description (Detailed Pitch) *
                   </Label>
                   <Textarea
                     id="description"
@@ -241,16 +282,18 @@ export default function RegisterStartupPage() {
                     rows={5}
                      value={formData.description}
                     onChange={handleInputChange}
+                    required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="vision">Vision Statement</Label>
+                  <Label htmlFor="vision">Vision Statement *</Label>
                   <Textarea
                     id="vision"
                     placeholder="Where do you see the company in 5 years?"
                     rows={3}
                      value={formData.vision}
                     onChange={handleInputChange}
+                    required
                   />
                 </div>
               </CardContent>
@@ -267,7 +310,7 @@ export default function RegisterStartupPage() {
               <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="founderName">Founder Name *</Label>
-                  <Input id="founderName" placeholder="Full Name" value={formData.founderName} onChange={handleInputChange} />
+                  <Input id="founderName" placeholder="Full Name" value={formData.founderName} onChange={handleInputChange} required />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="cofounderName">Co-founder Name</Label>
@@ -286,6 +329,7 @@ export default function RegisterStartupPage() {
                     placeholder="founder@example.com"
                      value={formData.founderEmail}
                     onChange={handleInputChange}
+                    required
                   />
                 </div>
                 <div className="space-y-2">
@@ -313,17 +357,17 @@ export default function RegisterStartupPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="website">Website</Label>
+                  <Label htmlFor="website">Website *</Label>
                   <div className="relative">
                      <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input id="website" placeholder="https://..." className="pl-9" value={formData.website} onChange={handleInputChange} />
+                    <Input id="website" placeholder="https://..." className="pl-9" value={formData.website} onChange={handleInputChange} required />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="linkedin">LinkedIn</Label>
+                  <Label htmlFor="linkedin">LinkedIn *</Label>
                   <div className="relative">
                      <Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input id="linkedin" placeholder="https://linkedin.com/company/..." className="pl-9" value={formData.linkedin} onChange={handleInputChange} />
+                    <Input id="linkedin" placeholder="https://linkedin.com/company/..." className="pl-9" value={formData.linkedin} onChange={handleInputChange} required />
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -370,3 +414,5 @@ export default function RegisterStartupPage() {
     </div>
   );
 }
+
+    
