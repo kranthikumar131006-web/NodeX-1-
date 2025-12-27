@@ -1,5 +1,9 @@
 
+'use client';
+
 import Link from 'next/link';
+import { useState } from 'react';
+import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -30,8 +34,13 @@ import {
   Star,
   Users,
 } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { cn } from '@/lib/utils';
 
 export default function RegisterStartupPage() {
+  const [date, setDate] = useState<Date | undefined>();
+
   return (
     <div className="bg-secondary/30">
       <div className="container mx-auto py-8 md:py-12">
@@ -93,14 +102,28 @@ export default function RegisterStartupPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="incorporation-date">Incorporation Date</Label>
-                  <div className="relative">
-                    <Input
-                      id="incorporation-date"
-                      type="text"
-                      placeholder="mm/dd/yyyy"
-                    />
-                    <CalendarIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  </div>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !date && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {date ? format(date, "PPP") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={date}
+                        onSelect={setDate}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <div className="md:col-span-2 space-y-2">
                   <Label htmlFor="tagline">Tagline</Label>
