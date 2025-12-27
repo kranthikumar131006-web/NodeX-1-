@@ -302,23 +302,23 @@ export default function ProfilePage() {
                         <h3 className="font-semibold text-lg">Contact & Socials</h3>
                          <div className="grid gap-2">
                             <Label htmlFor="resumeUrl">Resume URL</Label>
-                            <Input id="resumeUrl" name="resumeUrl" value={socials.resumeUrl} onChange={handleSocialsChange} />
+                            <Input id="resumeUrl" name="resumeUrl" value={formData.socials.resumeUrl} onChange={handleSocialsChange} />
                          </div>
                           <div className="grid gap-2">
                             <Label htmlFor="portfolioUrl">Portfolio URL</Label>
-                            <Input id="portfolioUrl" name="portfolioUrl" value={socials.portfolioUrl} onChange={handleSocialsChange} />
+                            <Input id="portfolioUrl" name="portfolioUrl" value={formData.socials.portfolioUrl} onChange={handleSocialsChange} />
                          </div>
                           <div className="grid gap-2">
                             <Label htmlFor="githubUrl">GitHub Profile</Label>
-                            <Input id="githubUrl" name="githubUrl" value={socials.githubUrl} onChange={handleSocialsChange} />
+                            <Input id="githubUrl" name="githubUrl" value={formData.socials.githubUrl} onChange={handleSocialsChange} />
                          </div>
                           <div className="grid gap-2">
                             <Label htmlFor="linkedinUrl">LinkedIn Profile</Label>
-                            <Input id="linkedinUrl" name="linkedinUrl" value={socials.linkedinUrl} onChange={handleSocialsChange} />
+                            <Input id="linkedinUrl" name="linkedinUrl" value={formData.socials.linkedinUrl} onChange={handleSocialsChange} />
                          </div>
                           <div className="grid gap-2">
                             <Label htmlFor="instagramUrl">Instagram Handle</Label>
-                            <Input id="instagramUrl" name="instagramUrl" value={socials.instagramUrl} onChange={handleSocialsChange} />
+                            <Input id="instagramUrl" name="instagramUrl" value={formData.socials.instagramUrl} onChange={handleSocialsChange} />
                          </div>
                       </div>
 
@@ -505,5 +505,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
-    
