@@ -29,8 +29,10 @@ export default function Header() {
   const [avatarUrl, setAvatarUrl] = useState(defaultUserAvatar?.imageUrl);
   const [userName, setUserName] = useState('Alice');
   const [userEmail, setUserEmail] = useState('alice@example.com');
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
     const updateUserAvatar = () => {
       try {
         const savedProfile = localStorage.getItem('userProfile');
@@ -59,6 +61,16 @@ export default function Header() {
         window.removeEventListener('profileUpdated', updateUserAvatar);
     };
   }, []);
+
+  if (!isClient) {
+    return (
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-16 items-center">
+          {/* You can add a skeleton loader here if you want */}
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
