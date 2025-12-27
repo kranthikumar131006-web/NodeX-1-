@@ -143,7 +143,7 @@ export default function LoginPage() {
 
       <Card className="mt-10 w-full max-w-md shadow-2xl">
         <CardContent className="p-8">
-          <div className="grid grid-cols-2 gap-2 rounded-lg bg-gray-100 p-1 mb-6">
+          <Card className="grid grid-cols-2 gap-2 rounded-lg bg-gray-100 p-1 mb-6">
             <Button
               variant="ghost"
               onClick={() => setLoginType('student')}
@@ -172,7 +172,7 @@ export default function LoginPage() {
               <span>Client</span>
               {loginType === 'client' && <Check className="h-4 w-4 text-cyan-500" />}
             </Button>
-          </div>
+          </Card>
 
           <div className="text-center mb-4">
             <p className="text-xs text-gray-500 uppercase font-semibold">
