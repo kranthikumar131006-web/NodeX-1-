@@ -98,7 +98,7 @@ export default function TeamDetailPage() {
                        {team.members.map(member => {
                          const freelancerProfile = freelancers.find(f => f.name === member.name);
                          const memberCard = (
-                             <div key={member.id} className="flex items-center gap-4 p-4 border rounded-lg bg-background/50">
+                             <div className="flex items-center gap-4 p-4 border rounded-lg bg-background/50">
                                 <Avatar className="h-16 w-16">
                                     <AvatarImage src={member.avatarUrl} alt={member.name} />
                                     <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
@@ -110,11 +110,15 @@ export default function TeamDetailPage() {
                              </div>
                          );
 
-                         return freelancerProfile ? (
-                            <Link href={`/freelancers/${freelancerProfile.id}`} className="transition-transform hover:-translate-y-1 block">
+                         if (freelancerProfile) {
+                           return (
+                            <Link key={member.id} href={`/freelancers/${freelancerProfile.id}`} className="transition-transform hover:-translate-y-1 block">
                                 {memberCard}
                             </Link>
-                         ) : memberCard;
+                           );
+                         }
+                         
+                         return <div key={member.id}>{memberCard}</div>;
                        })}
                     </CardContent>
                 </Card>
@@ -130,11 +134,14 @@ export default function TeamDetailPage() {
                         {team.lookingFor.map((role, index) => (
                             <div key={index} className="p-3 bg-secondary/50 rounded-lg">
                                 <p className="font-semibold">{role.role}</p>
+
+                                {role.skills.length > 0 && (
                                 <div className="flex flex-wrap gap-1 mt-2">
                                     {role.skills.map(skill => (
                                         <Badge key={skill} variant="outline" className="font-normal text-xs">{skill}</Badge>
                                     ))}
                                 </div>
+                                )}
                             </div>
                         ))}
                     </CardContent>
