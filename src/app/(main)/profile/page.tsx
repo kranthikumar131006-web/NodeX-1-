@@ -1,4 +1,5 @@
 'use client';
+import { useState, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -52,6 +53,20 @@ export default function ProfilePage() {
     },
   ];
 
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      setAvatarPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleEditClick = () => {
+    fileInputRef.current?.click();
+  };
+
   return (
     <div className="bg-secondary/50">
       <div className="container mx-auto py-8 md:py-12">
@@ -62,12 +77,20 @@ export default function ProfilePage() {
               <CardContent className="p-6 text-center">
                 <div className="relative mx-auto mb-4 h-32 w-32">
                   <Avatar className="h-full w-full border-4 border-primary/20">
-                    <AvatarImage src={user.avatarUrl} alt={user.name} />
+                    <AvatarImage src={avatarPreview ?? user.avatarUrl} alt={user.name} />
                     <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                   </Avatar>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleImageChange}
+                    className="hidden"
+                    accept="image/*"
+                  />
                   <Button
                     size="icon"
                     className="absolute bottom-1 right-1 h-8 w-8 rounded-full border-2 border-background"
+                    onClick={handleEditClick}
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
