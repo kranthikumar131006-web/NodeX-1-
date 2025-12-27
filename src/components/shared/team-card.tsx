@@ -25,7 +25,7 @@ export function TeamCard({ team }: TeamCardProps) {
         <div className="flex justify-between items-start">
             <div>
                 <CardTitle className="font-headline text-lg">{team.name}</CardTitle>
-                {teamHackathon && <CardDescription>For: <Link href={`/hackathons/${teamHackathon.id}`} className="hover:underline text-primary">{teamHackathon.title}</Link></CardDescription>}
+                {teamHackathon && <CardDescription>For: {teamHackathon.title}</CardDescription>}
             </div>
             <TooltipProvider>
                 <Tooltip>
@@ -70,13 +70,18 @@ export function TeamCard({ team }: TeamCardProps) {
             ))}
         </div>
       </CardContent>
-      <CardFooter className="p-4 pt-0">
+      <CardFooter className="p-4 pt-0 flex flex-col items-stretch gap-2">
         <Button asChild className="w-full" disabled={isFull}>
           <Link href={`/hackathons/teams/${team.id}`}>
             {isFull ? 'Team Full' : 'View Details'}
             <ArrowRight className={cn("ml-2 h-4 w-4", isFull && "hidden")} />
           </Link>
         </Button>
+        {teamHackathon && (
+            <Button asChild variant="secondary" className="w-full">
+                <Link href={`/hackathons/${teamHackathon.id}`}>View Hackathon</Link>
+            </Button>
+        )}
       </CardFooter>
     </Card>
   );
