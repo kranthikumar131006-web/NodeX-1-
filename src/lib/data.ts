@@ -20,7 +20,7 @@ export const freelancers: Freelancer[] = [
     location: 'San Francisco, CA',
     skills: ['React', 'TypeScript', 'Node.js', 'UI/UX Design', 'PostgreSQL'],
     availability: 'Available',
-    rating: 4.9,
+    rating: 3,
     bio: 'Creative and detail-oriented full-stack developer with a passion for building intuitive and performant web applications. I thrive in collaborative environments and enjoy bringing ideas to life.',
     reviews: [
         { id: 'r1', name: 'ClientCorp', avatarUrl: getImage('startup1').url, rating: 5, comment: 'Alice delivered exceptional work on our project.' },
@@ -39,7 +39,7 @@ export const freelancers: Freelancer[] = [
     location: 'New York, NY',
     skills: ['UI/UX Design', 'Figma', 'React Native', 'Prototyping'],
     availability: 'On a project',
-    rating: 4.8,
+    rating: 3,
     bio: 'Designer focused on creating beautiful and user-friendly interfaces. My process is centered around user research and iterative design to solve real-world problems effectively.',
     reviews: [],
     portfolio: [
@@ -56,7 +56,7 @@ export const freelancers: Freelancer[] = [
     location: 'Austin, TX',
     skills: ['Python', 'Django', 'AWS', 'Docker', 'DevOps'],
     availability: 'Busy',
-    rating: 5.0,
+    rating: 3,
     bio: 'Experienced backend developer with a knack for building scalable and robust systems. I am passionate about clean code, automation, and cloud infrastructure.',
     reviews: [
         { id: 'r2', name: 'Innovate LLC', avatarUrl: getImage('startup2').url, rating: 5, comment: 'Charlie is a world-class engineer.' },
