@@ -120,6 +120,9 @@ export default function RegisterStartupPage() {
                         mode="single"
                         selected={date}
                         onSelect={setDate}
+                        captionLayout="dropdown-buttons"
+                        fromYear={new Date().getFullYear() - 30}
+                        toYear={new Date().getFullYear()}
                         initialFocus
                       />
                     </PopoverContent>
