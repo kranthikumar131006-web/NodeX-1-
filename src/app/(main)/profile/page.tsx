@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
@@ -47,6 +48,7 @@ import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 // Define initial data structures more robustly
 const initialFreelancerData = {
     id: '',
+    userId: '',
     name: '',
     email: '',
     avatarUrl: 'https://picsum.photos/seed/placeholder-avatar/128/128',
@@ -125,6 +127,8 @@ export default function ProfilePage() {
             if(user) {
               setUserProfile(prev => ({
                 ...prev,
+                id: user.uid,
+                userId: user.uid,
                 name: user.displayName || '',
                 email: user.email || '',
                 avatarUrl: user.photoURL || prev.avatarUrl,
@@ -218,6 +222,15 @@ export default function ProfilePage() {
   };
   
   const handleSave = () => {
+    if (!user) {
+      toast({
+        variant: 'destructive',
+        title: 'Authentication Error',
+        description: 'You must be logged in to save your profile.',
+      });
+      return;
+    }
+
     if (!formData.name) {
         toast({
             variant: "destructive",
@@ -231,17 +244,23 @@ export default function ProfilePage() {
        toast({
          variant: 'destructive',
          title: 'Error',
-         description: 'You must be logged in to save your profile.',
+         description: 'Cannot save profile. User reference is missing.',
        });
        return;
      }
 
+    const dataToSave = {
+      ...formData,
+      userId: user.uid,
+      id: user.uid,
+    };
+
     try {
       // Optimistically update the UI
-      setUserProfile(formData);
+      setUserProfile(dataToSave);
 
       // Use the non-blocking function to save data
-      setDocumentNonBlocking(userProfileRef, formData, { merge: true });
+      setDocumentNonBlocking(userProfileRef, dataToSave, { merge: true });
 
       toast({
         title: 'Profile Updated',

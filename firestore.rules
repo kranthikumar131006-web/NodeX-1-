@@ -1,3 +1,4 @@
+
 /**
  * This ruleset enforces a security model based on strict user ownership and public
  * read-access for community-focused data.
@@ -98,8 +99,15 @@ service cloud.firestore {
      */
     match /users/{userId}/studentProfiles/{studentProfileId} {
       allow get, list: if isOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.userId == userId;
-      allow update: if isOwner(userId) && isExistingDoc() && fieldIsImmutable('userId');
+      allow create: if isOwner(userId) 
+                      && studentProfileId == userId
+                      && request.resource.data.userId == userId
+                      && request.resource.data.id == userId;
+      allow update: if isOwner(userId) 
+                      && isExistingDoc()
+                      && studentProfileId == userId
+                      && fieldIsImmutable('userId')
+                      && fieldIsImmutable('id');
       allow delete: if isOwner(userId) && isExistingDoc();
     }
 
@@ -112,8 +120,15 @@ service cloud.firestore {
      */
     match /users/{userId}/clientProfiles/{clientProfileId} {
       allow get, list: if isOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.userId == userId;
-      allow update: if isOwner(userId) && isExistingDoc() && fieldIsImmutable('userId');
+      allow create: if isOwner(userId) 
+                      && clientProfileId == userId
+                      && request.resource.data.userId == userId
+                      && request.resource.data.id == userId;
+      allow update: if isOwner(userId) 
+                      && isExistingDoc() 
+                      && clientProfileId == userId
+                      && fieldIsImmutable('userId')
+                      && fieldIsImmutable('id');
       allow delete: if isOwner(userId) && isExistingDoc();
     }
 
