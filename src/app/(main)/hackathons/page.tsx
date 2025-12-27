@@ -101,10 +101,6 @@ export default function HackathonsPage() {
                 Register Event
               </Link>
             </Button>
-            <Button variant="destructive" onClick={handleClearEvents}>
-              <Trash2 className="mr-2 h-4 w-4" />
-              Clear My Events
-            </Button>
           </div>
 
           <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
