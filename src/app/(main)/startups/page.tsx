@@ -153,7 +153,7 @@ export default function StartupsPage() {
         <Tooltip>
           <TooltipTrigger asChild>
             <Button asChild className="fixed bottom-8 right-8 h-16 w-16 rounded-full shadow-lg p-0">
-              <Link href="#">
+              <Link href="/startups/register">
                 <Rocket className="h-8 w-8" />
                 <span className="sr-only">Register Startup</span>
               </Link>
