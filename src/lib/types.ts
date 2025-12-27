@@ -1,3 +1,4 @@
+
 export type Review = {
   id: string;
   name: string;
@@ -42,6 +43,7 @@ export type TeamMember = {
 
 export type Startup = {
   id: string;
+  userId: string;
   name: string;
   logoUrl: string;
   imageHint: string;
@@ -65,6 +67,7 @@ export type Startup = {
 
 export type Hackathon = {
   id: string;
+  userId: string;
   title: string;
   organizer: string;
   date: string;
@@ -85,5 +88,6 @@ export type HackathonTeam = {
   description: string;
   createdAt: string;
   members: TeamMember[];
+  memberIds: string[];
   lookingFor: { role: string; skills: string[] }[];
 };

@@ -2,7 +2,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { hackathonTeams } from '@/lib/data';
 import { TeamCard } from '@/components/shared/team-card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -25,13 +24,17 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { collectionGroup } from 'firebase/firestore';
 
 export default function HackathonTeamsPage() {
-  const [teams, setTeams] = useState<HackathonTeam[]>(hackathonTeams);
+  const firestore = useFirestore();
+  const teamsQuery = useMemoFirebase(() => collectionGroup(firestore, 'teams'), [firestore]);
+  const { data: liveTeams, isLoading: isLoadingTeams } = useCollection<HackathonTeam>(teamsQuery);
+  
   const [filteredTeams, setFilteredTeams] = useState<HackathonTeam[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [hasMounted, setHasMounted] = useState(false);
-
+  
   // State for applied filters
   const [roleFilter, setRoleFilter] = useState('All');
   const [sortFilter, setSortFilter] = useState('newest');
@@ -43,23 +46,24 @@ export default function HackathonTeamsPage() {
   const [allRoles, setAllRoles] = useState<string[]>([]);
 
   useEffect(() => {
-    setHasMounted(true);
-    setAllRoles([
-      'All',
-      ...Array.from(new Set(teams.flatMap(t => t.lookingFor.map(l => l.role))))
-    ]);
-  }, [teams]);
+    if (liveTeams) {
+      setAllRoles([
+        'All',
+        ...Array.from(new Set(liveTeams.flatMap(t => t.lookingFor.map(l => l.role))))
+      ]);
+    }
+  }, [liveTeams]);
   
   useEffect(() => {
-    let result = [...teams];
+    let result = liveTeams || [];
 
     if (roleFilter !== 'All') {
       result = result.filter(team => team.lookingFor.some(l => l.role === roleFilter));
     }
     
     result.sort((a, b) => {
-        const dateA = new Date(a.createdAt);
-        const dateB = new Date(b.createdAt);
+        const dateA = new Date(a.createdAt || 0);
+        const dateB = new Date(b.createdAt || 0);
         if (sortFilter === 'newest') {
             return dateB.getTime() - dateA.getTime();
         } else {
@@ -68,7 +72,7 @@ export default function HackathonTeamsPage() {
     });
 
     setFilteredTeams(result);
-  }, [roleFilter, sortFilter, teams]);
+  }, [roleFilter, sortFilter, liveTeams]);
 
   const handleApplyFilters = () => {
     setRoleFilter(tempRoleFilter);
@@ -102,7 +106,7 @@ export default function HackathonTeamsPage() {
         </p>
       </div>
       
-      {hasMounted ? (
+      { !isLoadingTeams ? (
         <>
           <div className="mt-8 flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">
@@ -166,7 +170,7 @@ export default function HackathonTeamsPage() {
               </PopoverContent>
             </Popover>
             <Button asChild>
-                <Link href="#">
+                <Link href="/hackathons/teams/register">
                     <Plus className="mr-2 h-4 w-4" />
                     Register your team
                 </Link>
