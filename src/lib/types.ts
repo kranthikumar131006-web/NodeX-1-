@@ -83,6 +83,7 @@ export type HackathonTeam = {
   name: string;
   hackathonId: string;
   description: string;
+  createdAt: string;
   members: TeamMember[];
   lookingFor: { role: string; skills: string[] }[];
 };

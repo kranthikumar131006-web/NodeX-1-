@@ -220,6 +220,7 @@ export const hackathonTeams: HackathonTeam[] = [
         name: 'AI Avengers',
         hackathonId: 'h1',
         description: 'Building an AI-powered app to help reduce food waste. We are a balanced team looking for one more member.',
+        createdAt: '2024-07-20T10:00:00Z',
         members: [
             { id: 'm1', name: 'Ivy Lee', role: 'Team Lead / Frontend', avatarUrl: getImage('avatar8').url, imageHint: getImage('avatar8').hint },
             { id: 'm2', name: 'Jack Daniels', role: 'Data Scientist', avatarUrl: getImage('avatar9').url, imageHint: getImage('avatar9').hint },
@@ -233,6 +234,7 @@ export const hackathonTeams: HackathonTeam[] = [
         name: 'Code Wizards',
         hackathonId: 'h2',
         description: 'Developing a new P2P payment solution for the FinTech Challenge. We need a creative designer to join us.',
+        createdAt: '2024-07-18T14:30:00Z',
         members: [
             { id: 'm3', name: 'Alice Johnson', role: 'Team Lead / Full-Stack', avatarUrl: getImage('avatar1').url, imageHint: getImage('avatar1').hint },
         ],
