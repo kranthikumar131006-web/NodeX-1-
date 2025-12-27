@@ -144,21 +144,17 @@ service cloud.firestore {
       allow get, list: if true;
       allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
       allow update, delete: if isExistingDoc() && isDocumentOwner();
-
-      /**
-       * @description Manages teams within a specific hackathon.
-       * @path /hackathons/{hackathonId}/teams/{teamId}
-       * @allow (update) A team member updating their team description: `update /hackathons/h123/teams/t456`
-       * @deny (update) A non-member trying to update a team: `update /hackathons/h123/teams/t456`
-       * @principle Enforces shared access; only users listed in the `memberIds` array can read or write team data.
-       */
-      match /teams/{teamId} {
+    }
+    
+    match /hackathons/{hackathonId}/teams/{teamId} {
         allow get: if true; // Teams are public within a hackathon
-        allow list: if true; 
         allow create: if isTeamMemberOnCreate() && request.resource.data.hackathonId == hackathonId;
         allow update: if isExistingDoc() && isExistingTeamMember() && fieldIsImmutable('hackathonId');
         allow delete: if isExistingDoc() && isExistingTeamMember();
-      }
+    }
+
+    match /{path=**}/teams/{teamId} {
+        allow list: if isSignedIn();
     }
 
 
