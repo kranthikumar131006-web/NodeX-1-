@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Slider } from '@/components/ui/slider';
 import type { Startup } from '@/lib/types';
 
 export default function StartupsPage() {
@@ -27,8 +28,10 @@ export default function StartupsPage() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   
   const [industryFilter, setIndustryFilter] = useState('All');
+  const [yearsFilter, setYearsFilter] = useState(10);
   
   const [tempIndustryFilter, setTempIndustryFilter] = useState('All');
+  const [tempYearsFilter, setTempYearsFilter] = useState(10);
 
   const industries = ['All', ...Array.from(new Set(staticStartups.map(s => s.industry)))];
 
@@ -39,17 +42,22 @@ export default function StartupsPage() {
       result = result.filter(s => s.industry === industryFilter);
     }
     
+    result = result.filter(s => s.yearsInIndustry <= yearsFilter);
+    
     setFilteredStartups(result);
-  }, [industryFilter, startups]);
+  }, [industryFilter, yearsFilter, startups]);
 
   const handleApplyFilters = () => {
     setIndustryFilter(tempIndustryFilter);
+    setYearsFilter(tempYearsFilter);
     setIsFilterOpen(false);
   };
   
   const handleClearFilters = () => {
     setTempIndustryFilter('All');
+    setTempYearsFilter(10);
     setIndustryFilter('All');
+    setYearsFilter(10);
     setIsFilterOpen(false);
   };
 
@@ -57,6 +65,7 @@ export default function StartupsPage() {
     setIsFilterOpen(open);
     if (open) {
       setTempIndustryFilter(industryFilter);
+      setTempYearsFilter(yearsFilter);
     }
   };
 
@@ -89,7 +98,7 @@ export default function StartupsPage() {
                   Refine your search for startups.
                 </p>
               </div>
-              <div className="grid gap-2">
+              <div className="grid gap-4">
                 <div className="grid grid-cols-3 items-center gap-4">
                   <Label htmlFor="industry">Industry</Label>
                    <Select onValueChange={setTempIndustryFilter} value={tempIndustryFilter}>
@@ -103,8 +112,22 @@ export default function StartupsPage() {
                     </SelectContent>
                   </Select>
                 </div>
+                <div className="grid grid-cols-1 gap-2">
+                  <Label htmlFor="years">Years in Industry (Max)</Label>
+                  <div className="flex items-center gap-4">
+                    <Slider
+                      id="years"
+                      min={0}
+                      max={10}
+                      step={1}
+                      value={[tempYearsFilter]}
+                      onValueChange={(value) => setTempYearsFilter(value[0])}
+                    />
+                    <span className="text-sm font-medium w-12 text-center">{tempYearsFilter} yrs</span>
+                  </div>
+                </div>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between mt-2">
                <Button variant="ghost" onClick={handleClearFilters}>Clear Filters</Button>
                <Button onClick={handleApplyFilters}>Apply</Button>
               </div>

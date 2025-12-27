@@ -45,6 +45,7 @@ export type Startup = {
   imageHint: string;
   tagline: string;
   industry: string;
+  yearsInIndustry: number;
   problem: string;
   solution: string;
   fundingStage: string;
