@@ -71,7 +71,7 @@ export default function SignupPage() {
         default:
           description = error.message || 'An unexpected error occurred.';
       }
-    } else if (error && error.message) {
+    } else if (error && typeof error === 'object' && error.message) {
       // Fallback for custom error messages
       description = error.message;
     }
