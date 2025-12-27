@@ -67,7 +67,7 @@ export function TeamCard({ team }: TeamCardProps) {
                 <div className="p-2 bg-secondary/50 rounded-md text-center text-sm text-muted-foreground">
                     This team is full.
                 </div>
-            ) : team.lookingFor.map((role, index) => (
+            ) : (team.lookingFor || []).map((role, index) => (
                 <div key={index} className="p-2 bg-secondary/50 rounded-md">
                     <p className="font-semibold text-sm">{role.role}</p>
                     <div className="flex flex-wrap gap-1 mt-1">

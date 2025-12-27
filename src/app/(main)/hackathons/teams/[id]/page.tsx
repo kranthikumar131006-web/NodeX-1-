@@ -75,6 +75,9 @@ export default function TeamDetailPage() {
   }, [team, firestore]);
 
   const isLoading = isTeamLoading || isLoadingDetails;
+  
+  const memberCount = team?.members?.length || 0;
+  const isFull = memberCount >= 4;
 
   if (isLoading) {
     return (
@@ -109,9 +112,6 @@ export default function TeamDetailPage() {
       </div>
     );
   }
-  
-  const memberCount = team?.members?.length || 0;
-  const isFull = memberCount >= 4;
 
   return (
     <div className="bg-secondary/30">
