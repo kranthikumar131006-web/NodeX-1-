@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { format } from 'date-fns';
+import { format, parse } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -40,6 +40,20 @@ import { cn } from '@/lib/utils';
 
 export default function RegisterStartupPage() {
   const [date, setDate] = useState<Date | undefined>();
+
+  const handleDateSelect = (selectedDate: Date | undefined) => {
+    setDate(selectedDate);
+  };
+  
+  const handleDateInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const dateString = e.target.value;
+    const parsedDate = parse(dateString, 'dd/MM/yyyy', new Date());
+    if (!isNaN(parsedDate.getTime())) {
+      setDate(parsedDate);
+    } else if (dateString === '') {
+        setDate(undefined);
+    }
+  };
 
   return (
     <div className="bg-secondary/30">
@@ -103,23 +117,28 @@ export default function RegisterStartupPage() {
                 <div className="space-y-2">
                   <Label htmlFor="incorporation-date">Incorporation Date</Label>
                   <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !date && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {date ? format(date, "PPP") : <span>Pick a date</span>}
-                      </Button>
-                    </PopoverTrigger>
+                    <div className="relative">
+                      <Input
+                          id="incorporation-date"
+                          placeholder="dd/mm/yyyy"
+                          value={date ? format(date, 'dd/MM/yyyy') : ''}
+                          onChange={handleDateInputChange}
+                          className="pr-10"
+                      />
+                      <PopoverTrigger asChild>
+                          <Button
+                              variant={"ghost"}
+                              className="absolute right-0 top-0 h-full px-3"
+                          >
+                            <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                          </Button>
+                      </PopoverTrigger>
+                    </div>
                     <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
                         mode="single"
                         selected={date}
-                        onSelect={setDate}
+                        onSelect={handleDateSelect}
                         captionLayout="dropdown-buttons"
                         fromYear={new Date().getFullYear() - 30}
                         toYear={new Date().getFullYear()}
