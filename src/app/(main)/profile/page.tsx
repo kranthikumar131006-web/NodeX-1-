@@ -61,6 +61,7 @@ const initialFreelancerData = {
     reviews: [],
     portfolio: [],
     bio: '',
+    isFreelancing: false, // Default to off
 };
 
 const initialEducationData = {
@@ -97,7 +98,6 @@ export default function ProfilePage() {
       education: initialEducationData,
       certifications: initialCertificationsData,
       socials: initialSocialsData,
-      isFreelancing: true,
   }));
 
   const [isLoaded, setIsLoaded] = useState(false);
@@ -121,6 +121,7 @@ export default function ProfilePage() {
                 education: data.education || initialEducationData,
                 certifications: data.certifications || initialCertificationsData,
                 socials: data.socials || initialSocialsData,
+                isFreelancing: data.isFreelancing || false,
             }));
           } else {
             // If no profile exists, pre-fill with user data
@@ -132,6 +133,7 @@ export default function ProfilePage() {
                 name: user.displayName || '',
                 email: user.email || '',
                 avatarUrl: user.photoURL || prev.avatarUrl,
+                isFreelancing: false,
               }))
             }
           }
@@ -218,7 +220,7 @@ export default function ProfilePage() {
   }
   
   const handleFreelancingToggle = (checked: boolean) => {
-    setUserProfile(prev => ({...prev, isFreelancing: checked}));
+    setFormData(prev => ({...prev, isFreelancing: checked}));
   };
   
   const handleSave = () => {
@@ -258,8 +260,15 @@ export default function ProfilePage() {
     try {
       // Optimistically update the UI
       setUserProfile(dataToSave);
+      
+      // Also update localStorage for immediate reflection on freelancers page
+      localStorage.setItem('userProfile', JSON.stringify(dataToSave));
+      
+      // Dispatch custom event to notify other components/tabs
+      window.dispatchEvent(new CustomEvent('profileUpdated'));
 
-      // Use the non-blocking function to save data
+
+      // Use the non-blocking function to save data to Firestore
       setDocumentNonBlocking(userProfileRef, dataToSave, { merge: true });
 
       toast({
@@ -267,9 +276,6 @@ export default function ProfilePage() {
         description: 'Your profile has been saved successfully.',
       });
     } catch (error) {
-      // This will likely not be hit due to the non-blocking nature,
-      // but it's good practice to keep it.
-      // The actual permission errors are handled inside `setDocumentNonBlocking`.
       console.error('Error initiating profile save:', error);
       toast({
         variant: 'destructive',
@@ -452,12 +458,31 @@ export default function ProfilePage() {
                          </div>
                       </div>
 
+                      {/* Freelancing Toggle */}
+                      <div className="space-y-4">
+                        <h3 className="font-semibold text-lg">Freelancing</h3>
+                        <div className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
+                          <div className="space-y-0.5">
+                            <Label htmlFor="freelancing-toggle">
+                              Make my profile public
+                            </Label>
+                            <p className="text-xs text-muted-foreground">
+                              Allow clients to find and contact you for freelance work.
+                            </p>
+                          </div>
+                           <Switch
+                                id="freelancing-toggle"
+                                checked={formData.isFreelancing}
+                                onCheckedChange={handleFreelancingToggle}
+                            />
+                        </div>
+                      </div>
+
                     </div>
                     <DialogFooter>
                         <DialogClose asChild>
                             <Button type="button" variant="secondary">Cancel</Button>
                         </DialogClose>
-                        {/* Note: This DialogClose will close the dialog after save */}
                         <DialogClose asChild>
                             <Button type="submit" onClick={handleSave}>Save Changes</Button>
                         </DialogClose>
@@ -634,24 +659,11 @@ export default function ProfilePage() {
                 )) : <p className="text-sm text-muted-foreground">No certifications added yet.</p>}
               </CardContent>
             </Card>
-            <div className="flex flex-col gap-4">
-              <Card>
-                <CardContent className="p-4 flex items-center justify-between">
-                  <Label htmlFor="freelancing" className="flex items-center gap-3 cursor-pointer">
-                      <Check className="h-5 w-5 text-primary" />
-                      <span className="font-medium">Interested in freelancing</span>
-                  </Label>
-                  <Switch
-                      id="freelancing"
-                      checked={userProfile.isFreelancing}
-                      onCheckedChange={handleFreelancingToggle}
-                  />
-                </CardContent>
-              </Card>
-            </div>
+            
           </div>
         </div>
       </div>
     </div>
   );
 }
+
