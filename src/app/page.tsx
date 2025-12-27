@@ -82,9 +82,13 @@ export default function LoginPage() {
     }
     toast({
       title: 'Login Successful',
-      description: 'Redirecting to your profile...',
+      description: 'Redirecting...',
     });
-    router.push('/profile');
+    if (loginType === 'client') {
+      router.push('/freelancers');
+    } else {
+      router.push('/profile');
+    }
   };
 
   const handleError = (error: any) => {
@@ -269,7 +273,7 @@ export default function LoginPage() {
 
           <p className="mt-8 text-center text-sm text-gray-600">
             New here?{' '}
-            <Link href="/signup" className="font-medium text-cyan-600 hover:text-cyan-500">
+            <Link href={`/signup?role=${loginType}`} className="font-medium text-cyan-600 hover:text-cyan-500">
               Create {loginType === 'student' ? 'Student' : 'Client'} Account
             </Link>
           </p>

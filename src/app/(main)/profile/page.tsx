@@ -44,9 +44,10 @@ import { useUser, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { useRouter } from 'next/navigation';
 
 // Define initial data structures more robustly
-const initialFreelancerData = {
+const initialStudentData = {
     id: '',
     userId: '',
     name: '',
@@ -62,21 +63,28 @@ const initialFreelancerData = {
     portfolio: [] as any[],
     bio: '',
     isFreelancing: false, // Default to off
+    education: {
+      university: '',
+      degree: '',
+      years: '',
+      current: false,
+    },
+    certifications: [] as { name: string; issuer: string; date: string; credentialUrl: string; logo: string; }[],
+    socials: {
+      resumeUrl: '',
+      portfolioUrl: '',
+      githubUrl: '',
+      linkedinUrl: '',
+      instagramUrl: '',
+    },
 };
 
-const initialEducationData = {
-  university: '',
-  degree: '',
-  years: '',
-  current: false,
-};
-const initialCertificationsData: { name: string; issuer: string; date: string; credentialUrl: string; logo: string; }[] = [];
-const initialSocialsData = {
-  resumeUrl: '',
-  portfolioUrl: '',
-  githubUrl: '',
-  linkedinUrl: '',
-  instagramUrl: '',
+const initialClientData = {
+    id: '',
+    userId: '',
+    companyName: '',
+    contactName: '',
+    email: '',
 };
 
 const ensureProtocol = (url: string) => {
@@ -91,65 +99,88 @@ export default function ProfilePage() {
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
+  const router = useRouter();
 
-  // Combine user profile state
-  const [userProfile, setUserProfile] = useState(() => ({
-      ...initialFreelancerData,
-      education: initialEducationData,
-      certifications: initialCertificationsData,
-      socials: initialSocialsData,
-  }));
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [studentProfile, setStudentProfile] = useState(initialStudentData);
+  const [clientProfile, setClientProfile] = useState(initialClientData);
 
   const [isLoaded, setIsLoaded] = useState(false);
-
-  const userProfileRef = useMemoFirebase(
-    () => (firestore && user ? doc(firestore, 'users', user.uid, 'studentProfiles', user.uid) : null),
+  
+  const userRef = useMemoFirebase(
+    () => (firestore && user ? doc(firestore, 'users', user.uid) : null),
     [firestore, user]
   );
   
   useEffect(() => {
-    const fetchProfile = async () => {
-      if (userProfileRef) {
-        try {
-          const docSnap = await getDoc(userProfileRef);
-          if (docSnap.exists()) {
-            const data = docSnap.data();
-            setUserProfile(prev => ({
-                ...prev,
-                ...data,
-                // ensure nested objects are not undefined
-                education: data.education || initialEducationData,
-                certifications: data.certifications || initialCertificationsData,
-                socials: data.socials || initialSocialsData,
-                isFreelancing: data.isFreelancing || false,
-            }));
+    const fetchUserRole = async () => {
+      if(userRef) {
+        const userDoc = await getDoc(userRef);
+        if(userDoc.exists()) {
+          const role = userDoc.data()?.role;
+          setUserRole(role);
+          if (role === 'student') {
+            await fetchStudentProfile();
+          } else if (role === 'client') {
+            await fetchClientProfile();
           } else {
-            // If no profile exists, pre-fill with user data
-            if(user) {
-              setUserProfile(prev => ({
-                ...prev,
-                id: user.uid,
-                userId: user.uid,
-                name: user.displayName || '',
-                email: user.email || '',
-                avatarUrl: user.photoURL || '',
-                isFreelancing: false,
-              }))
-            }
+             setIsLoaded(true);
           }
-        } catch (error) {
-          console.error("Failed to fetch user profile from Firestore", error);
         }
+      } else if (!isUserLoading) {
+        setIsLoaded(true);
       }
-      setIsLoaded(true);
-    };
-
-    if (user && firestore) {
-      fetchProfile();
-    } else if (!isUserLoading) {
-      setIsLoaded(true); // Stop loading if there's no user
     }
-  }, [user, firestore, isUserLoading, userProfileRef]);
+    fetchUserRole();
+  }, [userRef, isUserLoading]);
+
+  const fetchStudentProfile = async () => {
+      if (!firestore || !user) return;
+      const profileRef = doc(firestore, 'users', user.uid, 'studentProfiles', user.uid);
+      try {
+        const docSnap = await getDoc(profileRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setStudentProfile(prev => ({ ...prev, ...data, isFreelancing: data.isFreelancing || false }));
+        } else {
+            setStudentProfile(prev => ({
+              ...initialStudentData,
+              id: user.uid,
+              userId: user.uid,
+              name: user.displayName || user.email?.split('@')[0] || '',
+              email: user.email || '',
+              avatarUrl: user.photoURL || '',
+            }));
+        }
+      } catch (error) {
+        console.error("Failed to fetch student profile", error);
+      } finally {
+        setIsLoaded(true);
+      }
+  };
+  
+  const fetchClientProfile = async () => {
+      if (!firestore || !user) return;
+      const profileRef = doc(firestore, 'users', user.uid, 'clientProfiles', user.uid);
+      try {
+        const docSnap = await getDoc(profileRef);
+        if (docSnap.exists()) {
+          setClientProfile(docSnap.data() as typeof initialClientData);
+        } else {
+            setClientProfile(prev => ({
+              ...initialClientData,
+              id: user.uid,
+              userId: user.uid,
+              contactName: user.displayName || user.email?.split('@')[0] || '',
+              email: user.email || '',
+            }));
+        }
+      } catch (error) {
+        console.error("Failed to fetch client profile", error);
+      } finally {
+        setIsLoaded(true);
+      }
+  }
 
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -160,7 +191,7 @@ export default function ProfilePage() {
       const reader = new FileReader();
       reader.onloadend = () => {
         const newAvatarUrl = reader.result as string;
-        setUserProfile(prev => ({...prev, avatarUrl: newAvatarUrl}));
+        setStudentProfile(prev => ({...prev, avatarUrl: newAvatarUrl}));
       };
       reader.readAsDataURL(file);
     }
@@ -170,11 +201,11 @@ export default function ProfilePage() {
     fileInputRef.current?.click();
   };
 
-  const [formData, setFormData] = useState(userProfile);
+  const [formData, setFormData] = useState(studentProfile);
 
   const onOpenChange = (open: boolean) => {
     if (open) {
-      setFormData(userProfile);
+      setFormData(studentProfile);
     }
   };
 
@@ -222,7 +253,7 @@ export default function ProfilePage() {
   const handleFreelancingToggle = (checked: boolean) => {
     const updatedProfile = {...formData, isFreelancing: checked};
     setFormData(updatedProfile);
-    setUserProfile(updatedProfile); // Optimistically update UI
+    setStudentProfile(updatedProfile); // Optimistically update UI
     localStorage.setItem('userProfile', JSON.stringify(updatedProfile));
     window.dispatchEvent(new CustomEvent('profileUpdated'));
   };
@@ -245,33 +276,21 @@ export default function ProfilePage() {
         });
         return;
     }
+    
+    if (!userRef) return; // Should not happen if user is logged in.
 
-    if (!userProfileRef) {
-       toast({
-         variant: 'destructive',
-         title: 'Error',
-         description: 'Cannot save profile. User reference is missing.',
-       });
-       return;
-     }
-
+    const userProfileRef = doc(firestore, 'users', user.uid, 'studentProfiles', user.uid);
     const dataToSave = {
       ...formData,
       userId: user.uid,
+      id: user.uid
     };
 
     try {
-      // Optimistically update the UI
-      setUserProfile(dataToSave);
-      
-      // Also update localStorage for immediate reflection on freelancers page
+      setStudentProfile(dataToSave);
       localStorage.setItem('userProfile', JSON.stringify(dataToSave));
-      
-      // Dispatch custom event to notify other components/tabs
       window.dispatchEvent(new CustomEvent('profileUpdated'));
 
-
-      // Use the non-blocking function to save data to Firestore
       setDocumentNonBlocking(userProfileRef, dataToSave, { merge: true });
 
       toast({
@@ -295,12 +314,37 @@ export default function ProfilePage() {
   }
 
   if (!user) {
+    router.push('/');
+    return null;
+  }
+  
+  if (userRole === 'client') {
     return (
-      <div className="container text-center py-12">
-        <p>Please log in to view your profile.</p>
-        <Button asChild className="mt-4"><Link href="/">Login</Link></Button>
-      </div>
-    )
+       <div className="bg-secondary/50">
+        <div className="container mx-auto py-8 md:py-12">
+            <Card className="max-w-2xl mx-auto">
+              <CardHeader>
+                <CardTitle className="text-2xl">Client Profile</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-1">
+                  <Label>Company Name</Label>
+                  <p className="text-muted-foreground">{clientProfile.companyName || 'Not specified'}</p>
+                </div>
+                <div className="space-y-1">
+                  <Label>Contact Name</Label>
+                  <p className="text-muted-foreground">{clientProfile.contactName || 'Not specified'}</p>
+                </div>
+                 <div className="space-y-1">
+                  <Label>Contact Email</Label>
+                  <p className="text-muted-foreground">{clientProfile.email}</p>
+                </div>
+                <Button onClick={() => router.push('/freelancers')} className="mt-4">Browse Freelancers</Button>
+              </CardContent>
+            </Card>
+        </div>
+       </div>
+    );
   }
 
   return (
@@ -313,8 +357,8 @@ export default function ProfilePage() {
               <CardContent className="p-6 text-center">
                 <div className="relative mx-auto mb-4 h-32 w-32">
                   <Avatar className="h-full w-full border-4 border-primary/20">
-                    <AvatarImage src={userProfile.avatarUrl} alt={userProfile.name} />
-                    <AvatarFallback>{userProfile.name ? userProfile.name.charAt(0) : 'U'}</AvatarFallback>
+                    <AvatarImage src={studentProfile.avatarUrl} alt={studentProfile.name} />
+                    <AvatarFallback>{studentProfile.name ? studentProfile.name.charAt(0) : 'U'}</AvatarFallback>
                   </Avatar>
                   <input
                     type="file"
@@ -331,9 +375,9 @@ export default function ProfilePage() {
                     <Edit className="h-4 w-4" />
                   </Button>
                 </div>
-                <h2 className="text-2xl font-bold font-headline">{userProfile.name || 'Your Name'}</h2>
+                <h2 className="text-2xl font-bold font-headline">{studentProfile.name || 'Your Name'}</h2>
                 <p className="text-sm text-muted-foreground">
-                  {userProfile.tagline || 'Your Tagline'}
+                  {studentProfile.tagline || 'Your Tagline'}
                 </p>
 
                 <Dialog onOpenChange={onOpenChange}>
@@ -505,15 +549,15 @@ export default function ProfilePage() {
                     <MapPin className="h-5 w-5 text-muted-foreground" />
                     <div>
                       <p className="text-xs text-muted-foreground">Location</p>
-                      <p>{userProfile.location || 'Not specified'}</p>
+                      <p>{studentProfile.location || 'Not specified'}</p>
                     </div>
                   </li>
                   <li className="flex items-center gap-3">
                     <FileText className="h-5 w-5 text-muted-foreground" />
                     <div>
                       <p className="text-xs text-muted-foreground">Resume</p>
-                      {userProfile.socials.resumeUrl ? (
-                      <a href={ensureProtocol(userProfile.socials.resumeUrl)} target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-primary">
+                      {studentProfile.socials.resumeUrl ? (
+                      <a href={ensureProtocol(studentProfile.socials.resumeUrl)} target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-primary">
                         View Resume <ExternalLink className="ml-1 h-3 w-3" />
                       </a>
                       ) : <p>Not specified</p>}
@@ -525,9 +569,9 @@ export default function ProfilePage() {
                       <p className="text-xs text-muted-foreground">
                         Past Projects
                       </p>
-                      {userProfile.socials.portfolioUrl ? (
-                      <a href={ensureProtocol(userProfile.socials.portfolioUrl)} target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-primary">
-                        {userProfile.socials.portfolioUrl}{' '}
+                      {studentProfile.socials.portfolioUrl ? (
+                      <a href={ensureProtocol(studentProfile.socials.portfolioUrl)} target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-primary">
+                        {studentProfile.socials.portfolioUrl}{' '}
                         <ExternalLink className="ml-1 h-3 w-3" />
                       </a>
                       ) : <p>Not specified</p>}
@@ -550,9 +594,9 @@ export default function ProfilePage() {
                     </svg>
                     <div>
                       <p className="text-xs text-muted-foreground">GitHub</p>
-                       {userProfile.socials.githubUrl ? (
-                      <a href={ensureProtocol(userProfile.socials.githubUrl)} target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-primary">
-                        {userProfile.socials.githubUrl}{' '}
+                       {studentProfile.socials.githubUrl ? (
+                      <a href={ensureProtocol(studentProfile.socials.githubUrl)} target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-primary">
+                        {studentProfile.socials.githubUrl}{' '}
                         <ExternalLink className="ml-1 h-3 w-3" />
                       </a>
                        ) : <p>Not specified</p>}
@@ -562,9 +606,9 @@ export default function ProfilePage() {
                     <Linkedin className="h-5 w-5 text-muted-foreground" />
                     <div>
                       <p className="text-xs text-muted-foreground">LinkedIn</p>
-                      {userProfile.socials.linkedinUrl ? (
-                      <a href={ensureProtocol(userProfile.socials.linkedinUrl)} target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-primary">
-                        {userProfile.socials.linkedinUrl}
+                      {studentProfile.socials.linkedinUrl ? (
+                      <a href={ensureProtocol(studentProfile.socials.linkedinUrl)} target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-primary">
+                        {studentProfile.socials.linkedinUrl}
                         <ExternalLink className="ml-1 h-3 w-3" />
                       </a>
                       ): <p>Not specified</p>}
@@ -574,9 +618,9 @@ export default function ProfilePage() {
                     <Instagram className="h-5 w-5 text-muted-foreground" />
                     <div>
                       <p className="text-xs text-muted-foreground">Instagram</p>
-                       {userProfile.socials.instagramUrl ? (
-                      <a href={`https://instagram.com/${userProfile.socials.instagramUrl.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-primary">
-                        {userProfile.socials.instagramUrl}
+                       {studentProfile.socials.instagramUrl ? (
+                      <a href={`https://instagram.com/${studentProfile.socials.instagramUrl.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-primary">
+                        {studentProfile.socials.instagramUrl}
                         <ExternalLink className="ml-1 h-3 w-3" />
                       </a>
                        ) : <p>Not specified</p>}
@@ -595,20 +639,20 @@ export default function ProfilePage() {
                 <CardTitle className="text-lg">Education</CardTitle>
               </CardHeader>
               <CardContent>
-                {userProfile.education.university ? (
+                {studentProfile.education.university ? (
                 <div className="flex items-start gap-4">
                   <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-secondary">
                     <Image src="/uc-berkeley-logo.svg" alt="UC Berkeley Logo" width={32} height={32} />
                   </div>
                   <div>
-                    <p className="font-semibold">{userProfile.education.university}</p>
+                    <p className="font-semibold">{studentProfile.education.university}</p>
                     <p className="text-sm text-muted-foreground">
-                      {userProfile.education.degree}
+                      {studentProfile.education.degree}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">{userProfile.education.years}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{studentProfile.education.years}</p>
                   </div>
-                  {userProfile.education.current && <Badge
-                    variant={userProfile.education.current ? 'default' : 'secondary'}
+                  {studentProfile.education.current && <Badge
+                    variant={studentProfile.education.current ? 'default' : 'secondary'}
                     className="ml-auto shrink-0"
                   >
                     Current
@@ -624,7 +668,7 @@ export default function ProfilePage() {
                 <CardTitle className="text-lg">Skills</CardTitle>
               </CardHeader>
               <CardContent className="flex flex-wrap gap-2">
-                {userProfile.skills.length > 0 ? userProfile.skills.map((skill) => (
+                {studentProfile.skills.length > 0 ? studentProfile.skills.map((skill) => (
                   <Badge key={skill} variant="outline" className="px-3 py-1 text-sm font-normal">
                     {skill}
                   </Badge>
@@ -640,7 +684,7 @@ export default function ProfilePage() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                {userProfile.certifications.length > 0 ? userProfile.certifications.map((cert, index) => (
+                {studentProfile.certifications.length > 0 ? studentProfile.certifications.map((cert, index) => (
                   <div key={index} className="flex items-start gap-4">
                     <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-secondary">
                          <Image src={cert.logo || '/generic-logo.svg'} alt={`${cert.issuer} Logo`} width={32} height={32} />
@@ -669,5 +713,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
-    
