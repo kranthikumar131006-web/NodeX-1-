@@ -98,6 +98,9 @@ export default function LoginPage() {
         case 'auth/popup-closed-by-user':
           description = 'Login process was cancelled.';
           break;
+        case 'auth/operation-not-allowed':
+            description = 'Sign-in method is not enabled. Please enable it in the Firebase console.';
+            break;
         default:
           description = error.message;
       }
@@ -141,10 +144,11 @@ export default function LoginPage() {
       <Card className="mt-10 w-full max-w-md shadow-2xl">
         <CardContent className="p-8">
           <div className="grid grid-cols-2 gap-2 rounded-lg bg-gray-100 p-1 mb-6">
-            <button
+            <Button
+              variant="ghost"
               onClick={() => setLoginType('student')}
               className={cn(
-                'flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors',
+                'transition-colors',
                 loginType === 'student'
                   ? 'bg-white text-gray-900 shadow'
                   : 'text-gray-600 hover:bg-gray-200'
@@ -153,11 +157,12 @@ export default function LoginPage() {
               <GraduationCap className="h-5 w-5" />
               <span>Student</span>
               {loginType === 'student' && <Check className="h-4 w-4 text-cyan-500" />}
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="ghost"
               onClick={() => setLoginType('client')}
               className={cn(
-                'flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors',
+                'transition-colors',
                 loginType === 'client'
                   ? 'bg-white text-gray-900 shadow'
                   : 'text-gray-600 hover:bg-gray-200'
@@ -166,7 +171,7 @@ export default function LoginPage() {
               <Briefcase className="h-5 w-5" />
               <span>Client</span>
               {loginType === 'client' && <Check className="h-4 w-4 text-cyan-500" />}
-            </button>
+            </Button>
           </div>
 
           <div className="text-center mb-4">
