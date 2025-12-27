@@ -42,6 +42,7 @@ import { Switch } from '@/components/ui/switch';
 import { useUser, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
+import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 // Define initial data structures more robustly
 const initialFreelancerData = {
@@ -216,7 +217,7 @@ export default function ProfilePage() {
     setUserProfile(prev => ({...prev, isFreelancing: checked}));
   };
   
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!formData.name) {
         toast({
             variant: "destructive",
@@ -236,14 +237,21 @@ export default function ProfilePage() {
      }
 
     try {
-      await setDoc(userProfileRef, formData, { merge: true });
+      // Optimistically update the UI
       setUserProfile(formData);
+
+      // Use the non-blocking function to save data
+      setDocumentNonBlocking(userProfileRef, formData, { merge: true });
+
       toast({
         title: 'Profile Updated',
         description: 'Your profile has been saved successfully.',
       });
     } catch (error) {
-      console.error('Error saving profile:', error);
+      // This will likely not be hit due to the non-blocking nature,
+      // but it's good practice to keep it.
+      // The actual permission errors are handled inside `setDocumentNonBlocking`.
+      console.error('Error initiating profile save:', error);
       toast({
         variant: 'destructive',
         title: 'Error Saving Profile',
