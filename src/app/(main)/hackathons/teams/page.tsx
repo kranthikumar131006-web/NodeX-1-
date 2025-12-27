@@ -3,6 +3,7 @@ import { TeamCard } from '@/components/shared/team-card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Filter, Search, Plus } from 'lucide-react';
+import Link from 'next/link';
 
 export default function HackathonTeamsPage() {
   return (
@@ -23,9 +24,11 @@ export default function HackathonTeamsPage() {
             <Filter className="mr-2 h-4 w-4" />
             Filters
         </Button>
-         <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            Create Team
+         <Button asChild>
+            <Link href="#">
+              <Plus className="mr-2 h-4 w-4" />
+              Create Team
+            </Link>
         </Button>
       </div>
 

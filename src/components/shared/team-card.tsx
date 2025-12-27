@@ -4,7 +4,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription }
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Users, UserPlus, Target } from 'lucide-react';
+import { Users, Mail, Target, ArrowRight } from 'lucide-react';
 import type { HackathonTeam } from '@/lib/types';
 import { Badge } from '../ui/badge';
 import { hackathons } from '@/lib/data';
@@ -62,9 +62,9 @@ export function TeamCard({ team }: TeamCardProps) {
       </CardContent>
       <CardFooter className="p-4 pt-0">
         <Button asChild className="w-full">
-          <Link href="#">
-            Apply to Join
-            <UserPlus className="ml-2 h-4 w-4" />
+          <Link href={`/hackathons/teams/${team.id}`}>
+            View Details
+            <ArrowRight className="ml-2 h-4 w-4" />
           </Link>
         </Button>
       </CardFooter>
