@@ -36,23 +36,46 @@ export default function FreelancersPage() {
   const [tempRatingFilter, setTempRatingFilter] = useState(0);
 
   useEffect(() => {
-    let currentFreelancers = [...staticFreelancers];
-    try {
-      const savedProfile = localStorage.getItem('userProfile');
-      if (savedProfile) {
-        const userProfile = JSON.parse(savedProfile);
-        const profileExists = currentFreelancers.some(f => f.id === userProfile.id);
+    const updateFreelancersList = () => {
+      let currentFreelancers = [...staticFreelancers];
+      try {
+        const savedProfile = localStorage.getItem('userProfile');
+        if (savedProfile) {
+          const userProfile = JSON.parse(savedProfile);
+          const profileExists = currentFreelancers.some(f => f.id === userProfile.id);
 
-        if (userProfile.isFreelancing && !profileExists) {
-          currentFreelancers = [userProfile, ...currentFreelancers];
-        } else if (!userProfile.isFreelancing && profileExists) {
-          currentFreelancers = currentFreelancers.filter(f => f.id !== userProfile.id);
+          if (userProfile.isFreelancing && !profileExists) {
+            currentFreelancers = [userProfile, ...currentFreelancers];
+          } else if (!userProfile.isFreelancing && profileExists) {
+            currentFreelancers = currentFreelancers.filter(f => f.id !== userProfile.id);
+          }
         }
+      } catch (error) {
+        console.error("Failed to process user profile from localStorage", error);
       }
-    } catch (error) {
-      console.error("Failed to process user profile from localStorage", error);
+      setFreelancers(currentFreelancers);
     }
-    setFreelancers(currentFreelancers);
+
+    updateFreelancersList();
+
+    // Listen for custom event from the profile page
+    window.addEventListener('profileUpdated', updateFreelancersList);
+
+    // Listen for changes from other tabs
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'userProfile') {
+            updateFreelancersList();
+        }
+    });
+
+    return () => {
+        window.removeEventListener('profileUpdated', updateFreelancersList);
+        window.removeEventListener('storage', (e) => {
+            if (e.key === 'userProfile') {
+                updateFreelancersList();
+            }
+        });
+    };
   }, []);
 
   useEffect(() => {
