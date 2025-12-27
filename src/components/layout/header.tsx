@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -10,8 +12,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Menu, Sparkles, Briefcase, Rocket, Trophy, Users } from 'lucide-react';
+import { Menu, Sparkles, Briefcase, Rocket, Trophy } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { useState, useEffect } from 'react';
 
 const navLinks = [
   { href: '/freelancers', label: 'Freelancers', icon: <Briefcase className="h-4 w-4" /> },
@@ -20,9 +23,43 @@ const navLinks = [
   { href: '/smart-match', label: 'Smart Match', icon: <Sparkles className="h-4 w-4" /> },
 ];
 
-const userAvatar = PlaceHolderImages.find(img => img.id === 'avatar1');
+const defaultUserAvatar = PlaceHolderImages.find(img => img.id === 'avatar1');
 
 export default function Header() {
+  const [avatarUrl, setAvatarUrl] = useState(defaultUserAvatar?.imageUrl);
+  const [userName, setUserName] = useState('Alice');
+  const [userEmail, setUserEmail] = useState('alice@example.com');
+
+  useEffect(() => {
+    const updateUserAvatar = () => {
+      try {
+        const savedProfile = localStorage.getItem('userProfile');
+        if (savedProfile) {
+          const userProfile = JSON.parse(savedProfile);
+          setAvatarUrl(userProfile.avatarUrl);
+          setUserName(userProfile.name);
+          setUserEmail('user@example.com'); // Placeholder, as email isn't in profile data
+        }
+      } catch (error) {
+        console.error("Failed to load user profile from localStorage", error);
+        setAvatarUrl(defaultUserAvatar?.imageUrl);
+      }
+    };
+    
+    updateUserAvatar();
+    
+    // Listen for changes from other tabs
+    window.addEventListener('storage', updateUserAvatar);
+    
+    // Listen for custom event from the same tab
+    window.addEventListener('profileUpdated', updateUserAvatar);
+
+    return () => {
+        window.removeEventListener('storage', updateUserAvatar);
+        window.removeEventListener('profileUpdated', updateUserAvatar);
+    };
+  }, []);
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center">
@@ -76,17 +113,17 @@ export default function Header() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={userAvatar?.imageUrl} alt="User Avatar" />
-                  <AvatarFallback>A</AvatarFallback>
+                  <AvatarImage src={avatarUrl} alt="User Avatar" />
+                  <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">Alice</p>
+                  <p className="text-sm font-medium leading-none">{userName}</p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    alice@example.com
+                    {userEmail}
                   </p>
                 </div>
               </DropdownMenuLabel>

@@ -111,6 +111,7 @@ export default function ProfilePage() {
     if (isLoaded) {
       try {
         localStorage.setItem('userProfile', JSON.stringify(userProfile));
+        window.dispatchEvent(new CustomEvent('profileUpdated'));
       } catch (error) {
         console.error("Failed to save user profile to localStorage", error);
       }
