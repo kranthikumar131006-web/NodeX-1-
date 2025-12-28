@@ -13,23 +13,16 @@ interface HackathonCardProps {
 export function HackathonCard({ hackathon }: HackathonCardProps) {
   return (
     <Card className="overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-        <div className="relative h-40 w-full">
-            <Image
-                src={hackathon.imageUrl}
-                alt={hackathon.title}
-                fill
-                className="object-cover"
-                data-ai-hint={hackathon.imageHint}
-            />
-            <div className="absolute top-2 right-2">
-                <Badge variant="secondary">{hackathon.mode}</Badge>
-            </div>
-        </div>
       <CardHeader className="p-4">
-        <Link href={`/hackathons/${hackathon.id}`}>
-          <h3 className="font-headline text-lg font-semibold hover:text-primary transition-colors">{hackathon.title}</h3>
-        </Link>
-        <p className="text-sm text-muted-foreground">by {hackathon.organizer}</p>
+        <div className="flex justify-between items-start">
+            <div>
+                <Link href={`/hackathons/${hackathon.id}`}>
+                <h3 className="font-headline text-lg font-semibold hover:text-primary transition-colors">{hackathon.title}</h3>
+                </Link>
+                <p className="text-sm text-muted-foreground">by {hackathon.organizer}</p>
+            </div>
+            <Badge variant="secondary">{hackathon.mode}</Badge>
+        </div>
       </CardHeader>
       <CardContent className="p-4 pt-0 space-y-2">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
