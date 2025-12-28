@@ -48,7 +48,7 @@ export function FreelancerCard({ freelancer }: FreelancerCardProps) {
       </CardContent>
       <CardFooter className="p-4 pt-0 flex justify-between items-center">
         <Rating rating={freelancer.rating} totalReviews={freelancer.reviews.length} />
-        <Button asChild size="sm">
+        <Button asChild size="sm" className="font-medium">
           <Link href={`/freelancers/${freelancer.id}`}>
             View Profile
             <Briefcase className="ml-2 h-4 w-4" />

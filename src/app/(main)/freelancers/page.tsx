@@ -98,7 +98,7 @@ export default function FreelancersPage() {
             </div>
             <Popover open={isFilterOpen} onOpenChange={onOpenChange}>
                 <PopoverTrigger asChild>
-                    <Button variant="outline">
+                    <Button variant="outline" className="font-medium">
                         <Filter className="mr-2 h-4 w-4" />
                         Filters
                     </Button>
@@ -151,8 +151,8 @@ export default function FreelancersPage() {
                     </div>
                   </div>
                   <div className="flex justify-between">
-                   <Button variant="ghost" onClick={handleClearFilters}>Clear Filters</Button>
-                   <Button onClick={handleApplyFilters}>Apply</Button>
+                   <Button variant="ghost" onClick={handleClearFilters} className="font-medium">Clear Filters</Button>
+                   <Button onClick={handleApplyFilters} className="font-medium">Apply</Button>
                   </div>
                 </div>
               </PopoverContent>

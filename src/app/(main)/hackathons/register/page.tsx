@@ -196,7 +196,7 @@ export default function RegisterHackathonPage() {
               </div>
             </div>
             <div className="flex justify-end">
-              <Button size="lg" onClick={handleRegister}>
+              <Button size="lg" onClick={handleRegister} className="font-medium">
                 Register Event <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>

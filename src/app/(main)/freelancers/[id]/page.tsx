@@ -36,7 +36,7 @@ export default function FreelancerDetailPage() {
         <p className="text-muted-foreground">
           The freelancer you are looking for does not exist.
         </p>
-        <Button asChild className="mt-4">
+        <Button asChild className="mt-4 font-medium">
           <Link href="/freelancers">Back to Freelancers</Link>
         </Button>
       </div>
@@ -117,7 +117,7 @@ export default function FreelancerDetailPage() {
                            <div className="relative h-48 w-full">
                             <Image src={project.imageUrl} alt={project.title} fill className="object-cover transition-transform group-hover:scale-105" data-ai-hint={project.imageHint}/>
                             {project.githubUrl && (
-                                <Button asChild size="icon" variant="secondary" className="absolute top-2 right-2 h-8 w-8">
+                                <Button asChild size="icon" variant="secondary" className="absolute top-2 right-2 h-8 w-8 font-medium">
                                     <a href={project.githubUrl} target="_blank" rel="noopener noreferrer"><Github className="h-4 w-4" /></a>
                                 </Button>
                             )}
@@ -161,7 +161,7 @@ export default function FreelancerDetailPage() {
                     </CardContent>
                 </Card>
 
-                 <Button asChild className="w-full" size="lg">
+                 <Button asChild className="w-full font-medium" size="lg">
                     <a href={`https://mail.google.com/mail/?view=cm&fs=1&to=${freelancer.email}`} target="_blank" rel="noopener noreferrer">
                         <Mail className="mr-2 h-4 w-4" /> Contact {freelancer.name.split(' ')[0]}
                     </a>

@@ -62,10 +62,10 @@ export default function HomePage() {
               Nexus Hub is your launchpad. Discover freelance gigs, assemble your hackathon dream team, and connect with visionary startups.
             </p>
             <div className="mt-8 flex justify-center gap-4">
-              <Button asChild size="lg">
+              <Button asChild size="lg" className="font-medium">
                 <Link href="/freelancers">Find Talent</Link>
               </Button>
-              <Button asChild size="lg" variant="outline">
+              <Button asChild size="lg" variant="outline" className="font-medium">
                 <Link href="/hackathons">Find Opportunities</Link>
               </Button>
             </div>
@@ -77,7 +77,7 @@ export default function HomePage() {
           <div className="container">
             <div className="flex justify-between items-center mb-8">
               <h2 className="font-headline text-3xl font-bold flex items-center gap-3"><Briefcase className="h-8 w-8 text-primary" />Featured Freelancers</h2>
-              <Button asChild variant="ghost">
+              <Button asChild variant="ghost" className="font-medium">
                 <Link href="/freelancers">View All <ArrowRight className="ml-2 h-4 w-4" /></Link>
               </Button>
             </div>
@@ -97,7 +97,7 @@ export default function HomePage() {
           <div className="container">
             <div className="flex justify-between items-center mb-8">
               <h2 className="font-headline text-3xl font-bold flex items-center gap-3"><Rocket className="h-8 w-8 text-primary" />Visionary Startups</h2>
-              <Button asChild variant="ghost">
+              <Button asChild variant="ghost" className="font-medium">
                 <Link href="/startups">View All <ArrowRight className="ml-2 h-4 w-4" /></Link>
               </Button>
             </div>
@@ -117,7 +117,7 @@ export default function HomePage() {
           <div className="container">
             <div className="flex justify-between items-center mb-8">
               <h2 className="font-headline text-3xl font-bold flex items-center gap-3"><Trophy className="h-8 w-8 text-primary" />Upcoming Hackathons</h2>
-              <Button asChild variant="ghost">
+              <Button asChild variant="ghost" className="font-medium">
                 <Link href="/hackathons">View All <ArrowRight className="ml-2 h-4 w-4" /></Link>
               </Button>
             </div>

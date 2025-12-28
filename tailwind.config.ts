@@ -21,6 +21,11 @@ export default {
         headline: ['Satoshi', 'system-ui', '-apple-system', 'sans-serif'],
         code: ['monospace'],
       },
+      fontWeight: {
+        normal: '400',
+        medium: '500',
+        bold: '700',
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

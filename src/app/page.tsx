@@ -238,7 +238,7 @@ export default function LoginPage() {
 
             <Button
               type="button"
-              className="w-full bg-cyan-500 hover:bg-cyan-600"
+              className="w-full bg-cyan-500 hover:bg-cyan-600 font-medium"
               size="lg"
               onClick={handleLogin}
             >
@@ -259,6 +259,7 @@ export default function LoginPage() {
           <div className="grid grid-cols-1 gap-4">
             <Button
               variant="outline"
+              className="font-medium"
               onClick={() => handleSocialLogin(new GoogleAuthProvider())}
             >
               <GoogleIcon />

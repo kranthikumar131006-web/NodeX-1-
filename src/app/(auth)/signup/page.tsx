@@ -230,7 +230,7 @@ export default function SignupPage() {
 
             <Button
               type="button"
-              className="w-full bg-cyan-500 hover:bg-cyan-600"
+              className="w-full bg-cyan-500 hover:bg-cyan-600 font-medium"
               size="lg"
               onClick={handleSignup}
             >

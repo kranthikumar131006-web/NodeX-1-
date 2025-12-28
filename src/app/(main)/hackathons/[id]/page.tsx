@@ -95,7 +95,7 @@ export default function HackathonDetailPage() {
         <p className="text-muted-foreground">
           The hackathon you are looking for does not exist or has been removed.
         </p>
-        <Button asChild className="mt-4">
+        <Button asChild className="mt-4 font-medium">
           <Link href="/hackathons">Back to Hackathons</Link>
         </Button>
       </div>
@@ -184,7 +184,7 @@ export default function HackathonDetailPage() {
                 </Card>
 
                 <div className="flex flex-col gap-2">
-                  <Button asChild className="w-full" size="lg">
+                  <Button asChild className="w-full font-medium" size="lg">
                       <a href={hackathon.officialUrl} target="_blank" rel="noopener noreferrer">
                           <Globe className="mr-2 h-4 w-4" /> Visit Official Website
                       </a>
@@ -192,7 +192,7 @@ export default function HackathonDetailPage() {
                   {isOwner && (
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button variant="destructive" size="lg" className="w-full">
+                        <Button variant="destructive" size="lg" className="w-full font-medium">
                           <Trash2 className="mr-2 h-4 w-4" /> Delete Event
                         </Button>
                       </AlertDialogTrigger>

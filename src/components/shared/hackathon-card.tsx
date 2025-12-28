@@ -51,7 +51,7 @@ export function HackathonCard({ hackathon }: HackathonCardProps) {
             <Badge key={tech} variant="outline" className="font-normal">{tech}</Badge>
           ))}
         </div>
-        <Button asChild size="sm">
+        <Button asChild size="sm" className="font-medium">
           <Link href={`/hackathons/${hackathon.id}`}>Details</Link>
         </Button>
       </CardFooter>

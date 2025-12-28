@@ -62,7 +62,7 @@ export default function ForgotPasswordPage() {
               <p className="mt-2 text-muted-foreground">
                 If an account with the email <span className="font-medium text-foreground">{email}</span> exists, we have sent a password reset link.
               </p>
-              <Button asChild className="mt-6 w-full">
+              <Button asChild className="mt-6 w-full font-medium">
                 <Link href="/">
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Back to Login
@@ -90,7 +90,7 @@ export default function ForgotPasswordPage() {
 
                 <Button
                   type="button"
-                  className="w-full bg-cyan-500 hover:bg-cyan-600"
+                  className="w-full bg-cyan-500 hover:bg-cyan-600 font-medium"
                   size="lg"
                   onClick={handleResetPassword}
                 >

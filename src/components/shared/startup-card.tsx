@@ -37,7 +37,7 @@ export function StartupCard({ startup }: StartupCardProps) {
       </CardContent>
       <CardFooter className="p-4 pt-0 flex justify-between items-center">
         <StatusBadge status={startup.status} />
-        <Button asChild variant="ghost" size="sm">
+        <Button asChild variant="ghost" size="sm" className="font-medium">
           <Link href={`/startups/${startup.id}`}>
             Learn More
             <ArrowRight className="ml-2 h-4 w-4" />
@@ -47,5 +47,3 @@ export function StartupCard({ startup }: StartupCardProps) {
     </Card>
   );
 }
-
-    

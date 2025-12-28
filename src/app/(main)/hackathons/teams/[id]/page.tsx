@@ -135,7 +135,7 @@ export default function TeamDetailPage() {
         <p className="text-muted-foreground">
           The team you are looking for does not exist.
         </p>
-        <Button asChild className="mt-4">
+        <Button asChild className="mt-4 font-medium">
           <Link href="/hackathons/teams">Back to Teams</Link>
         </Button>
       </div>
@@ -250,7 +250,7 @@ export default function TeamDetailPage() {
 
                  <div className="flex flex-col gap-2">
                     {teamLead && (
-                        <Button asChild className="w-full" size="lg" disabled={isFull || !user}>
+                        <Button asChild className="w-full font-medium" size="lg" disabled={isFull || !user}>
                             <a href={isFull || !user ? '#' : `mailto:${teamLead.email}`} target="_blank" rel="noopener noreferrer">
                                 <Mail className="mr-2 h-4 w-4" /> {isFull ? 'Team Full' : 'Contact Team Lead'}
                             </a>
@@ -259,7 +259,7 @@ export default function TeamDetailPage() {
                     {isOwner && (
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button variant="destructive" size="lg" className="w-full">
+                            <Button variant="destructive" size="lg" className="w-full font-medium">
                               <Trash2 className="mr-2 h-4 w-4" /> Delete Team
                             </Button>
                           </AlertDialogTrigger>

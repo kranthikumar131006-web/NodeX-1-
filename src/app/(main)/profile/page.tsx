@@ -330,7 +330,7 @@ export default function ProfilePage() {
                   <Label>Contact Email</Label>
                   <p className="text-muted-foreground">{clientProfile.email}</p>
                 </div>
-                <Button onClick={() => router.push('/freelancers')} className="mt-4">Browse Freelancers</Button>
+                <Button onClick={() => router.push('/freelancers')} className="mt-4 font-medium">Browse Freelancers</Button>
               </CardContent>
             </Card>
         </div>
@@ -361,7 +361,7 @@ export default function ProfilePage() {
                     />
                     <Button
                       size="icon"
-                      className="absolute bottom-1 right-1 h-8 w-8 rounded-full border-2 border-background"
+                      className="absolute bottom-1 right-1 h-8 w-8 rounded-full border-2 border-background font-medium"
                       onClick={handleEditClick}
                     >
                       <Edit className="h-4 w-4" />
@@ -374,7 +374,7 @@ export default function ProfilePage() {
 
                   <Dialog onOpenChange={onOpenChange}>
                     <DialogTrigger asChild>
-                      <Button className="mt-4 w-full">
+                      <Button className="mt-4 w-full font-medium">
                         <Edit className="mr-2 h-4 w-4" /> Edit Profile
                       </Button>
                     </DialogTrigger>
@@ -461,12 +461,12 @@ export default function ProfilePage() {
                                  <Label>Issuer</Label>
                                  <Input name="issuer" value={cert.issuer} onChange={(e) => handleCertificationChange(index, e)} />
                                </div>
-                               <Button size="icon" variant="destructive" className="absolute top-2 right-2 h-6 w-6" onClick={() => handleRemoveCertification(index)}>
+                               <Button size="icon" variant="destructive" className="absolute top-2 right-2 h-6 w-6 font-medium" onClick={() => handleRemoveCertification(index)}>
                                   <X className="h-4 w-4" />
                                </Button>
                              </div>
                           ))}
-                          <Button variant="outline" className="w-full" onClick={handleAddCertification}>
+                          <Button variant="outline" className="w-full font-medium" onClick={handleAddCertification}>
                             <Plus className="mr-2 h-4 w-4" />
                             Add Certification
                           </Button>
@@ -499,10 +499,10 @@ export default function ProfilePage() {
                       </div>
                       <DialogFooter>
                           <DialogClose asChild>
-                              <Button type="button" variant="secondary">Cancel</Button>
+                              <Button type="button" variant="secondary" className="font-medium">Cancel</Button>
                           </DialogClose>
                           <DialogClose asChild>
-                              <Button type="submit" onClick={handleSave}>Save Changes</Button>
+                              <Button type="submit" onClick={handleSave} className="font-medium">Save Changes</Button>
                           </DialogClose>
                       </DialogFooter>
                     </DialogContent>
@@ -713,7 +713,7 @@ export default function ProfilePage() {
             <CardTitle>Something Went Wrong</CardTitle>
             <CardContent>
               <p className="text-muted-foreground mt-2">We couldn't load your profile. Please try logging out and logging back in.</p>
-              <Button asChild className="mt-4">
+              <Button asChild className="mt-4 font-medium">
                 <Link href="/">Back to Login</Link>
               </Button>
             </CardContent>

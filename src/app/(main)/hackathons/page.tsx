@@ -106,7 +106,7 @@ export default function HackathonsPage() {
             </div>
              <Popover open={isFilterOpen} onOpenChange={onOpenChange}>
                 <PopoverTrigger asChild>
-                    <Button variant="outline">
+                    <Button variant="outline" className="font-medium">
                         <Filter className="mr-2 h-4 w-4" />
                         Filters
                     </Button>
@@ -154,19 +154,19 @@ export default function HackathonsPage() {
                     </div>
                   </div>
                   <div className="flex justify-between">
-                   <Button variant="ghost" onClick={handleClearFilters}>Clear</Button>
-                   <Button onClick={handleApplyFilters}>Apply</Button>
+                   <Button variant="ghost" onClick={handleClearFilters} className="font-medium">Clear</Button>
+                   <Button onClick={handleApplyFilters} className="font-medium">Apply</Button>
                   </div>
                 </div>
               </PopoverContent>
             </Popover>
-            <Button asChild>
+            <Button asChild className="font-medium">
               <Link href="/hackathons/teams">
                 <Users className="mr-2 h-4 w-4" />
                 Find a Team
               </Link>
             </Button>
-            <Button asChild>
+            <Button asChild className="font-medium">
               <Link href="/hackathons/register">
                 <Plus className="mr-2 h-4 w-4" />
                 Register Event

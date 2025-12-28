@@ -81,14 +81,14 @@ export function TeamCard({ team }: TeamCardProps) {
         </div>
       </CardContent>
       <CardFooter className="p-4 pt-0 flex flex-col items-stretch gap-2">
-        <Button asChild className="w-full" disabled={isFull}>
+        <Button asChild className="w-full font-medium" disabled={isFull}>
           <Link href={`/hackathons/teams/${team.id}?hackathonId=${team.hackathonId}`}>
             {isFull ? 'Team Full' : 'View Details'}
             <ArrowRight className={cn("ml-2 h-4 w-4", isFull && "hidden")} />
           </Link>
         </Button>
         {teamHackathon && (
-            <Button asChild variant="secondary" className="w-full">
+            <Button asChild variant="secondary" className="w-full font-medium">
                 <Link href={`/hackathons/${teamHackathon.id}`}>View Hackathon</Link>
             </Button>
         )}

@@ -168,7 +168,7 @@ export default function RegisterTeamPage() {
       <div className="container mx-auto py-8 md:py-12">
         <div className="mb-8">
           <Button variant="ghost" asChild>
-            <Link href="/hackathons/teams" className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+            <Link href="/hackathons/teams" className="flex items-center gap-2 text-sm text-muted-foreground mb-2 font-medium">
               <ArrowLeft className="h-4 w-4" />
               Back to Team Finder
             </Link>
@@ -263,7 +263,7 @@ export default function RegisterTeamPage() {
             )}
 
             <div className="flex justify-end">
-              <Button size="lg" onClick={handleRegister}>
+              <Button size="lg" onClick={handleRegister} className="font-medium">
                 Create Team
               </Button>
             </div>
