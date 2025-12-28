@@ -515,5 +515,3 @@
     "reasoning": "The Firestore structure is designed to ensure authorization independence, clarity, and scalability. User authentication data is stored in a root `/users` collection. Student and Client profiles are stored in their own root collections (`/studentProfiles` and `/clientProfiles`) to allow for efficient querying and public listing, which is a common requirement for a directory-style application. Security rules will ensure that only the owner of a profile can edit it, maintaining data integrity.\n\nHackathons are stored in the `/hackathons` collection, allowing easy listing and discovery. Teams are stored in a subcollection `/hackathons/{hackathonId}/teams/{teamId}` to keep associated data together.\n\nStartups are stored in the `/startups/{startupId}` collection with `teamMemberIds` to connect to `/team_members/{teamMemberId}`. Team Members are stored at the root level to avoid deep nesting with startups and teams, also enabling easier listing and discoverability across multiple startups the same person might be working on."
   }
 }
-
-    
