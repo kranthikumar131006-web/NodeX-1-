@@ -1,12 +1,10 @@
 'use client';
 
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { startups, freelancers } from '@/lib/data';
 import {
   Badge,
-  BadgeCheck,
   Building,
   Calendar,
   CheckCircle,
@@ -14,30 +12,92 @@ import {
   Eye,
   FileText,
   Globe,
-  HeartHandshake,
   Info,
   Linkedin,
-  Lightbulb,
   Mail,
   MapPin,
-  Target,
+  Trash2,
   Users,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
+import type { Startup, Freelancer } from '@/lib/types';
+import { doc, deleteDoc } from 'firebase/firestore';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
 
 export default function StartupDetailPage() {
   const params = useParams();
-  const startupId = params.id;
-  const startup = startups.find(s => s.id === startupId);
+  const startupId = params.id as string;
+  const firestore = useFirestore();
+  const router = useRouter();
+  const { toast } = useToast();
+  const { user } = useUser();
+
+  const startupRef = useMemoFirebase(
+    () => (firestore && startupId ? doc(firestore, 'startups', startupId) : null),
+    [firestore, startupId]
+  );
+  const { data: startup, isLoading } = useDoc<Startup>(startupRef);
+
+  const handleDelete = async () => {
+    if (!startupRef) return;
+    try {
+      await deleteDoc(startupRef);
+      toast({
+        title: 'Startup Deleted',
+        description: `"${startup?.name}" has been successfully removed.`,
+      });
+      router.push('/startups');
+    } catch (error) {
+      console.error('Error deleting startup:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Could not delete the startup. Please try again.',
+      });
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="bg-secondary/30">
+        <div className="container mx-auto py-8 md:py-12">
+            <Skeleton className="h-6 w-1/2 mb-8" />
+            <Skeleton className="h-48 w-full mb-8" />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2 space-y-8">
+                <Skeleton className="h-48 w-full" />
+                <Skeleton className="h-32 w-full" />
+                </div>
+                <div className="space-y-8">
+                <Skeleton className="h-64 w-full" />
+                </div>
+            </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!startup) {
     return (
       <div className="container py-12 text-center">
         <h1 className="text-2xl font-bold">Startup not found</h1>
         <p className="text-muted-foreground">
-          The startup you are looking for does not exist.
+          The startup you are looking for does not exist or has been removed.
         </p>
         <Button asChild className="mt-4">
           <Link href="/startups">Back to Startups</Link>
@@ -45,7 +105,9 @@ export default function StartupDetailPage() {
       </div>
     );
   }
-  const allMembers = [...startup.founders, ...(startup.team || [])];
+  
+  const allMembers = [...(startup.founders || []), ...(startup.team || [])];
+  const isOwner = user && user.uid === startup.userId;
 
   return (
     <div className="bg-secondary/30">
@@ -102,7 +164,7 @@ export default function StartupDetailPage() {
             <div className="lg:col-span-2 space-y-8">
                 <Card>
                     <CardHeader>
-                        <CardTitle className="flex items-center gap-3 text-2xl"><Info className="h-6 w-6 text-primary" />About Us</CardTitle>
+                        <CardTitle className="flex items-center gap-3 text-2xl"><Info className="h-6 w-6 text-primary" />The Problem We're Solving</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <p className="text-muted-foreground">{startup.problem}</p>
@@ -111,7 +173,7 @@ export default function StartupDetailPage() {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle className="flex items-center gap-3 text-2xl"><Eye className="h-6 w-6 text-primary" />Vision</CardTitle>
+                        <CardTitle className="flex items-center gap-3 text-2xl"><Eye className="h-6 w-6 text-primary" />Our Vision</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <p className="text-muted-foreground">{startup.vision}</p>
@@ -145,7 +207,7 @@ export default function StartupDetailPage() {
                     <CardContent className="space-y-4">
                         <div>
                             <p className="text-sm font-semibold text-muted-foreground">FOUNDERS</p>
-                            <p>{startup.founders.map(f => `${f.name} (${f.role})`).join(', ')}</p>
+                            <p>{startup.founders?.map(f => `${f.name} (${f.role})`).join(', ')}</p>
                         </div>
                          <div>
                             <p className="text-sm font-semibold text-muted-foreground">TARGET MARKET SIZE</p>
@@ -158,6 +220,28 @@ export default function StartupDetailPage() {
                                 {startup.contactEmail}
                             </a>
                         </div>
+                         {isOwner && (
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                <Button variant="destructive" className="w-full mt-4">
+                                    <Trash2 className="mr-2 h-4 w-4" /> Delete Startup
+                                </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                    This action cannot be undone. This will permanently delete your
+                                    startup and remove its data from our servers.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+                                </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        )}
                     </CardContent>
                 </Card>
 
@@ -188,7 +272,6 @@ export default function StartupDetailPage() {
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {allMembers.map(member => {
-                    const freelancerProfile = freelancers.find(f => f.name === member.name);
                     const memberCard = (
                         <Card className="text-center p-6">
                             <Avatar className="h-24 w-24 mx-auto mb-4 border-4 border-primary/20">
@@ -197,12 +280,11 @@ export default function StartupDetailPage() {
                             </Avatar>
                             <h3 className="font-semibold text-lg">{member.name}</h3>
                             <p className="text-sm text-primary font-medium">{member.role}</p>
-                            <p className="text-xs text-muted-foreground mt-2">{member.bio}</p>
                         </Card>
                     );
                     
-                    return freelancerProfile ? (
-                        <Link key={member.id} href={`/freelancers/${freelancerProfile.id}`} className="transition-transform hover:-translate-y-1">
+                    return member.bio ? ( // Assuming bio implies a full freelancer profile
+                        <Link key={member.id} href={`/freelancers/${member.id}`} className="transition-transform hover:-translate-y-1">
                             {memberCard}
                         </Link>
                     ) : (

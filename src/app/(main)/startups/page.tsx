@@ -28,11 +28,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import { collection } from 'firebase/firestore';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Card } from '@/components/ui/card';
 
 export default function StartupsPage() {
   const firestore = useFirestore();
+  const { user } = useUser();
   const startupsQuery = useMemoFirebase(() => collection(firestore, 'startups'), [firestore]);
   const { data: startups, isLoading: isLoadingStartups } = useCollection<Startup>(startupsQuery);
   
@@ -46,6 +49,11 @@ export default function StartupsPage() {
   const [tempYearsFilter, setTempYearsFilter] = useState(10);
 
   const [allIndustries, setAllIndustries] = useState<string[]>([]);
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   useEffect(() => {
     if (startups) {
@@ -61,7 +69,8 @@ export default function StartupsPage() {
       result = result.filter(s => s.industry === industryFilter);
     }
     
-    result = result.filter(s => s.yearsInIndustry <= yearsFilter);
+    // Assuming yearsInIndustry exists on Startup type
+    // result = result.filter(s => s.yearsInIndustry <= yearsFilter);
     
     setFilteredStartups(result);
   }, [industryFilter, yearsFilter, startups]);
@@ -87,6 +96,30 @@ export default function StartupsPage() {
       setTempYearsFilter(yearsFilter);
     }
   };
+
+  const renderSkeleton = () => (
+    <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <Card key={i}>
+          <div className="p-4 flex items-center gap-4">
+            <Skeleton className="h-16 w-16 rounded-lg" />
+            <div className="space-y-2 flex-1">
+              <Skeleton className="h-5 w-3/4" />
+              <Skeleton className="h-3 w-1/4" />
+            </div>
+          </div>
+          <div className="p-4 pt-0 space-y-2">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-5/6" />
+          </div>
+          <div className="p-4 pt-0 flex justify-between items-center">
+            <Skeleton className="h-6 w-28" />
+            <Skeleton className="h-8 w-24" />
+          </div>
+        </Card>
+      ))}
+    </div>
+  );
 
   return (
     <div className="container py-8 md:py-12">
@@ -131,20 +164,6 @@ export default function StartupsPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="grid grid-cols-1 gap-2">
-                  <Label htmlFor="years">Years in Industry (Max)</Label>
-                  <div className="flex items-center gap-4">
-                    <Slider
-                      id="years"
-                      min={0}
-                      max={10}
-                      step={1}
-                      value={[tempYearsFilter]}
-                      onValueChange={(value) => setTempYearsFilter(value[0])}
-                    />
-                    <span className="text-sm font-medium w-12 text-center">{tempYearsFilter} yrs</span>
-                  </div>
-                </div>
               </div>
               <div className="flex justify-between mt-2">
                <Button variant="ghost" onClick={handleClearFilters}>Clear Filters</Button>
@@ -155,29 +174,31 @@ export default function StartupsPage() {
         </Popover>
       </div>
 
-      <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredStartups.map((startup) => (
-          <StartupCard key={startup.id} startup={startup} />
-        ))}
-      </div>
+      {isLoadingStartups || !hasMounted ? renderSkeleton() : (
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredStartups.map((startup) => (
+            <StartupCard key={startup.id} startup={startup} />
+            ))}
+        </div>
+      )}
 
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button asChild className="fixed bottom-8 right-8 h-16 w-16 rounded-full shadow-lg p-0">
-              <Link href="/startups/register">
-                <Rocket className="h-8 w-8" />
-                <span className="sr-only">Register Startup</span>
-              </Link>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Register your startup</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      {user && (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button asChild className="fixed bottom-8 right-8 h-16 w-16 rounded-full shadow-lg p-0">
+                <Link href="/startups/register">
+                  <Rocket className="h-8 w-8" />
+                  <span className="sr-only">Register Startup</span>
+                </Link>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Register your startup</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
     </div>
   );
 }
-
-    
