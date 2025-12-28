@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -83,6 +84,7 @@ export default function SignupPage() {
             skills: [],
             availability: 'Available',
             socialMediaLinks: [],
+            avatarUrl: '',
         });
         toast({
             title: 'Account Created',
