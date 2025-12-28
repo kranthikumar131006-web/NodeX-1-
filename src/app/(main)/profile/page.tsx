@@ -52,7 +52,7 @@ const initialStudentData = {
     userId: '',
     name: '',
     email: '',
-    avatarUrl: '',
+    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjY3NTQyNTR8MA&ixlib=rb-4.1.0&q=80&w=1080',
     imageHint: 'person portrait',
     tagline: '',
     location: '',
@@ -157,7 +157,7 @@ export default function ProfilePage() {
               userId: user.uid,
               name: user.displayName || user.email?.split('@')[0] || '',
               email: user.email || '',
-              avatarUrl: user.photoURL || '',
+              avatarUrl: user.photoURL || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjY3NTQyNTR8MA&ixlib=rb-4.1.0&q=80&w=1080',
             }));
         }
       } catch (error) {
@@ -259,9 +259,15 @@ export default function ProfilePage() {
   }
   
   const handleFreelancingToggle = (checked: boolean) => {
-    const updatedProfile = {...formData, isFreelancing: checked};
-    setFormData(updatedProfile);
+    const updatedProfile = {...studentProfile, isFreelancing: checked};
     setStudentProfile(updatedProfile); // Optimistically update UI
+    if (!user) return;
+    const userProfileRef = doc(firestore, 'users', user.uid, 'studentProfiles', user.uid);
+    setDocumentNonBlocking(userProfileRef, { isFreelancing: checked }, { merge: true });
+    toast({
+        title: `Freelancing mode ${checked ? 'enabled' : 'disabled'}.`,
+        description: `Your profile is now ${checked ? 'public' : 'private'}.`,
+    });
     localStorage.setItem('userProfile', JSON.stringify(updatedProfile));
     window.dispatchEvent(new CustomEvent('profileUpdated'));
   };
@@ -321,11 +327,6 @@ export default function ProfilePage() {
     return null; // Or a loading spinner
   }
   
-  if (!user) {
-    // This will be handled by the useEffect which redirects
-    return null;
-  }
-  
   if (userRole === 'client') {
     return (
        <div className="bg-secondary/50">
@@ -366,7 +367,7 @@ export default function ProfilePage() {
               <CardContent className="p-6 text-center">
                 <div className="relative mx-auto mb-4 h-32 w-32">
                   <Avatar className="h-full w-full border-4 border-primary/20">
-                    <AvatarImage src={studentProfile.avatarUrl} alt={studentProfile.name} />
+                    <AvatarImage src={studentProfile.avatarUrl} alt={studentProfile.name} data-ai-hint={studentProfile.imageHint} />
                     <AvatarFallback>{studentProfile.name ? studentProfile.name.charAt(0) : 'U'}</AvatarFallback>
                   </Avatar>
                   <input
@@ -513,27 +514,6 @@ export default function ProfilePage() {
                             <Input id="instagramUrl" name="instagramUrl" value={formData.socials.instagramUrl} onChange={handleSocialsChange} />
                          </div>
                       </div>
-
-                      {/* Freelancing Toggle */}
-                      <div className="space-y-4">
-                        <h3 className="font-semibold text-lg">Freelancing</h3>
-                        <div className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
-                          <div className="space-y-0.5">
-                            <Label htmlFor="freelancing-toggle">
-                              Make my profile public
-                            </Label>
-                            <p className="text-xs text-muted-foreground">
-                              Allow clients to find and contact you for freelance work.
-                            </p>
-                          </div>
-                           <Switch
-                                id="freelancing-toggle"
-                                checked={formData.isFreelancing}
-                                onCheckedChange={handleFreelancingToggle}
-                            />
-                        </div>
-                      </div>
-
                     </div>
                     <DialogFooter>
                         <DialogClose asChild>
@@ -651,7 +631,7 @@ export default function ProfilePage() {
                 {studentProfile.education.university ? (
                 <div className="flex items-start gap-4">
                   <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-secondary">
-                    <Image src="/uc-berkeley-logo.svg" alt="UC Berkeley Logo" width={32} height={32} />
+                    <Image src="/uc-berkeley-logo.svg" alt="University Logo" width={32} height={32} />
                   </div>
                   <div>
                     <p className="font-semibold">{studentProfile.education.university}</p>
@@ -715,12 +695,31 @@ export default function ProfilePage() {
                 )) : <p className="text-sm text-muted-foreground">No certifications added yet.</p>}
               </CardContent>
             </Card>
-            
+             <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Freelancing</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
+                    <div className="space-y-0.5">
+                    <Label htmlFor="freelancing-toggle">
+                        Make my profile public
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                        Allow clients to find and contact you for freelance work.
+                    </p>
+                    </div>
+                    <Switch
+                        id="freelancing-toggle"
+                        checked={studentProfile.isFreelancing}
+                        onCheckedChange={handleFreelancingToggle}
+                    />
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
     </div>
   );
 }
-
-    
