@@ -65,11 +65,18 @@ export function useCollection<T = any>(
 
   useEffect(() => {
     // Wait until auth state is determined. If no query is provided, we are also in a 'loading' or 'not ready' state.
-    if (isUserLoading || !memoizedTargetRefOrQuery) {
+    if (isUserLoading) {
       setData(null);
-      setIsLoading(true); // Keep loading until both auth is ready and query is provided
+      setIsLoading(true);
       setError(null);
       return;
+    }
+
+    if (!memoizedTargetRefOrQuery) {
+        setData(null);
+        setIsLoading(false); // Not loading if there's no query
+        setError(null);
+        return;
     }
 
     // From this point, auth is resolved and we have a query.
