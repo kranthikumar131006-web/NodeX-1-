@@ -89,6 +89,7 @@ export default function SignupPage() {
             avatarUrl: '',
             rating: 0,
             reviews: [],
+            isFreelancing: false,
         });
         toast({
             title: 'Account Created',
@@ -126,12 +127,12 @@ export default function SignupPage() {
   };
 
   const handleSignup = () => {
-    if (!email || !password) {
-      handleError({ message: 'Email and password are required.' });
+    if (!email || !password || !name) {
+      handleError({ message: 'Name, email and password are required.' });
       return;
     }
-    if (role === 'client' && !name) {
-        handleError({ message: 'Name is a required field.' });
+    if (role === 'client' && !companyName) {
+        handleError({ message: 'Company name is required for clients.' });
         return;
     }
     createUserWithEmailAndPassword(auth, email, password).then(handleSuccess).catch(handleError);
@@ -165,39 +166,39 @@ export default function SignupPage() {
 
           <div className="space-y-4">
             {role === 'client' && (
-              <>
-                <div className="space-y-2">
-                  <Label htmlFor="companyName">Company Name</Label>
-                  <div className="relative">
-                    <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                    <Input
-                      id="companyName"
-                      type="text"
-                      placeholder="Your Company Inc."
-                      className="pl-10"
-                      value={companyName}
-                      onChange={(e) => setCompanyName(e.target.value)}
-                    />
-                  </div>
+              <div className="space-y-2">
+                <Label htmlFor="companyName">Company Name</Label>
+                <div className="relative">
+                  <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <Input
+                    id="companyName"
+                    type="text"
+                    placeholder="Your Company Inc."
+                    className="pl-10"
+                    value={companyName}
+                    onChange={(e) => setCompanyName(e.target.value)}
+                    required
+                  />
                 </div>
-                 <div className="space-y-2">
-                  <Label htmlFor="name">Name</Label>
-                  <div className="relative">
-                    <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                    <Input
-                      id="name"
-                      type="text"
-                      placeholder="Your Name"
-                      className="pl-10"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-              </>
+              </div>
             )}
 
+             <div className="space-y-2">
+              <Label htmlFor="name">Name</Label>
+              <div className="relative">
+                <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder="Your Name"
+                  className="pl-10"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+            
             <div className="space-y-2">
               <Label htmlFor="email">
                 Email
