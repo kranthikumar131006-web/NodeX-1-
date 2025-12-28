@@ -126,6 +126,8 @@ export default function ProfilePage() {
           } else {
              setIsLoaded(true);
           }
+        } else {
+            setIsLoaded(true);
         }
       } else if (!isUserLoading) {
         setIsLoaded(true);
@@ -315,8 +317,13 @@ export default function ProfilePage() {
     }
   }
   
-  if (!isLoaded || isUserLoading || !user) {
+  if (!isLoaded || isUserLoading) {
     return null; // Or a loading spinner
+  }
+  
+  if (!user) {
+    // This will be handled by the useEffect which redirects
+    return null;
   }
   
   if (userRole === 'client') {
@@ -348,6 +355,7 @@ export default function ProfilePage() {
     );
   }
 
+  // Default to student profile if role is 'student' or not yet determined but user exists
   return (
     <div className="bg-secondary/50">
       <div className="container mx-auto py-8 md:py-12">
@@ -714,3 +722,5 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+    
