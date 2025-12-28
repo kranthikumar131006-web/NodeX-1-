@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Plus, X, Users } from 'lucide-react';
+import { ArrowLeft, Plus, X, Users, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
@@ -211,6 +211,14 @@ export default function RegisterTeamPage() {
             <div className="space-y-2">
                 <Label htmlFor="description">Team Description *</Label>
                 <Textarea id="description" placeholder="What is your team's mission?" value={description} onChange={e => setDescription(e.target.value)} />
+            </div>
+            
+            <div className="space-y-2">
+                <Label htmlFor="email">Your Contact Email (as Team Lead)</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input id="email" type="email" value={user?.email || ''} readOnly className="pl-9 bg-secondary" />
+                </div>
             </div>
 
             <div className="space-y-4">
