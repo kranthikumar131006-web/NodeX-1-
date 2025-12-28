@@ -134,6 +134,12 @@ export default function ProfilePage() {
     fetchUserRole();
   }, [userRef, isUserLoading]);
 
+  useEffect(() => {
+    if (!isUserLoading && !user) {
+      router.push('/');
+    }
+  }, [isUserLoading, user, router]);
+
   const fetchStudentProfile = async () => {
       if (!firestore || !user) return;
       const profileRef = doc(firestore, 'users', user.uid, 'studentProfiles', user.uid);
@@ -309,13 +315,8 @@ export default function ProfilePage() {
     }
   }
   
-  if (!isLoaded || isUserLoading) {
+  if (!isLoaded || isUserLoading || !user) {
     return null; // Or a loading spinner
-  }
-
-  if (!user) {
-    router.push('/');
-    return null;
   }
   
   if (userRole === 'client') {
