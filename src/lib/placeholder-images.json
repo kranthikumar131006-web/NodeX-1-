@@ -81,21 +81,6 @@
       "imageHint": "minimalist logo"
     },
     {
-      "id": "hackathon1",
-      "imageUrl": "https://images.unsplash.com/photo-1569098644581-b97f9c091fa8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cGVvcGxlJTIwY29kaW5nfGVufDB8fHx8MTc2NjgxOTAwN3ww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "people coding"
-    },
-    {
-      "id": "hackathon2",
-      "imageUrl": "https://images.unsplash.com/photo-1592758080692-b6a5dbe9c725?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxjb25mZXJlbmNlJTIwc3RhZ2V8ZW58MHx8fHwxNzY2ODA0NjU0fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "conference stage"
-    },
-    {
-      "id": "hackathon3",
-      "imageUrl": "https://images.unsplash.com/photo-1642957323739-5632d8a2ff3d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxncm91cCUyMHdvcmtpbmd8ZW58MHx8fHwxNzY2ODE5MDA3fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "group working"
-    },
-    {
       "id": "landing-hero",
       "imageUrl": "https://images.unsplash.com/photo-1623177623442-979c1e42c255?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxtb2Rlcm4lMjBvZmZpY2V8ZW58MHx8fHwxNzY2ODA4NTYzfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "modern office"
@@ -107,7 +92,7 @@
     },
     {
       "id": "aws-logo",
-      "imageUrl": "https://picsum.photos/seed/aws/64/64",
+      "imageUrl": "https://images.unsplash.com/photo-1619551734325-81aaf323686c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxjb21wYW55JTIwbG9nb3xlbnwwfHx8fDE3NjY4NjE4NjF8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "company logo"
     },
     {
