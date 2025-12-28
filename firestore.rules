@@ -95,11 +95,11 @@ service cloud.firestore {
       allow create: if isSignedIn() 
                       && request.resource.data.userId == request.auth.uid
                       && request.resource.data.id == request.auth.uid;
-      allow update: if isDocumentOwner()
+      allow update: if isOwner(studentProfileId)
                       && isExistingDoc() 
                       && fieldIsImmutable('userId')
                       && fieldIsImmutable('id');
-      allow delete: if isDocumentOwner() && isExistingDoc();
+      allow delete: if isOwner(studentProfileId) && isExistingDoc();
     }
     
     /**
@@ -112,11 +112,11 @@ service cloud.firestore {
       allow create: if isSignedIn()
                       && request.resource.data.userId == request.auth.uid
                       && request.resource.data.id == request.auth.uid;
-      allow update: if isDocumentOwner()
+      allow update: if isOwner(clientProfileId)
                       && isExistingDoc()
                       && fieldIsImmutable('userId')
                       && fieldIsImmutable('id');
-      allow delete: if isDocumentOwner() && isExistingDoc();
+      allow delete: if isOwner(clientProfileId) && isExistingDoc();
     }
 
     /**
