@@ -14,24 +14,23 @@ import type { Freelancer, Startup, Hackathon } from '@/lib/types';
 export default function HomePage() {
   const heroImage = PlaceHolderImages.find(img => img.id === 'landing-hero');
   const firestore = useFirestore();
-  const { isUserLoading } = useUser();
 
   const freelancersQuery = useMemoFirebase(
-    () => (!isUserLoading && firestore ? collectionGroup(firestore, 'studentProfiles') : null),
-    [firestore, isUserLoading]
+    () => (firestore ? collectionGroup(firestore, 'studentProfiles') : null),
+    [firestore]
   );
   const { data: freelancers, isLoading: isLoadingFreelancers } = useCollection<Freelancer>(freelancersQuery);
 
 
   const startupsQuery = useMemoFirebase(
-    () => (!isUserLoading && firestore ? collection(firestore, 'startups') : null),
-    [firestore, isUserLoading]
+    () => (firestore ? collection(firestore, 'startups') : null),
+    [firestore]
   );
   const { data: startups, isLoading: isLoadingStartups } = useCollection<Startup>(startupsQuery);
   
   const hackathonsQuery = useMemoFirebase(
-    () => (!isUserLoading && firestore ? collection(firestore, 'hackathons') : null),
-    [firestore, isUserLoading]
+    () => (firestore ? collection(firestore, 'hackathons') : null),
+    [firestore]
   );
   const { data: hackathons, isLoading: isLoadingHackathons } = useCollection<Hackathon>(hackathonsQuery);
 

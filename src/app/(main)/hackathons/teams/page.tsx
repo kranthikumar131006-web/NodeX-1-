@@ -29,7 +29,6 @@ import { collectionGroup } from 'firebase/firestore';
 
 export default function HackathonTeamsPage() {
   const firestore = useFirestore();
-  const { user, isUserLoading } = useUser();
 
   // Defer query creation until firestore and user are available
   const teamsQuery = useMemoFirebase(
@@ -146,7 +145,7 @@ export default function HackathonTeamsPage() {
         </p>
       </div>
       
-      { !hasMounted || isLoadingTeams || isUserLoading ? renderSkeleton() : (
+      { !hasMounted || isLoadingTeams ? renderSkeleton() : (
         <>
           <div className="mt-8 flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">

@@ -30,8 +30,7 @@ import { collection } from 'firebase/firestore';
 
 export default function HackathonsPage() {
   const firestore = useFirestore();
-  const { isUserLoading } = useUser();
-  const hackathonsQuery = useMemoFirebase(() => (!isUserLoading && firestore ? collection(firestore, 'hackathons') : null), [firestore, isUserLoading]);
+  const hackathonsQuery = useMemoFirebase(() => (firestore ? collection(firestore, 'hackathons') : null), [firestore]);
   const { data: liveHackathons, isLoading: isLoadingHackathons } = useCollection<Hackathon>(hackathonsQuery);
 
   const [filteredHackathons, setFilteredHackathons] = useState<Hackathon[]>([]);
@@ -98,7 +97,7 @@ export default function HackathonsPage() {
         </p>
       </div>
 
-      { !isLoadingHackathons && !isUserLoading ? (
+      { !isLoadingHackathons ? (
         <>
           <div className="mt-8 flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">

@@ -111,6 +111,10 @@ service cloud.firestore {
                       && fieldIsImmutable('id');
       allow delete: if isOwner(userId) && isExistingDoc();
     }
+    
+    match /studentProfiles/{profileId} {
+       allow get, list: if true;
+    }
 
     /**
      * @description Secures a user's client-specific profile information.
@@ -155,7 +159,7 @@ service cloud.firestore {
     }
 
     match /{path=**}/teams/{teamId} {
-        allow list: if isSignedIn();
+        allow list: if true;
     }
 
 
