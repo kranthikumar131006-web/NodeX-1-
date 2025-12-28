@@ -1,14 +1,14 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { TeamCard } from '@/components/shared/team-card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Filter, Search, Plus } from 'lucide-react';
+import { Filter, Search, Plus, X } from 'lucide-react';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import type { HackathonTeam } from '@/lib/types';
 import {
   Popover,
@@ -24,7 +24,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collectionGroup } from 'firebase/firestore';
 
 export default function HackathonTeamsPage() {
@@ -40,6 +40,8 @@ export default function HackathonTeamsPage() {
   
   const [filteredTeams, setFilteredTeams] = useState<HackathonTeam[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSearchResults, setShowSearchResults] = useState(false);
   
   // State for applied filters
   const [roleFilter, setRoleFilter] = useState('All');
@@ -56,6 +58,16 @@ export default function HackathonTeamsPage() {
     setHasMounted(true);
   }, []);
 
+  const searchResults = useMemo(() => {
+    if (!searchQuery) return [];
+    const lowercasedQuery = searchQuery.toLowerCase();
+    return (liveTeams || []).filter(t =>
+      t.name.toLowerCase().includes(lowercasedQuery) ||
+      t.lookingFor.some(l => l.role.toLowerCase().includes(lowercasedQuery)) ||
+      t.members.some(m => m.skills?.some(s => s.toLowerCase().includes(lowercasedQuery)))
+    );
+  }, [searchQuery, liveTeams]);
+
   useEffect(() => {
     if (liveTeams) {
       setAllRoles([
@@ -71,6 +83,15 @@ export default function HackathonTeamsPage() {
     if (roleFilter !== 'All') {
       result = result.filter(team => team.lookingFor.some(l => l.role === roleFilter));
     }
+
+    if (searchQuery) {
+        const lowercasedQuery = searchQuery.toLowerCase();
+        result = result.filter(t =>
+            t.name.toLowerCase().includes(lowercasedQuery) ||
+            t.lookingFor.some(l => l.role.toLowerCase().includes(lowercasedQuery)) ||
+            t.members.some(m => m.skills?.some(s => s.toLowerCase().includes(lowercasedQuery)))
+        );
+    }
     
     result.sort((a, b) => {
         const dateA = new Date(a.createdAt || 0);
@@ -83,7 +104,7 @@ export default function HackathonTeamsPage() {
     });
 
     setFilteredTeams(result);
-  }, [roleFilter, sortFilter, liveTeams]);
+  }, [roleFilter, sortFilter, liveTeams, searchQuery]);
 
   const handleApplyFilters = () => {
     setRoleFilter(tempRoleFilter);
@@ -150,7 +171,43 @@ export default function HackathonTeamsPage() {
           <div className="mt-8 flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Search by team name, required role, or skill..." className="pl-9" />
+                <Input 
+                  placeholder="Search by team name, required role, or skill..." 
+                  className="pl-9" 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setShowSearchResults(true)}
+                  onBlur={() => setTimeout(() => setShowSearchResults(false), 150)}
+                />
+                 {searchQuery && (
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6"
+                        onClick={() => setSearchQuery('')}
+                    >
+                        <X className="h-4 w-4 text-muted-foreground" />
+                    </Button>
+                )}
+                 {showSearchResults && searchResults.length > 0 && (
+                  <Card className="absolute top-full mt-2 w-full z-10 shadow-lg">
+                    <CardContent className="p-2 max-h-80 overflow-y-auto">
+                       <p className="p-2 text-xs font-semibold text-muted-foreground">
+                        {searchResults.length} team{searchResults.length === 1 ? '' : 's'} found
+                      </p>
+                      {searchResults.map(team => (
+                        <Link href={`/hackathons/teams/${team.id}?hackathonId=${team.hackathonId}`} key={team.id}>
+                           <div className="flex items-center gap-3 p-2 rounded-md hover:bg-accent cursor-pointer">
+                             <div>
+                               <p className="font-semibold">{team.name}</p>
+                               <p className="text-sm text-muted-foreground">{team.description}</p>
+                             </div>
+                           </div>
+                        </Link>
+                      ))}
+                    </CardContent>
+                  </Card>
+                )}
             </div>
             <Popover open={isFilterOpen} onOpenChange={onOpenChange}>
               <PopoverTrigger asChild>
@@ -221,6 +278,12 @@ export default function HackathonTeamsPage() {
               <TeamCard key={team.id} team={team} />
             ))}
           </div>
+          {filteredTeams.length === 0 && (
+            <div className="text-center py-16 col-span-full">
+              <h2 className="text-xl font-semibold">No Teams Found</h2>
+              <p className="text-muted-foreground mt-2">Try adjusting your search or filter criteria, or be the first to create a team!</p>
+            </div>
+          )}
         </>
       )}
     </div>
