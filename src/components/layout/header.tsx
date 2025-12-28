@@ -41,12 +41,8 @@ export default function Header() {
             <span className="font-bold text-lg">XYZ</span>
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="font-medium text-foreground/60 transition-colors hover:text-foreground/80"
-              >
+            {navLinks.map(link => (
+              <Link key={link.href} href={link.href} className="nav-link-effect">
                 {link.label}
               </Link>
             ))}
@@ -61,9 +57,7 @@ export default function Header() {
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
                     <AvatarImage src={user.photoURL || undefined} alt={user.displayName || 'User'} />
-                    <AvatarFallback>
-                      {user.displayName ? user.displayName[0].toUpperCase() : <UserIcon />}
-                    </AvatarFallback>
+                    <AvatarFallback>{user.displayName ? user.displayName[0].toUpperCase() : <UserIcon />}</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
