@@ -87,6 +87,8 @@ export default function SignupPage() {
             availability: 'Available',
             socialMediaLinks: [],
             avatarUrl: '',
+            rating: 0,
+            reviews: [],
         });
         toast({
             title: 'Account Created',

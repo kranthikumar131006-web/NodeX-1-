@@ -8,9 +8,10 @@ interface RatingProps {
 }
 
 export function Rating({ rating, totalReviews, className }: RatingProps) {
-  const fullStars = Math.floor(rating);
-  const halfStar = rating % 1 !== 0;
-  const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+  const validRating = typeof rating === 'number' && !isNaN(rating) ? Math.max(0, rating) : 0;
+  const fullStars = Math.floor(validRating);
+  const halfStar = validRating % 1 !== 0;
+  const emptyStars = Math.max(0, 5 - fullStars - (halfStar ? 1 : 0));
 
   return (
     <div className={cn("flex items-center gap-2", className)}>
