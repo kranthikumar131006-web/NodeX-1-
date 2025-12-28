@@ -17,7 +17,7 @@ import {
   GoogleAuthProvider,
   UserCredential,
 } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
 
 function GoogleIcon() {
@@ -60,35 +60,38 @@ export default function LoginPage() {
 
   const handleSuccess = async (userCredential: UserCredential) => {
     const user = userCredential.user;
-    // Check if it's a new user from a social login
-    const isNewUser =
-      userCredential.providerId !== 'password' &&
-      user.metadata.creationTime === user.metadata.lastSignInTime;
+    
+    // Determine user's role from Firestore
+    const userRef = doc(firestore, 'users', user.uid);
+    const userDoc = await getDoc(userRef);
 
-    if (isNewUser) {
-      const userRef = doc(firestore, 'users', user.uid);
-      await setDoc(
-        userRef,
-        {
-          id: user.uid,
-          username: user.displayName || user.email?.split('@')[0],
-          email: user.email,
-          role: loginType,
-          authProvider: user.providerData[0]?.providerId,
-        },
-        { merge: true }
-      );
-    }
-    toast({
-      title: 'Login Successful',
-      description: 'Redirecting...',
-    });
-    if (loginType === 'client') {
-      router.push('/freelancers');
+    let userRole = loginType; // Default to loginType
+    if (userDoc.exists()) {
+        userRole = userDoc.data()?.role || loginType;
     } else {
-      router.push('/profile');
+        // This is a new user via social login, so we need to create their user doc
+        await setDoc(userRef, {
+            id: user.uid,
+            username: user.displayName || user.email?.split('@')[0],
+            email: user.email,
+            role: loginType, // Use the selected login type
+            authProvider: user.providerData[0]?.providerId || 'password',
+        }, { merge: true });
+    }
+
+    toast({
+        title: 'Login Successful',
+        description: 'Redirecting...',
+    });
+
+    // Redirect based on the determined role
+    if (userRole === 'client') {
+        router.push('/freelancers');
+    } else { // 'student'
+        router.push('/profile');
     }
   };
+
 
   const handleError = (error: any) => {
     console.error('Authentication Error:', error);
