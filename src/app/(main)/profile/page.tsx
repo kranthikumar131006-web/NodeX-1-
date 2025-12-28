@@ -130,7 +130,7 @@ export default function ProfilePage() {
           const docSnap = await getDoc(profileRef);
           if (docSnap.exists()) {
             const data = docSnap.data();
-            setStudentProfile(prev => ({ ...prev, ...data, isFreelancing: data.isFreelancing || false }));
+            setStudentProfile(prev => ({ ...initialStudentData, ...prev, ...data, isFreelancing: data.isFreelancing || false }));
           } else {
             setStudentProfile(prev => ({
               ...initialStudentData,
@@ -219,7 +219,7 @@ export default function ProfilePage() {
       ...prev,
       certifications: [
         ...prev.certifications,
-        { name: '', url: '#', date: 'Not specified' }
+        { name: '', url: '', date: 'Not specified' }
       ]
     }));
   };
@@ -542,7 +542,7 @@ export default function ProfilePage() {
                         </p>
                         {studentProfile.socials.portfolioUrl ? (
                         <a href={ensureProtocol(studentProfile.socials.portfolioUrl)} target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-primary">
-                          {studentProfile.socials.portfolioUrl}{' '}
+                          {studentProfile.socials.portfolioUrl.replace(/^https?:\/\//, '')}
                           <ExternalLink className="ml-1 h-3 w-3" />
                         </a>
                         ) : <p>Not specified</p>}
@@ -567,7 +567,7 @@ export default function ProfilePage() {
                         <p className="text-xs text-muted-foreground">GitHub</p>
                          {studentProfile.socials.githubUrl ? (
                         <a href={ensureProtocol(studentProfile.socials.githubUrl)} target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-primary">
-                          {studentProfile.socials.githubUrl}{' '}
+                          {studentProfile.socials.githubUrl.replace(/^https?:\/\//, '')}
                           <ExternalLink className="ml-1 h-3 w-3" />
                         </a>
                          ) : <p>Not specified</p>}
@@ -579,7 +579,7 @@ export default function ProfilePage() {
                         <p className="text-xs text-muted-foreground">LinkedIn</p>
                         {studentProfile.socials.linkedinUrl ? (
                         <a href={ensureProtocol(studentProfile.socials.linkedinUrl)} target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-primary">
-                          {studentProfile.socials.linkedinUrl}
+                          {studentProfile.socials.linkedinUrl.replace(/^https?:\/\//, '')}
                           <ExternalLink className="ml-1 h-3 w-3" />
                         </a>
                         ): <p>Not specified</p>}
