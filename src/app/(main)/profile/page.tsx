@@ -251,10 +251,10 @@ export default function ProfilePage() {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, socials: {...prev.socials, [name]: value}}));
   }
-
+  
   const handleSkillsChange = (newSkills: string[]) => {
-    setFormData(prev => ({...prev, skills: newSkills}));
-  }
+    setFormData(prev => ({ ...prev, skills: newSkills }));
+  };
   
   const handleFreelancingToggle = (checked: boolean) => {
     const updatedProfile = {...studentProfile, isFreelancing: checked};
@@ -737,5 +737,3 @@ export default function ProfilePage() {
       </div>
   );
 }
-
-    
