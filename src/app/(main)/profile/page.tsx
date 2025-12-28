@@ -95,6 +95,20 @@ const ensureProtocol = (url: string) => {
     return url;
 };
 
+// Helper function to ensure all nested properties have default values
+const sanitizeProfileData = (data: any) => {
+  const sanitized = { ...initialStudentData, ...data };
+  sanitized.education = { ...initialStudentData.education, ...(data.education || {}) };
+  sanitized.socials = { ...initialStudentData.socials, ...(data.socials || {}) };
+  sanitized.certifications = (data.certifications || []).map((cert: any) => ({
+    name: cert.name || '',
+    url: cert.url || '',
+    date: cert.date || 'Not specified',
+  }));
+  return sanitized;
+};
+
+
 export default function ProfilePage() {
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
@@ -130,16 +144,16 @@ export default function ProfilePage() {
           const docSnap = await getDoc(profileRef);
           if (docSnap.exists()) {
             const data = docSnap.data();
-            setStudentProfile(prev => ({ ...initialStudentData, ...prev, ...data, isFreelancing: data.isFreelancing || false }));
+            setStudentProfile(sanitizeProfileData(data));
           } else {
-            setStudentProfile(prev => ({
-              ...initialStudentData,
+             const newProfile = {
               id: user.uid,
               userId: user.uid,
               name: user.displayName || user.email?.split('@')[0] || '',
               email: user.email || '',
               avatarUrl: user.photoURL || initialStudentData.avatarUrl,
-            }));
+            };
+            setStudentProfile(sanitizeProfileData(newProfile));
           }
           setPageState('student');
         } else if (role === 'client') {
@@ -193,7 +207,7 @@ export default function ProfilePage() {
 
   const onOpenChange = (open: boolean) => {
     if (open) {
-      setFormData(studentProfile);
+      setFormData(sanitizeProfileData(studentProfile));
     }
   };
 
