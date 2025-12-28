@@ -15,7 +15,6 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
   GoogleAuthProvider,
-  GithubAuthProvider,
   UserCredential,
 } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
@@ -132,7 +131,7 @@ export default function LoginPage() {
     signInWithEmailAndPassword(auth, email, password).then(handleSuccess).catch(handleError);
   };
 
-  const handleSocialLogin = (provider: GoogleAuthProvider | GithubAuthProvider) => {
+  const handleSocialLogin = (provider: GoogleAuthProvider) => {
     signInWithPopup(auth, provider).then(handleSuccess).catch(handleError);
   };
 
@@ -217,7 +216,7 @@ export default function LoginPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
-                <Link href="#" className="text-sm font-medium text-cyan-600 hover:text-cyan-500">
+                <Link href="/forgot-password" className="text-sm font-medium text-cyan-600 hover:text-cyan-500">
                   Forgot Password?
                 </Link>
               </div>
