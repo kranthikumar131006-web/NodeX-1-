@@ -16,6 +16,7 @@ import { useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { useUser } from '@/firebase/provider';
 import { Skeleton } from '../ui/skeleton';
+import Image from 'next/image';
 
 const navLinks = [
   { href: '/home', label: 'Home' },
@@ -38,7 +39,8 @@ export default function Header() {
       <div className="container flex h-16 items-center">
         <div className="mr-4 hidden md:flex">
           <Link href="/home" className="mr-6 flex items-center space-x-2">
-            <span className="font-bold text-lg">XYZ</span>
+            <Image src="/nodex-logo.png" alt="NodeX Logo" width={28} height={28} />
+            <span className="font-bold text-lg">NodeX</span>
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
             {navLinks.map(link => (
