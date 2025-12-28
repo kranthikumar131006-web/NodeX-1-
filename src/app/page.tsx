@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { GraduationCap, Briefcase, Mail, Lock, Check, ArrowRight, Github } from 'lucide-react';
+import { GraduationCap, Briefcase, Mail, Lock, Check, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
@@ -254,20 +254,13 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             <Button
               variant="outline"
               onClick={() => handleSocialLogin(new GoogleAuthProvider())}
             >
               <GoogleIcon />
               Google
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => handleSocialLogin(new GithubAuthProvider())}
-            >
-              <Github />
-              GitHub
             </Button>
           </div>
 
