@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { FreelancerCard } from '@/components/shared/freelancer-card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Filter, Search, Star } from 'lucide-react';
+import { Filter, Search, Star, X } from 'lucide-react';
 import type { Freelancer } from '@/lib/types';
 import {
   Popover,
@@ -25,10 +25,14 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection } from 'firebase/firestore';
+import Link from 'next/link';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export default function FreelancersPage() {
   const [filteredFreelancers, setFilteredFreelancers] = useState<Freelancer[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSearchResults, setShowSearchResults] = useState(false);
   
   const firestore = useFirestore();
   const freelancersQuery = useMemoFirebase(() => (firestore ? collection(firestore, 'studentProfiles') : null), [firestore]);
@@ -41,6 +45,14 @@ export default function FreelancersPage() {
   // Temporary state for filters inside popover
   const [tempAvailabilityFilter, setTempAvailabilityFilter] = useState('All');
   const [tempRatingFilter, setTempRatingFilter] = useState(0);
+  
+  const searchResults = useMemo(() => {
+    if (!searchQuery) return [];
+    return (freelancers || []).filter(f =>
+      f.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      f.skills?.some(s => s.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+  }, [searchQuery, freelancers]);
 
   useEffect(() => {
     let result = freelancers || [];
@@ -53,8 +65,15 @@ export default function FreelancersPage() {
       result = result.filter(f => f.rating >= ratingFilter);
     }
 
+    if (searchQuery) {
+      result = result.filter(f =>
+        f.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        f.skills?.some(s => s.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
+    }
+
     setFilteredFreelancers(result);
-  }, [availabilityFilter, ratingFilter, freelancers]);
+  }, [availabilityFilter, ratingFilter, freelancers, searchQuery]);
 
   const handleApplyFilters = () => {
     setAvailabilityFilter(tempAvailabilityFilter);
@@ -79,7 +98,6 @@ export default function FreelancersPage() {
     }
   };
 
-
   return (
     <div className="container py-8 md:py-12">
       <div className="text-center">
@@ -94,11 +112,51 @@ export default function FreelancersPage() {
           <div className="mt-8 flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Search by skill, name, or role..." className="pl-9" />
+                <Input 
+                  placeholder="Search by skill, name, or role..." 
+                  className="pl-9" 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setShowSearchResults(true)}
+                  onBlur={() => setTimeout(() => setShowSearchResults(false), 150)}
+                />
+                {searchQuery && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6"
+                    onClick={() => setSearchQuery('')}
+                  >
+                    <X className="h-4 w-4 text-muted-foreground" />
+                  </Button>
+                )}
+                {showSearchResults && searchResults.length > 0 && (
+                  <Card className="absolute top-full mt-2 w-full z-10 shadow-lg">
+                    <CardContent className="p-2 max-h-80 overflow-y-auto">
+                      <p className="p-2 text-xs font-semibold text-muted-foreground">
+                        {searchResults.length} freelancer{searchResults.length === 1 ? '' : 's'} found
+                      </p>
+                      {searchResults.map(freelancer => (
+                        <Link href={`/freelancers/${freelancer.id}`} key={freelancer.id}>
+                           <div className="flex items-center gap-3 p-2 rounded-md hover:bg-accent cursor-pointer">
+                             <Avatar className="h-10 w-10 border">
+                               <AvatarImage src={freelancer.avatarUrl} />
+                               <AvatarFallback>{freelancer.name.charAt(0)}</AvatarFallback>
+                             </Avatar>
+                             <div>
+                               <p className="font-semibold">{freelancer.name}</p>
+                               <p className="text-sm text-muted-foreground">{freelancer.tagline}</p>
+                             </div>
+                           </div>
+                        </Link>
+                      ))}
+                    </CardContent>
+                  </Card>
+                )}
             </div>
             <Popover open={isFilterOpen} onOpenChange={onOpenChange}>
                 <PopoverTrigger asChild>
-                    <Button variant="outline" className="font-medium">
+                    <Button variant="outline">
                         <Filter className="mr-2 h-4 w-4" />
                         Filters
                     </Button>
@@ -151,8 +209,8 @@ export default function FreelancersPage() {
                     </div>
                   </div>
                   <div className="flex justify-between">
-                   <Button variant="ghost" onClick={handleClearFilters} className="font-medium">Clear Filters</Button>
-                   <Button onClick={handleApplyFilters} className="font-medium">Apply</Button>
+                   <Button variant="ghost" onClick={handleClearFilters}>Clear Filters</Button>
+                   <Button onClick={handleApplyFilters}>Apply</Button>
                   </div>
                 </div>
               </PopoverContent>
@@ -164,6 +222,12 @@ export default function FreelancersPage() {
                 <FreelancerCard key={freelancer.id} freelancer={freelancer} />
             ))}
           </div>
+          {filteredFreelancers.length === 0 && !isLoading && (
+            <div className="text-center py-16 col-span-full">
+              <h2 className="text-xl font-semibold">No Freelancers Found</h2>
+              <p className="text-muted-foreground mt-2">Try adjusting your search or filter criteria.</p>
+            </div>
+          )}
         </>
       ) : (
         <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
