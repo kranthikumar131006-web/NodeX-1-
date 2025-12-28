@@ -59,23 +59,23 @@ export function useCollection<T = any>(
   type StateDataType = ResultItemType[] | null;
 
   const [data, setData] = useState<StateDataType>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true); // Default to true
   const [error, setError] = useState<FirestoreError | Error | null>(null);
   const { isUserLoading } = useUser();
 
   useEffect(() => {
-    // Wait until auth state is determined and a query is provided
+    // Wait until auth state is determined. If no query is provided, we are also in a 'loading' or 'not ready' state.
     if (isUserLoading || !memoizedTargetRefOrQuery) {
       setData(null);
-      setIsLoading(isUserLoading); // Reflect auth loading state
+      setIsLoading(true); // Keep loading until both auth is ready and query is provided
       setError(null);
       return;
     }
 
+    // From this point, auth is resolved and we have a query.
     setIsLoading(true);
     setError(null);
 
-    // Directly use memoizedTargetRefOrQuery as it's assumed to be the final query
     const unsubscribe = onSnapshot(
       memoizedTargetRefOrQuery,
       (snapshot: QuerySnapshot<DocumentData>) => {
@@ -114,5 +114,5 @@ export function useCollection<T = any>(
   if(memoizedTargetRefOrQuery && !memoizedTargetRefOrQuery.__memo) {
     throw new Error('Query was not properly memoized using useMemoFirebase: ' + (memoizedTargetRefOrQuery as any)._query?.path?.toString());
   }
-  return { data, isLoading, error };
+  return { data, isLoading: isUserLoading || isLoading, error };
 }
