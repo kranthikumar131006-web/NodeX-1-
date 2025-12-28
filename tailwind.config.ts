@@ -17,8 +17,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        body: ['PT Sans', 'sans-serif'],
-        headline: ['Poppins', 'sans-serif'],
+        body: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        headline: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {
