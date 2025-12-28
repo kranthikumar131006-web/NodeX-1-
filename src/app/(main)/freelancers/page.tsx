@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { FreelancerCard } from '@/components/shared/freelancer-card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
