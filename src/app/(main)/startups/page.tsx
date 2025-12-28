@@ -35,8 +35,11 @@ import { Card } from '@/components/ui/card';
 
 export default function StartupsPage() {
   const firestore = useFirestore();
-  const { user } = useUser();
-  const startupsQuery = useMemoFirebase(() => collection(firestore, 'startups'), [firestore]);
+  const { user, isUserLoading } = useUser();
+  const startupsQuery = useMemoFirebase(
+    () => (!isUserLoading && firestore ? collection(firestore, 'startups') : null),
+    [firestore, isUserLoading]
+  );
   const { data: startups, isLoading: isLoadingStartups } = useCollection<Startup>(startupsQuery);
   
   const [filteredStartups, setFilteredStartups] = useState<Startup[]>([]);

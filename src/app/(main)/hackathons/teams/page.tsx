@@ -33,8 +33,8 @@ export default function HackathonTeamsPage() {
 
   // Defer query creation until firestore and user are available
   const teamsQuery = useMemoFirebase(
-    () => (firestore && user ? collectionGroup(firestore, 'teams') : null),
-    [firestore, user]
+    () => (firestore ? collectionGroup(firestore, 'teams') : null),
+    [firestore]
   );
   
   const { data: liveTeams, isLoading: isLoadingTeams } = useCollection<HackathonTeam>(teamsQuery);

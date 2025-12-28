@@ -7,30 +7,31 @@ import { StartupCard } from '@/components/shared/startup-card';
 import { HackathonCard } from '@/components/shared/hackathon-card';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { ArrowRight, Briefcase, Rocket, Trophy } from 'lucide-react';
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import { collection, collectionGroup } from 'firebase/firestore';
 import type { Freelancer, Startup, Hackathon } from '@/lib/types';
 
 export default function HomePage() {
   const heroImage = PlaceHolderImages.find(img => img.id === 'landing-hero');
   const firestore = useFirestore();
+  const { isUserLoading } = useUser();
 
   const freelancersQuery = useMemoFirebase(
-    () => (firestore ? collectionGroup(firestore, 'studentProfiles') : null),
-    [firestore]
+    () => (!isUserLoading && firestore ? collectionGroup(firestore, 'studentProfiles') : null),
+    [firestore, isUserLoading]
   );
   const { data: freelancers, isLoading: isLoadingFreelancers } = useCollection<Freelancer>(freelancersQuery);
 
 
   const startupsQuery = useMemoFirebase(
-    () => (firestore ? collection(firestore, 'startups') : null),
-    [firestore]
+    () => (!isUserLoading && firestore ? collection(firestore, 'startups') : null),
+    [firestore, isUserLoading]
   );
   const { data: startups, isLoading: isLoadingStartups } = useCollection<Startup>(startupsQuery);
   
   const hackathonsQuery = useMemoFirebase(
-    () => (firestore ? collection(firestore, 'hackathons') : null),
-    [firestore]
+    () => (!isUserLoading && firestore ? collection(firestore, 'hackathons') : null),
+    [firestore, isUserLoading]
   );
   const { data: hackathons, isLoading: isLoadingHackathons } = useCollection<Hackathon>(hackathonsQuery);
 
