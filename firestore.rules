@@ -5,14 +5,14 @@
  *
  * Core Philosophy:
  * - A user has complete control over their own data.
- * - Publicly listed data (like hackathons and startups) is readable by anyone
+ * - Publicly listed data (like hackathons, startups, and profiles) is readable by anyone
  *   to encourage discovery, but write access is restricted to the document owner.
  * - Collaborative data (like teams) is accessible only to its members.
  *
  * Data Structure:
- * - All private user data, including distinct `studentProfiles` and
- *   `clientProfiles`, is nested under the `/users/{userId}` path. This
- *   leverages path-based security to ensure data privacy.
+ * - `/users/{userId}` stores primary authentication info.
+ * - `/studentProfiles/{profileId}` and `/clientProfiles/{profileId}` are top-level
+ *   collections for easy public listing. Security is enforced via a `userId` field.
  * - Top-level collections like `/hackathons` and `/startups` are used for
  *   data intended for public consumption.
  * - Team data is nested under its parent hackathon at
@@ -22,20 +22,14 @@
  * - Default Deny: All paths are closed by default. Access is granted explicitly.
  * - No User Listing: It is not possible to list all documents in the `/users`
  *   collection, protecting user privacy.
- * - Owner-Only Writes: Writes to public data collections like hackathons and
- *   startups are restricted to the user who created them, identified by a `userId` field.
+ * - Owner-Only Writes: Writes to all data collections are restricted to the
+ *   user who created them, identified by a `userId` field in the document.
  *
 * Denormalization for Authorization:
  * - The rules for `/hackathons/{hackathonId}/teams/{teamId}` rely on the
  *   `memberIds` array being denormalized directly onto the team document. This
  *   allows for an efficient check to see if a user is a member of a team
  *   without needing extra database reads.
- *
- * Structural Segregation:
- * - The separation of `studentProfiles` and `clientProfiles` into different
- *   subcollections under a user's document allows for distinct security logic
- *   and data shapes for each profile type, while still being protected under
- *   the same user-ownership model.
  */
 rules_version = '2';
 service cloud.firestore {
@@ -92,49 +86,37 @@ service cloud.firestore {
     }
 
     /**
-     * @description Secures a user's student-specific profile information.
-     * @path /users/{userId}/studentProfiles/{studentProfileId}
-     * @allow (read, write) A user accessing their own student profile: `get /users/user123/studentProfiles/profileABC`
-     * @deny (read, write) A user trying to access another user's profile: `get /users/user456/studentProfiles/profileXYZ`
-     * @principle Restricts access to a user's own data tree using path-based ownership.
+     * @description Secures student-specific profile information. Publicly readable for discovery.
+     * @path /studentProfiles/{studentProfileId}
+     * @principle Data is public-read. Writes are owner-only.
      */
-    match /users/{userId}/studentProfiles/{studentProfileId} {
-      allow get, list: if isOwner(userId);
-      allow create: if isOwner(userId) 
-                      && studentProfileId == userId
-                      && request.resource.data.userId == userId
-                      && request.resource.data.id == userId;
-      allow update: if isOwner(userId) 
-                      && isExistingDoc()
-                      && studentProfileId == userId
+    match /studentProfiles/{studentProfileId} {
+      allow get, list: if true;
+      allow create: if isSignedIn() 
+                      && request.resource.data.userId == request.auth.uid
+                      && request.resource.data.id == request.auth.uid;
+      allow update: if isDocumentOwner()
+                      && isExistingDoc() 
                       && fieldIsImmutable('userId')
                       && fieldIsImmutable('id');
-      allow delete: if isOwner(userId) && isExistingDoc();
+      allow delete: if isDocumentOwner() && isExistingDoc();
     }
     
-    match /studentProfiles/{profileId} {
-       allow get, list: if true;
-    }
-
     /**
-     * @description Secures a user's client-specific profile information.
-     * @path /users/{userId}/clientProfiles/{clientProfileId}
-     * @allow (read, write) A user accessing their own client profile: `get /users/user123/clientProfiles/profileABC`
-     * @deny (read, write) A user trying to access another user's profile: `get /users/user456/clientProfiles/profileXYZ`
-     * @principle Restricts access to a user's own data tree using path-based ownership.
+     * @description Secures client-specific profile information. Publicly readable for discovery.
+     * @path /clientProfiles/{clientProfileId}
+     * @principle Data is public-read. Writes are owner-only.
      */
-    match /users/{userId}/clientProfiles/{clientProfileId} {
-      allow get, list: if isOwner(userId);
-      allow create: if isOwner(userId) 
-                      && clientProfileId == userId
-                      && request.resource.data.userId == userId
-                      && request.resource.data.id == userId;
-      allow update: if isOwner(userId) 
-                      && isExistingDoc() 
-                      && clientProfileId == userId
+    match /clientProfiles/{clientProfileId} {
+      allow get, list: if true;
+      allow create: if isSignedIn()
+                      && request.resource.data.userId == request.auth.uid
+                      && request.resource.data.id == request.auth.uid;
+      allow update: if isDocumentOwner()
+                      && isExistingDoc()
                       && fieldIsImmutable('userId')
                       && fieldIsImmutable('id');
-      allow delete: if isOwner(userId) && isExistingDoc();
+      allow delete: if isDocumentOwner() && isExistingDoc();
     }
 
     /**

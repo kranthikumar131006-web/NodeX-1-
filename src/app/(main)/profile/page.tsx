@@ -126,7 +126,7 @@ export default function ProfilePage() {
         const role = userDoc.data()?.role;
 
         if (role === 'student') {
-          const profileRef = doc(firestore, 'users', user.uid, 'studentProfiles', user.uid);
+          const profileRef = doc(firestore, 'studentProfiles', user.uid);
           const docSnap = await getDoc(profileRef);
           if (docSnap.exists()) {
             const data = docSnap.data();
@@ -143,7 +143,7 @@ export default function ProfilePage() {
           }
           setPageState('student');
         } else if (role === 'client') {
-          const profileRef = doc(firestore, 'users', user.uid, 'clientProfiles', user.uid);
+          const profileRef = doc(firestore, 'clientProfiles', user.uid);
           const docSnap = await getDoc(profileRef);
           if (docSnap.exists()) {
             setClientProfile(docSnap.data() as typeof initialClientData);
@@ -242,7 +242,7 @@ export default function ProfilePage() {
     const updatedProfile = {...studentProfile, isFreelancing: checked};
     setStudentProfile(updatedProfile); // Optimistically update UI
     if (!user) return;
-    const userProfileRef = doc(firestore, 'users', user.uid, 'studentProfiles', user.uid);
+    const userProfileRef = doc(firestore, 'studentProfiles', user.uid);
     setDocumentNonBlocking(userProfileRef, { isFreelancing: checked }, { merge: true });
     toast({
         title: `Freelancing mode ${checked ? 'enabled' : 'disabled'}.`,
@@ -271,7 +271,7 @@ export default function ProfilePage() {
         return;
     }
     
-    const userProfileRef = doc(firestore, 'users', user.uid, 'studentProfiles', user.uid);
+    const userProfileRef = doc(firestore, 'studentProfiles', user.uid);
     const dataToSave = {
       ...formData,
       userId: user.uid,

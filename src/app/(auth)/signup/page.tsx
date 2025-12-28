@@ -56,7 +56,7 @@ export default function SignupPage() {
 
     // Create the role-specific profile document
     if (role === 'client') {
-        const clientProfileRef = doc(firestore, `users/${user.uid}/clientProfiles/${user.uid}`);
+        const clientProfileRef = doc(firestore, `clientProfiles`, user.uid);
         await setDoc(clientProfileRef, {
             id: user.uid,
             userId: user.uid,
@@ -71,7 +71,7 @@ export default function SignupPage() {
         router.push('/freelancers');
 
     } else { // 'student'
-        const studentProfileRef = doc(firestore, `users/${user.uid}/studentProfiles/${user.uid}`);
+        const studentProfileRef = doc(firestore, `studentProfiles`, user.uid);
         await setDoc(studentProfileRef, {
             id: user.uid,
             userId: user.uid,

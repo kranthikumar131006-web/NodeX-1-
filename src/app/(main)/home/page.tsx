@@ -5,31 +5,31 @@ import { Button } from '@/components/ui/button';
 import { FreelancerCard } from '@/components/shared/freelancer-card';
 import { StartupCard } from '@/components/shared/startup-card';
 import { HackathonCard } from '@/components/shared/hackathon-card';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { ArrowRight, Briefcase, Rocket, Trophy } from 'lucide-react';
-import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
-import { collection, collectionGroup } from 'firebase/firestore';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection, query, limit } from 'firebase/firestore';
 import type { Freelancer, Startup, Hackathon } from '@/lib/types';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export default function HomePage() {
   const heroImage = PlaceHolderImages.find(img => img.id === 'landing-hero');
   const firestore = useFirestore();
 
   const freelancersQuery = useMemoFirebase(
-    () => (firestore ? collectionGroup(firestore, 'studentProfiles') : null),
+    () => (firestore ? query(collection(firestore, 'studentProfiles'), limit(4)) : null),
     [firestore]
   );
   const { data: freelancers, isLoading: isLoadingFreelancers } = useCollection<Freelancer>(freelancersQuery);
 
 
   const startupsQuery = useMemoFirebase(
-    () => (firestore ? collection(firestore, 'startups') : null),
+    () => (firestore ? query(collection(firestore, 'startups'), limit(3)) : null),
     [firestore]
   );
   const { data: startups, isLoading: isLoadingStartups } = useCollection<Startup>(startupsQuery);
   
   const hackathonsQuery = useMemoFirebase(
-    () => (firestore ? collection(firestore, 'hackathons') : null),
+    () => (firestore ? query(collection(firestore, 'hackathons'), limit(3)) : null),
     [firestore]
   );
   const { data: hackathons, isLoading: isLoadingHackathons } = useCollection<Hackathon>(hackathonsQuery);
@@ -82,7 +82,7 @@ export default function HomePage() {
               </Button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {(freelancers || []).slice(0, 4).map((freelancer) => (
+              {(freelancers || []).map((freelancer) => (
                 <FreelancerCard key={freelancer.id} freelancer={freelancer} />
               ))}
             </div>
@@ -102,7 +102,7 @@ export default function HomePage() {
               </Button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {(startups || []).slice(0, 3).map((startup) => (
+              {(startups || []).map((startup) => (
                 <StartupCard key={startup.id} startup={startup} />
               ))}
             </div>
@@ -122,7 +122,7 @@ export default function HomePage() {
               </Button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {(hackathons || []).slice(0, 3).map((hackathon) => (
+              {(hackathons || []).map((hackathon) => (
                 <HackathonCard key={hackathon.id} hackathon={hackathon} />
               ))}
             </div>

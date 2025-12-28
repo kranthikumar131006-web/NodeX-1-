@@ -2,7 +2,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { freelancers as staticFreelancers } from '@/lib/data';
 import { FreelancerCard } from '@/components/shared/freelancer-card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -24,12 +23,16 @@ import {
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
 
 export default function FreelancersPage() {
-  const [freelancers, setFreelancers] = useState<Freelancer[]>([]);
   const [filteredFreelancers, setFilteredFreelancers] = useState<Freelancer[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [hasMounted, setHasMounted] = useState(false);
+  
+  const firestore = useFirestore();
+  const freelancersQuery = useMemoFirebase(() => (firestore ? collection(firestore, 'studentProfiles') : null), [firestore]);
+  const { data: freelancers, isLoading } = useCollection<Freelancer>(freelancersQuery);
 
   // State for applied filters
   const [availabilityFilter, setAvailabilityFilter] = useState('All');
@@ -40,56 +43,7 @@ export default function FreelancersPage() {
   const [tempRatingFilter, setTempRatingFilter] = useState(0);
 
   useEffect(() => {
-    setHasMounted(true);
-  }, []);
-
-  useEffect(() => {
-    const updateFreelancersList = () => {
-      let currentFreelancers = [...staticFreelancers];
-      try {
-        const savedProfile = localStorage.getItem('userProfile');
-        if (savedProfile) {
-          const userProfile = JSON.parse(savedProfile);
-          const profileExists = currentFreelancers.some(f => f.id === userProfile.id);
-
-          if (userProfile.isFreelancing && !profileExists) {
-            currentFreelancers = [userProfile, ...currentFreelancers];
-          } else if (!userProfile.isFreelancing && profileExists) {
-            currentFreelancers = currentFreelancers.filter(f => f.id !== userProfile.id);
-          }
-        }
-      } catch (error) {
-        console.error("Failed to process user profile from localStorage", error);
-      }
-      setFreelancers(currentFreelancers);
-    }
-
-    if (hasMounted) {
-      updateFreelancersList();
-
-      // Listen for custom event from the profile page
-      window.addEventListener('profileUpdated', updateFreelancersList);
-
-      // Listen for changes from other tabs
-      window.addEventListener('storage', (e) => {
-          if (e.key === 'userProfile') {
-              updateFreelancersList();
-          }
-      });
-
-      return () => {
-          window.removeEventListener('profileUpdated', updateFreelancersList);
-          window.removeEventListener('storage', (e) => {
-              if (e.key === 'userProfile') {
-                  updateFreelancersList();
-              }
-          });
-      };
-    }
-  }, [hasMounted]);
-
-  useEffect(() => {
-    let result = freelancers;
+    let result = freelancers || [];
 
     if (availabilityFilter !== 'All') {
       result = result.filter(f => f.availability === availabilityFilter);
@@ -135,7 +89,7 @@ export default function FreelancersPage() {
         </p>
       </div>
     
-      {hasMounted ? (
+      { !isLoading ? (
         <>
           <div className="mt-8 flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">
