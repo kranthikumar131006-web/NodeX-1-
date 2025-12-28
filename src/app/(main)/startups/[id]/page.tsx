@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
@@ -126,16 +127,18 @@ export default function StartupDetailPage() {
         <header className="relative mb-8 rounded-xl bg-card p-8 md:p-12 overflow-hidden">
           <div className="absolute inset-0 bg-secondary/30 opacity-50 h-48"></div>
            <div className="relative flex flex-col md:flex-row gap-8 items-center">
-              <div className="p-2 bg-background rounded-full border-4 border-background shadow-md -mt-24 md:-mt-12">
-                  <Image
-                  src={startup.logoUrl}
-                  alt={`${startup.name} logo`}
-                  width={96}
-                  height={96}
-                  className="rounded-full"
-                  data-ai-hint={startup.imageHint}
-                />
-              </div>
+              {startup.logoUrl && (
+                <div className="p-2 bg-background rounded-full border-4 border-background shadow-md -mt-24 md:-mt-12">
+                    <Image
+                    src={startup.logoUrl}
+                    alt={`${startup.name} logo`}
+                    width={96}
+                    height={96}
+                    className="rounded-full"
+                    data-ai-hint={startup.imageHint}
+                  />
+                </div>
+              )}
             <div className="flex-1 text-center md:text-left">
               <h1 className="font-headline text-4xl font-bold">{startup.name}</h1>
               <p className="mt-2 text-lg text-muted-foreground">{startup.tagline}</p>
@@ -297,3 +300,5 @@ export default function StartupDetailPage() {
     </div>
   );
 }
+
+    

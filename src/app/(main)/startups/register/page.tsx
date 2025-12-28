@@ -121,8 +121,6 @@ export default function RegisterStartupPage() {
       // id will be auto-generated
       userId: user.uid,
       name: formData.name,
-      logoUrl: 'https://picsum.photos/seed/new-startup/64/64',
-      imageHint: 'abstract logo',
       tagline: formData.tagline,
       industry: formData.industry,
       location: 'Not specified',

@@ -1,3 +1,4 @@
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -14,14 +15,16 @@ export function StartupCard({ startup }: StartupCardProps) {
   return (
     <Card className="flex flex-col h-full overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
       <CardHeader className="flex-row items-center gap-4 p-4">
-        <Image
-          src={startup.logoUrl}
-          alt={`${startup.name} logo`}
-          width={64}
-          height={64}
-          className="rounded-lg object-cover"
-          data-ai-hint={startup.imageHint}
-        />
+        {startup.logoUrl && (
+          <Image
+            src={startup.logoUrl}
+            alt={`${startup.name} logo`}
+            width={64}
+            height={64}
+            className="rounded-lg object-cover"
+            data-ai-hint={startup.imageHint}
+          />
+        )}
         <div className="flex-1">
           <Link href={`/startups/${startup.id}`}>
             <CardTitle className="font-headline text-lg hover:text-primary transition-colors">{startup.name}</CardTitle>
@@ -44,3 +47,5 @@ export function StartupCard({ startup }: StartupCardProps) {
     </Card>
   );
 }
+
+    

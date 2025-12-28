@@ -48,8 +48,8 @@ export type Startup = {
   id: string;
   userId: string;
   name: string;
-  logoUrl: string;
-  imageHint: string;
+  logoUrl?: string;
+  imageHint?: string;
   tagline: string;
   industry: string;
   location: string;
@@ -95,3 +95,5 @@ export type HackathonTeam = {
   memberIds: string[];
   lookingFor: { role: string; skills: string[] }[];
 };
+
+    
