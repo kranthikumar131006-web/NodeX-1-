@@ -218,7 +218,7 @@ export default function FreelancerDetailPage() {
                 <CardTitle className="text-lg">Skills</CardTitle>
               </CardHeader>
               <CardContent className="flex flex-wrap gap-2">
-                {freelancer.skills.length > 0 ? freelancer.skills.map((skill) => (
+                {(freelancer.skills || []).length > 0 ? freelancer.skills.map((skill) => (
                   <Badge key={skill} variant="outline" className="px-3 py-1 text-sm font-normal">
                     {skill}
                   </Badge>
