@@ -1,15 +1,43 @@
+'use client';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { freelancers, startups, hackathons } from '@/lib/data';
 import { FreelancerCard } from '@/components/shared/freelancer-card';
 import { StartupCard } from '@/components/shared/startup-card';
 import { HackathonCard } from '@/components/shared/hackathon-card';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { ArrowRight, Briefcase, Rocket, Trophy } from 'lucide-react';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
+import type { Freelancer, Startup, Hackathon } from '@/lib/types';
 
 export default function HomePage() {
   const heroImage = PlaceHolderImages.find(img => img.id === 'landing-hero');
+  const firestore = useFirestore();
+
+  const freelancersQuery = useMemoFirebase(
+    () => (firestore ? collection(firestore, 'users') : null),
+    [firestore]
+  );
+  // This is a simplified query. In a real app, you'd query a dedicated 'freelancers' collection
+  // or filter users by role. For now, we assume all users in 'studentProfiles' are potential freelancers.
+  const studentProfilesQuery = useMemoFirebase(
+    () => (firestore ? collection(firestore, 'studentprofiles') : null), // This assumes a root collection
+    [firestore]
+  );
+  const { data: freelancers, isLoading: isLoadingFreelancers } = useCollection<Freelancer>(studentProfilesQuery);
+
+  const startupsQuery = useMemoFirebase(
+    () => (firestore ? collection(firestore, 'startups') : null),
+    [firestore]
+  );
+  const { data: startups, isLoading: isLoadingStartups } = useCollection<Startup>(startupsQuery);
+  
+  const hackathonsQuery = useMemoFirebase(
+    () => (firestore ? collection(firestore, 'hackathons') : null),
+    [firestore]
+  );
+  const { data: hackathons, isLoading: isLoadingHackathons } = useCollection<Hackathon>(hackathonsQuery);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -17,7 +45,7 @@ export default function HomePage() {
         {/* Hero Section */}
         <section className="relative py-20 md:py-32 bg-secondary/50">
            <div className="absolute inset-0">
-                {heroImage && (
+                {heroImage ? (
                     <Image
                     src={heroImage.imageUrl}
                     alt="Nexus Hub Hero Image"
@@ -26,6 +54,8 @@ export default function HomePage() {
                     priority
                     data-ai-hint={heroImage.imageHint}
                     />
+                ) : (
+                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
            </div>
@@ -57,10 +87,13 @@ export default function HomePage() {
               </Button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {freelancers.slice(0, 4).map((freelancer) => (
+              {(freelancers || []).slice(0, 4).map((freelancer) => (
                 <FreelancerCard key={freelancer.id} freelancer={freelancer} />
               ))}
             </div>
+             {(freelancers || []).length === 0 && !isLoadingFreelancers && (
+              <p className="text-muted-foreground">No freelancers have been featured yet.</p>
+            )}
           </div>
         </section>
 
@@ -74,10 +107,13 @@ export default function HomePage() {
               </Button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {startups.map((startup) => (
+              {(startups || []).slice(0, 3).map((startup) => (
                 <StartupCard key={startup.id} startup={startup} />
               ))}
             </div>
+            {(startups || []).length === 0 && !isLoadingStartups && (
+              <p className="text-muted-foreground">No startups have been featured yet.</p>
+            )}
           </div>
         </section>
 
@@ -91,10 +127,13 @@ export default function HomePage() {
               </Button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {hackathons.map((hackathon) => (
+              {(hackathons || []).slice(0, 3).map((hackathon) => (
                 <HackathonCard key={hackathon.id} hackathon={hackathon} />
               ))}
             </div>
+             {(hackathons || []).length === 0 && !isLoadingHackathons && (
+              <p className="text-muted-foreground">No hackathons have been scheduled yet.</p>
+            )}
           </div>
         </section>
       </main>
