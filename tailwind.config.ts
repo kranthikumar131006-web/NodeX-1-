@@ -17,8 +17,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        body: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-        headline: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        body: ['Satoshi', 'system-ui', '-apple-system', 'sans-serif'],
+        headline: ['Satoshi', 'system-ui', '-apple-system', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {
