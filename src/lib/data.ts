@@ -17,4 +17,4 @@ export const hackathons: Hackathon[] = [];
 
 export const hackathonTeams: HackathonTeam[] = [];
 
-export const availableOpportunities = [];
+export const availableOpportunities: (HackathonTeam)[] = [];
