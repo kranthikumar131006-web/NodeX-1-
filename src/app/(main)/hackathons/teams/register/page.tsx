@@ -109,7 +109,7 @@ export default function RegisterTeamPage() {
         name: user.displayName || user.email || 'Team Lead',
         role: 'Team Lead',
         email: user.email || '',
-        avatarUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/64/64`,
+        avatarUrl: user.photoURL || '',
         imageHint: 'person portrait',
         skills: [],
     };
@@ -120,7 +120,7 @@ export default function RegisterTeamPage() {
         id: `member-${Date.now()}-${index}`, // Temporary unique ID
         name: member.name,
         role: member.role,
-        avatarUrl: `https://picsum.photos/seed/${member.name}/64/64`,
+        avatarUrl: '',
         imageHint: 'person portrait',
         skills: member.skills,
       }));
