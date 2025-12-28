@@ -105,74 +105,70 @@ export default function ProfilePage() {
   const [studentProfile, setStudentProfile] = useState(initialStudentData);
   const [clientProfile, setClientProfile] = useState(initialClientData);
 
-  const userRef = useMemoFirebase(
-    () => (firestore && user ? doc(firestore, 'users', user.uid) : null),
-    [firestore, user]
-  );
-  
   useEffect(() => {
-    if (isUserLoading) return;
+    if (isUserLoading) {
+      return; // Wait until user auth state is determined
+    }
     if (!user) {
       router.push('/');
       return;
     }
 
     const fetchProfileData = async () => {
-      if (!userRef) {
-        setPageState('error');
-        return;
-      }
-      const userDoc = await getDoc(userRef);
-      if (!userDoc.exists()) {
-        setPageState('error');
-        return;
-      }
-
-      const role = userDoc.data()?.role;
-
-      if (role === 'student') {
-        const profileRef = doc(firestore, 'users', user.uid, 'studentProfiles', user.uid);
-        const docSnap = await getDoc(profileRef);
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          setStudentProfile(prev => ({ ...prev, ...data, isFreelancing: data.isFreelancing || false }));
-        } else {
-          setStudentProfile(prev => ({
-            ...initialStudentData,
-            id: user.uid,
-            userId: user.uid,
-            name: user.displayName || user.email?.split('@')[0] || '',
-            email: user.email || '',
-            avatarUrl: user.photoURL || initialStudentData.avatarUrl,
-          }));
+      const userRef = doc(firestore, 'users', user.uid);
+      try {
+        const userDoc = await getDoc(userRef);
+        if (!userDoc.exists()) {
+          setPageState('error');
+          return;
         }
-        setPageState('student');
-      } else if (role === 'client') {
-        const profileRef = doc(firestore, 'users', user.uid, 'clientProfiles', user.uid);
-        const docSnap = await getDoc(profileRef);
-        if (docSnap.exists()) {
-          setClientProfile(docSnap.data() as typeof initialClientData);
-        } else {
-           setClientProfile(prev => ({
-              ...initialClientData,
+        
+        const role = userDoc.data()?.role;
+
+        if (role === 'student') {
+          const profileRef = doc(firestore, 'users', user.uid, 'studentProfiles', user.uid);
+          const docSnap = await getDoc(profileRef);
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            setStudentProfile(prev => ({ ...prev, ...data, isFreelancing: data.isFreelancing || false }));
+          } else {
+            setStudentProfile(prev => ({
+              ...initialStudentData,
               id: user.uid,
               userId: user.uid,
-              contactName: user.displayName || user.email?.split('@')[0] || '',
+              name: user.displayName || user.email?.split('@')[0] || '',
               email: user.email || '',
+              avatarUrl: user.photoURL || initialStudentData.avatarUrl,
             }));
+          }
+          setPageState('student');
+        } else if (role === 'client') {
+          const profileRef = doc(firestore, 'users', user.uid, 'clientProfiles', user.uid);
+          const docSnap = await getDoc(profileRef);
+          if (docSnap.exists()) {
+            setClientProfile(docSnap.data() as typeof initialClientData);
+          } else {
+             setClientProfile(prev => ({
+                ...initialClientData,
+                id: user.uid,
+                userId: user.uid,
+                contactName: user.displayName || user.email?.split('@')[0] || '',
+                email: user.email || '',
+              }));
+          }
+          setPageState('client');
+        } else {
+          setPageState('error');
         }
-        setPageState('client');
-      } else {
+      } catch (err) {
+        console.error("Error fetching profile data:", err);
         setPageState('error');
       }
     };
     
-    fetchProfileData().catch(err => {
-      console.error("Error fetching profile data:", err);
-      setPageState('error');
-    });
+    fetchProfileData();
 
-  }, [user, isUserLoading, userRef, firestore, router]);
+  }, [user, isUserLoading, firestore, router]);
 
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -275,8 +271,6 @@ export default function ProfilePage() {
         return;
     }
     
-    if (!userRef) return; // Should not happen if user is logged in.
-
     const userProfileRef = doc(firestore, 'users', user.uid, 'studentProfiles', user.uid);
     const dataToSave = {
       ...formData,
@@ -727,3 +721,5 @@ export default function ProfilePage() {
       </div>
   );
 }
+
+    
