@@ -39,6 +39,7 @@ export default function SignupPage() {
 
   const handleSuccess = async (userCredential: UserCredential) => {
     const user = userCredential.user;
+    const defaultUsername = user.email?.split('@')[0] || `user_${user.uid.substring(0, 5)}`;
     
     // Create the main user document
     const userRef = doc(firestore, 'users', user.uid);
@@ -46,7 +47,7 @@ export default function SignupPage() {
       userRef,
       {
         id: user.uid,
-        username: user.email?.split('@')[0],
+        username: defaultUsername,
         email: user.email,
         role: role,
         authProvider: user.providerData[0]?.providerId || 'password',
@@ -61,7 +62,7 @@ export default function SignupPage() {
             id: user.uid,
             userId: user.uid,
             companyName: companyName,
-            contactName: name || user.email?.split('@')[0],
+            contactName: name || defaultUsername,
             email: user.email,
         });
         toast({
@@ -75,6 +76,7 @@ export default function SignupPage() {
         await setDoc(studentProfileRef, {
             id: user.uid,
             userId: user.uid,
+            name: name || defaultUsername,
             firstName: '',
             lastName: '',
             email: user.email,
