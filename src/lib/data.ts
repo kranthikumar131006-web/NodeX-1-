@@ -1,3 +1,4 @@
+
 import type { Freelancer, Startup, Hackathon, HackathonTeam } from '@/lib/types';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
