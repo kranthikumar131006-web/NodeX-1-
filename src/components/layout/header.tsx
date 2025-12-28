@@ -39,7 +39,6 @@ export default function Header() {
       <div className="container flex h-16 items-center">
         <div className="mr-4 hidden md:flex">
           <Link href="/home" className="mr-6 flex items-center space-x-2">
-            <Image src="/nodex-logo.png" alt="NodeX Logo" width={28} height={28} />
             <span className="font-bold text-lg">NodeX</span>
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
