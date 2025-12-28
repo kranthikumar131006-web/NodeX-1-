@@ -118,21 +118,9 @@ export default function HackathonDetailPage() {
         </div>
 
         {/* Header Section */}
-        <header className="relative mb-8 rounded-xl bg-card p-8 md:p-12 overflow-hidden">
-           <div className="relative h-64 w-full rounded-lg overflow-hidden mb-8">
-              <Image
-                  src={hackathon.imageUrl}
-                  alt={hackathon.title}
-                  fill
-                  className="object-cover"
-                  data-ai-hint={hackathon.imageHint}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-              <div className="absolute bottom-6 left-6 text-white">
-                  <h1 className="font-headline text-4xl font-bold">{hackathon.title}</h1>
-                  <p className="mt-1 text-lg text-white/90">Organized by {hackathon.organizer}</p>
-              </div>
-            </div>
+        <header className="relative mb-8 rounded-xl bg-card p-8 md:p-12 text-center">
+            <h1 className="font-headline text-4xl font-bold">{hackathon.title}</h1>
+            <p className="mt-2 text-lg text-muted-foreground">Organized by {hackathon.organizer}</p>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -184,10 +172,8 @@ export default function HackathonDetailPage() {
                 </Card>
 
                 <div className="flex flex-col gap-2">
-                  <Button asChild className="w-full font-medium" size="lg">
-                      <a href={hackathon.officialUrl} target="_blank" rel="noopener noreferrer">
-                          <Globe className="mr-2 h-4 w-4" /> Visit Official Website
-                      </a>
+                  <Button className="w-full font-medium" size="lg" onClick={() => toast({ title: 'Feature to be added soon' })}>
+                      <Globe className="mr-2 h-4 w-4" /> Visit Official Website
                   </Button>
                   {isOwner && (
                     <AlertDialog>
@@ -218,5 +204,3 @@ export default function HackathonDetailPage() {
     </div>
   );
 }
-
-    
