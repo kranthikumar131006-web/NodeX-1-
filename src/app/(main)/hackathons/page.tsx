@@ -25,12 +25,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import { collection } from 'firebase/firestore';
 
 export default function HackathonsPage() {
   const firestore = useFirestore();
-  const hackathonsQuery = useMemoFirebase(() => collection(firestore, 'hackathons'), [firestore]);
+  const { isUserLoading } = useUser();
+  const hackathonsQuery = useMemoFirebase(() => (!isUserLoading && firestore ? collection(firestore, 'hackathons') : null), [firestore, isUserLoading]);
   const { data: liveHackathons, isLoading: isLoadingHackathons } = useCollection<Hackathon>(hackathonsQuery);
 
   const [filteredHackathons, setFilteredHackathons] = useState<Hackathon[]>([]);
@@ -97,7 +98,7 @@ export default function HackathonsPage() {
         </p>
       </div>
 
-      { !isLoadingHackathons ? (
+      { !isLoadingHackathons && !isUserLoading ? (
         <>
           <div className="mt-8 flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">
@@ -216,5 +217,3 @@ export default function HackathonsPage() {
     </div>
   );
 }
-
-    
