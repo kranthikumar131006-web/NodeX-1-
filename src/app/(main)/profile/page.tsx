@@ -105,6 +105,7 @@ const sanitizeProfileData = (data: any) => {
     url: cert.url || '',
     date: cert.date || 'Not specified',
   }));
+  sanitized.skills = data.skills || [];
   return sanitized;
 };
 
@@ -118,6 +119,7 @@ export default function ProfilePage() {
   const [pageState, setPageState] = useState<'loading' | 'student' | 'client' | 'error'>('loading');
   const [studentProfile, setStudentProfile] = useState(initialStudentData);
   const [clientProfile, setClientProfile] = useState(initialClientData);
+  const [formData, setFormData] = useState(initialStudentData);
 
   useEffect(() => {
     if (isUserLoading) {
@@ -144,7 +146,9 @@ export default function ProfilePage() {
           const docSnap = await getDoc(profileRef);
           if (docSnap.exists()) {
             const data = docSnap.data();
-            setStudentProfile(sanitizeProfileData(data));
+            const sanitizedData = sanitizeProfileData(data);
+            setStudentProfile(sanitizedData);
+            setFormData(sanitizedData);
           } else {
              const newProfile = {
               id: user.uid,
@@ -153,7 +157,9 @@ export default function ProfilePage() {
               email: user.email || '',
               avatarUrl: user.photoURL || initialStudentData.avatarUrl,
             };
-            setStudentProfile(sanitizeProfileData(newProfile));
+            const sanitizedData = sanitizeProfileData(newProfile);
+            setStudentProfile(sanitizedData);
+            setFormData(sanitizedData);
           }
           setPageState('student');
         } else if (role === 'client') {
@@ -203,8 +209,6 @@ export default function ProfilePage() {
     fileInputRef.current?.click();
   };
 
-  const [formData, setFormData] = useState(studentProfile);
-
   const onOpenChange = (open: boolean) => {
     if (open) {
       setFormData(sanitizeProfileData(studentProfile));
@@ -233,7 +237,7 @@ export default function ProfilePage() {
       ...prev,
       certifications: [
         ...prev.certifications,
-        { name: '', url: '', date: 'Not specified' }
+        { name: '', url: '', date: '' }
       ]
     }));
   };
@@ -733,3 +737,5 @@ export default function ProfilePage() {
       </div>
   );
 }
+
+    
