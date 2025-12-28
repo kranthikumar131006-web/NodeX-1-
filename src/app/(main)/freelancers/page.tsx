@@ -24,7 +24,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection } from 'firebase/firestore';
+import { collection, query, where } from 'firebase/firestore';
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
@@ -35,7 +35,7 @@ export default function FreelancersPage() {
   const [showSearchResults, setShowSearchResults] = useState(false);
   
   const firestore = useFirestore();
-  const freelancersQuery = useMemoFirebase(() => (firestore ? collection(firestore, 'studentProfiles') : null), [firestore]);
+  const freelancersQuery = useMemoFirebase(() => (firestore ? query(collection(firestore, 'studentProfiles'), where('isFreelancing', '==', true)) : null), [firestore]);
   const { data: freelancers, isLoading } = useCollection<Freelancer>(freelancersQuery);
 
   // State for applied filters
