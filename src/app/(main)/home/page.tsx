@@ -8,7 +8,7 @@ import { HackathonCard } from '@/components/shared/hackathon-card';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { ArrowRight, Briefcase, Rocket, Trophy } from 'lucide-react';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection } from 'firebase/firestore';
+import { collection, collectionGroup } from 'firebase/firestore';
 import type { Freelancer, Startup, Hackathon } from '@/lib/types';
 
 export default function HomePage() {
@@ -16,16 +16,11 @@ export default function HomePage() {
   const firestore = useFirestore();
 
   const freelancersQuery = useMemoFirebase(
-    () => (firestore ? collection(firestore, 'users') : null),
+    () => (firestore ? collectionGroup(firestore, 'studentProfiles') : null),
     [firestore]
   );
-  // This is a simplified query. In a real app, you'd query a dedicated 'freelancers' collection
-  // or filter users by role. For now, we assume all users in 'studentProfiles' are potential freelancers.
-  const studentProfilesQuery = useMemoFirebase(
-    () => (firestore ? collection(firestore, 'studentprofiles') : null), // This assumes a root collection
-    [firestore]
-  );
-  const { data: freelancers, isLoading: isLoadingFreelancers } = useCollection<Freelancer>(studentProfilesQuery);
+  const { data: freelancers, isLoading: isLoadingFreelancers } = useCollection<Freelancer>(freelancersQuery);
+
 
   const startupsQuery = useMemoFirebase(
     () => (firestore ? collection(firestore, 'startups') : null),
