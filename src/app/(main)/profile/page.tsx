@@ -101,85 +101,59 @@ export default function ProfilePage() {
   const { toast } = useToast();
   const router = useRouter();
 
-  const [userRole, setUserRole] = useState<string | null>(null);
+  const [pageState, setPageState] = useState<'loading' | 'student' | 'client' | 'error'>('loading');
   const [studentProfile, setStudentProfile] = useState(initialStudentData);
   const [clientProfile, setClientProfile] = useState(initialClientData);
 
-  const [isLoaded, setIsLoaded] = useState(false);
-  
   const userRef = useMemoFirebase(
     () => (firestore && user ? doc(firestore, 'users', user.uid) : null),
     [firestore, user]
   );
   
   useEffect(() => {
-    if (isUserLoading) return; // Wait until user auth state is resolved
+    if (isUserLoading) return;
     if (!user) {
       router.push('/');
       return;
     }
-    
-    const fetchUserRole = async () => {
-      if(userRef) {
-        const userDoc = await getDoc(userRef);
-        if(userDoc.exists()) {
-          const role = userDoc.data()?.role;
-          setUserRole(role);
-          if (role === 'student') {
-            await fetchStudentProfile();
-          } else if (role === 'client') {
-            await fetchClientProfile();
-          } else {
-             setIsLoaded(true);
-          }
-        } else {
-            // If user doc doesn't exist, we can't determine role.
-            // This might happen for a new social auth user before their doc is created.
-            // For now, we'll just stop loading and let the UI decide what to show.
-            setIsLoaded(true);
-        }
-      } else {
-        setIsLoaded(true);
-      }
-    }
-    fetchUserRole();
-  }, [user, isUserLoading, userRef]);
 
-  const fetchStudentProfile = async () => {
-      if (!firestore || !user) return;
-      const profileRef = doc(firestore, 'users', user.uid, 'studentProfiles', user.uid);
-      try {
+    const fetchProfileData = async () => {
+      if (!userRef) {
+        setPageState('error');
+        return;
+      }
+      const userDoc = await getDoc(userRef);
+      if (!userDoc.exists()) {
+        setPageState('error');
+        return;
+      }
+
+      const role = userDoc.data()?.role;
+
+      if (role === 'student') {
+        const profileRef = doc(firestore, 'users', user.uid, 'studentProfiles', user.uid);
         const docSnap = await getDoc(profileRef);
         if (docSnap.exists()) {
           const data = docSnap.data();
           setStudentProfile(prev => ({ ...prev, ...data, isFreelancing: data.isFreelancing || false }));
         } else {
-            // If profile doesn't exist, initialize with basic info from auth user
-            setStudentProfile(prev => ({
-              ...initialStudentData,
-              id: user.uid,
-              userId: user.uid,
-              name: user.displayName || user.email?.split('@')[0] || '',
-              email: user.email || '',
-              avatarUrl: user.photoURL || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjY3NTQyNTR8MA&ixlib=rb-4.1.0&q=80&w=1080',
-            }));
+          setStudentProfile(prev => ({
+            ...initialStudentData,
+            id: user.uid,
+            userId: user.uid,
+            name: user.displayName || user.email?.split('@')[0] || '',
+            email: user.email || '',
+            avatarUrl: user.photoURL || initialStudentData.avatarUrl,
+          }));
         }
-      } catch (error) {
-        console.error("Failed to fetch student profile", error);
-      } finally {
-        setIsLoaded(true);
-      }
-  };
-  
-  const fetchClientProfile = async () => {
-      if (!firestore || !user) return;
-      const profileRef = doc(firestore, 'users', user.uid, 'clientProfiles', user.uid);
-      try {
+        setPageState('student');
+      } else if (role === 'client') {
+        const profileRef = doc(firestore, 'users', user.uid, 'clientProfiles', user.uid);
         const docSnap = await getDoc(profileRef);
         if (docSnap.exists()) {
           setClientProfile(docSnap.data() as typeof initialClientData);
         } else {
-            setClientProfile(prev => ({
+           setClientProfile(prev => ({
               ...initialClientData,
               id: user.uid,
               userId: user.uid,
@@ -187,12 +161,18 @@ export default function ProfilePage() {
               email: user.email || '',
             }));
         }
-      } catch (error) {
-        console.error("Failed to fetch client profile", error);
-      } finally {
-        setIsLoaded(true);
+        setPageState('client');
+      } else {
+        setPageState('error');
       }
-  }
+    };
+    
+    fetchProfileData().catch(err => {
+      console.error("Error fetching profile data:", err);
+      setPageState('error');
+    });
+
+  }, [user, isUserLoading, userRef, firestore, router]);
 
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -327,12 +307,15 @@ export default function ProfilePage() {
     }
   }
   
-  if (!isLoaded || isUserLoading) {
-    return null; // Or a loading spinner
+  if (pageState === 'loading') {
+    return (
+      <div className="container flex items-center justify-center py-12">
+          <p>Loading profile...</p>
+      </div>
+    );
   }
   
-  // After loading, render based on role
-  if (userRole === 'client') {
+  if (pageState === 'client') {
     return (
        <div className="bg-secondary/50">
         <div className="container mx-auto py-8 md:py-12">
@@ -361,7 +344,7 @@ export default function ProfilePage() {
     );
   }
 
-  if (userRole === 'student') {
+  if (pageState === 'student') {
     return (
       <div className="bg-secondary/50">
         <div className="container mx-auto py-8 md:py-12">
@@ -729,10 +712,18 @@ export default function ProfilePage() {
     );
   }
 
-  // Fallback for when role is not 'client' or 'student', or still loading
+  // Fallback for error state or undefined role
   return (
       <div className="container flex items-center justify-center py-12">
-          <p>Loading profile...</p>
+          <Card className="p-8 text-center">
+            <CardTitle>Something Went Wrong</CardTitle>
+            <CardContent>
+              <p className="text-muted-foreground mt-2">We couldn't load your profile. Please try logging out and logging back in.</p>
+              <Button asChild className="mt-4">
+                <Link href="/">Back to Login</Link>
+              </Button>
+            </CardContent>
+          </Card>
       </div>
   );
 }
