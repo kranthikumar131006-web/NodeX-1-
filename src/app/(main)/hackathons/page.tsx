@@ -51,6 +51,7 @@ export default function HackathonsPage() {
     const lowercasedQuery = searchQuery.toLowerCase();
     return (liveHackathons || []).filter(h =>
       h.title.toLowerCase().includes(lowercasedQuery) ||
+      h.organizer.toLowerCase().includes(lowercasedQuery) ||
       h.techStack.some(t => t.toLowerCase().includes(lowercasedQuery)) ||
       h.location.toLowerCase().includes(lowercasedQuery)
     );
@@ -58,18 +59,19 @@ export default function HackathonsPage() {
 
   useEffect(() => {
     let result = liveHackathons || [];
+    const lowercasedQuery = searchQuery.toLowerCase();
 
-    if (modeFilter !== 'All') {
-      result = result.filter(h => h.mode === modeFilter);
-    }
-    
     if (searchQuery) {
-      const lowercasedQuery = searchQuery.toLowerCase();
       result = result.filter(h =>
         h.title.toLowerCase().includes(lowercasedQuery) ||
+        h.organizer.toLowerCase().includes(lowercasedQuery) ||
         h.techStack.some(t => t.toLowerCase().includes(lowercasedQuery)) ||
         h.location.toLowerCase().includes(lowercasedQuery)
       );
+    }
+
+    if (modeFilter !== 'All') {
+      result = result.filter(h => h.mode === modeFilter);
     }
     
     result.sort((a, b) => {

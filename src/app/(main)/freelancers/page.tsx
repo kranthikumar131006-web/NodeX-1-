@@ -48,14 +48,25 @@ export default function FreelancersPage() {
   
   const searchResults = useMemo(() => {
     if (!searchQuery) return [];
+    const lowercasedQuery = searchQuery.toLowerCase();
     return (freelancers || []).filter(f =>
-      f.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      f.skills?.some(s => s.toLowerCase().includes(searchQuery.toLowerCase()))
+      f.name?.toLowerCase().includes(lowercasedQuery) ||
+      f.tagline?.toLowerCase().includes(lowercasedQuery) ||
+      f.skills?.some(s => s.toLowerCase().includes(lowercasedQuery))
     );
   }, [searchQuery, freelancers]);
 
   useEffect(() => {
     let result = freelancers || [];
+    const lowercasedQuery = searchQuery.toLowerCase();
+
+    if (searchQuery) {
+        result = result.filter(f =>
+            f.name?.toLowerCase().includes(lowercasedQuery) ||
+            f.tagline?.toLowerCase().includes(lowercasedQuery) ||
+            f.skills?.some(s => s.toLowerCase().includes(lowercasedQuery))
+        );
+    }
 
     if (availabilityFilter !== 'All') {
       result = result.filter(f => f.availability === availabilityFilter);
@@ -63,13 +74,6 @@ export default function FreelancersPage() {
 
     if (ratingFilter > 0) {
       result = result.filter(f => f.rating >= ratingFilter);
-    }
-
-    if (searchQuery) {
-      result = result.filter(f =>
-        f.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        f.skills?.some(s => s.toLowerCase().includes(searchQuery.toLowerCase()))
-      );
     }
 
     setFilteredFreelancers(result);

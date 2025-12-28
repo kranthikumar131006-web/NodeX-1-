@@ -63,6 +63,7 @@ export default function HackathonTeamsPage() {
     const lowercasedQuery = searchQuery.toLowerCase();
     return (liveTeams || []).filter(t =>
       t.name.toLowerCase().includes(lowercasedQuery) ||
+      t.description.toLowerCase().includes(lowercasedQuery) ||
       t.lookingFor.some(l => l.role.toLowerCase().includes(lowercasedQuery)) ||
       t.members.some(m => m.skills?.some(s => s.toLowerCase().includes(lowercasedQuery)))
     );
@@ -79,18 +80,19 @@ export default function HackathonTeamsPage() {
   
   useEffect(() => {
     let result = liveTeams || [];
-
-    if (roleFilter !== 'All') {
-      result = result.filter(team => team.lookingFor.some(l => l.role === roleFilter));
-    }
+    const lowercasedQuery = searchQuery.toLowerCase();
 
     if (searchQuery) {
-        const lowercasedQuery = searchQuery.toLowerCase();
         result = result.filter(t =>
             t.name.toLowerCase().includes(lowercasedQuery) ||
+            t.description.toLowerCase().includes(lowercasedQuery) ||
             t.lookingFor.some(l => l.role.toLowerCase().includes(lowercasedQuery)) ||
             t.members.some(m => m.skills?.some(s => s.toLowerCase().includes(lowercasedQuery)))
         );
+    }
+
+    if (roleFilter !== 'All') {
+      result = result.filter(team => team.lookingFor.some(l => l.role === roleFilter));
     }
     
     result.sort((a, b) => {

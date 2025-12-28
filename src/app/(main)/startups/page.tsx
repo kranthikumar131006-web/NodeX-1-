@@ -67,6 +67,7 @@ export default function StartupsPage() {
     const lowercasedQuery = searchQuery.toLowerCase();
     return (startups || []).filter(s =>
       s.name.toLowerCase().includes(lowercasedQuery) ||
+      s.tagline.toLowerCase().includes(lowercasedQuery) ||
       s.industry.toLowerCase().includes(lowercasedQuery) ||
       s.founders.some(f => f.name.toLowerCase().includes(lowercasedQuery))
     );
@@ -81,18 +82,19 @@ export default function StartupsPage() {
 
   useEffect(() => {
     let result = startups || [];
+    const lowercasedQuery = searchQuery.toLowerCase();
 
-    if (industryFilter !== 'All') {
-      result = result.filter(s => s.industry === industryFilter);
-    }
-    
     if (searchQuery) {
-        const lowercasedQuery = searchQuery.toLowerCase();
         result = result.filter(s =>
             s.name.toLowerCase().includes(lowercasedQuery) ||
+            s.tagline.toLowerCase().includes(lowercasedQuery) ||
             s.industry.toLowerCase().includes(lowercasedQuery) ||
             s.founders.some(f => f.name.toLowerCase().includes(lowercasedQuery))
         );
+    }
+
+    if (industryFilter !== 'All') {
+      result = result.filter(s => s.industry === industryFilter);
     }
     
     setFilteredStartups(result);
