@@ -237,21 +237,19 @@ export default function FreelancerDetailPage() {
                 {(freelancer.certifications || []).length > 0 ? freelancer.certifications.map((cert, index) => (
                   <div key={index} className="flex items-start gap-4">
                     <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-secondary">
-                      <Image src={cert.logo || '/generic-logo.svg'} alt={`${cert.issuer} Logo`} width={32} height={32} />
+                       <Award className="h-6 w-6 text-primary" />
                     </div>
                     <div className="flex-1">
-                      <p className="font-semibold">{cert.name}</p>
-                      <p className="text-sm text-muted-foreground">{cert.issuer}</p>
                       <a
-                        href={ensureProtocol(cert.credentialUrl)}
+                        href={ensureProtocol(cert.url)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="mt-1 flex items-center text-sm text-primary hover:underline"
+                        className="font-semibold text-primary hover:underline"
                       >
-                        Show Credential <ExternalLink className="ml-1 h-3 w-3" />
+                        {cert.name}
                       </a>
+                      <p className="text-sm text-muted-foreground">{cert.date}</p>
                     </div>
-                    <p className="text-xs text-muted-foreground shrink-0">{cert.date}</p>
                   </div>
                 )) : <p className="text-sm text-muted-foreground">No certifications added yet.</p>}
               </CardContent>

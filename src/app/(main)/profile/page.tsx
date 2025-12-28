@@ -69,7 +69,7 @@ const initialStudentData = {
       years: '',
       current: false,
     },
-    certifications: [] as { name: string; issuer: string; date: string; credentialUrl: string; logo: string; }[],
+    certifications: [] as { name: string; url: string; date: string; }[],
     socials: {
       resumeUrl: '',
       portfolioUrl: '',
@@ -219,7 +219,7 @@ export default function ProfilePage() {
       ...prev,
       certifications: [
         ...prev.certifications,
-        { name: '', issuer: '', date: 'Not specified', credentialUrl: '#', logo: '/generic-logo.svg' }
+        { name: '', url: '#', date: 'Not specified' }
       ]
     }));
   };
@@ -458,8 +458,8 @@ export default function ProfilePage() {
                                  <Input name="name" value={cert.name} onChange={(e) => handleCertificationChange(index, e)} />
                                </div>
                                 <div className="grid gap-2">
-                                 <Label>Issuer</Label>
-                                 <Input name="issuer" value={cert.issuer} onChange={(e) => handleCertificationChange(index, e)} />
+                                 <Label>Link</Label>
+                                 <Input name="url" value={cert.url} onChange={(e) => handleCertificationChange(index, e)} />
                                </div>
                                <Button size="icon" variant="destructive" className="absolute top-2 right-2 h-6 w-6 font-medium" onClick={() => handleRemoveCertification(index)}>
                                   <X className="h-4 w-4" />
@@ -658,21 +658,19 @@ export default function ProfilePage() {
                   {studentProfile.certifications.length > 0 ? studentProfile.certifications.map((cert, index) => (
                     <div key={index} className="flex items-start gap-4">
                       <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-secondary">
-                           <Image src={cert.logo || '/generic-logo.svg'} alt={`${cert.issuer} Logo`} width={32} height={32} />
+                           <Award className="h-6 w-6 text-primary" />
                       </div>
                       <div className="flex-1">
-                        <p className="font-semibold">{cert.name}</p>
-                        <p className="text-sm text-muted-foreground">{cert.issuer}</p>
                         <a
-                          href={ensureProtocol(cert.credentialUrl)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="mt-1 flex items-center text-sm text-primary hover:underline"
+                            href={ensureProtocol(cert.url)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-semibold text-primary hover:underline"
                         >
-                          Show Credential <ExternalLink className="ml-1 h-3 w-3" />
+                            {cert.name}
                         </a>
+                        <p className="text-sm text-muted-foreground">{cert.date}</p>
                       </div>
-                      <p className="text-xs text-muted-foreground shrink-0">{cert.date}</p>
                     </div>
                   )) : <p className="text-sm text-muted-foreground">No certifications added yet.</p>}
                 </CardContent>

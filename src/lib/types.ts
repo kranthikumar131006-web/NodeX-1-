@@ -41,10 +41,8 @@ export type Freelancer = {
   };
   certifications: {
     name: string;
-    issuer: string;
     date: string;
-    credentialUrl: string;
-    logo: string;
+    url: string;
   }[];
   socials: {
     resumeUrl: string;
