@@ -113,6 +113,12 @@ export default function ProfilePage() {
   );
   
   useEffect(() => {
+    if (isUserLoading) return; // Wait until user auth state is resolved
+    if (!user) {
+      router.push('/');
+      return;
+    }
+    
     const fetchUserRole = async () => {
       if(userRef) {
         const userDoc = await getDoc(userRef);
@@ -129,18 +135,12 @@ export default function ProfilePage() {
         } else {
             setIsLoaded(true);
         }
-      } else if (!isUserLoading) {
+      } else {
         setIsLoaded(true);
       }
     }
     fetchUserRole();
-  }, [userRef, isUserLoading]);
-
-  useEffect(() => {
-    if (!isUserLoading && !user) {
-      router.push('/');
-    }
-  }, [isUserLoading, user, router]);
+  }, [user, isUserLoading, userRef, router]);
 
   const fetchStudentProfile = async () => {
       if (!firestore || !user) return;
