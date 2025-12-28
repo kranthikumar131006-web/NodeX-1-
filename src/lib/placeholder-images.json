@@ -1,3 +1,40 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "landing-hero",
+      "description": "Hero image for the main landing page.",
+      "imageUrl": "https://images.unsplash.com/photo-1567762755523-74cefdb5e25f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxzdHVkZW50cyUyMGNvbGxhYm9yYXRpbmd8ZW58MHx8fHwxNzY2OTExMjIzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "students collaborating"
+    },
+    {
+      "id": "portfolio-project-1",
+      "description": "Placeholder for the first portfolio project.",
+      "imageUrl": "https://images.unsplash.com/photo-1686061592689-312bbfb5c055?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8ZGFzaGJvYXJkJTIwYW5hbHl0aWNzfGVufDB8fHx8MTc2Njg3MzE0NHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "dashboard analytics"
+    },
+    {
+      "id": "portfolio-project-2",
+      "description": "Placeholder for the second portfolio project.",
+      "imageUrl": "https://images.unsplash.com/photo-1601972599720-36938d4ecd31?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8bW9iaWxlJTIwYXBwfGVufDB8fHx8MTc2Njg2MTM3MXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "mobile app"
+    },
+    {
+      "id": "aws-cert-logo",
+      "description": "Logo for AWS certifications.",
+      "imageUrl": "https://images.unsplash.com/photo-1631626749818-39fe46770feb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjbG91ZCUyMGxvZ298ZW58MHx8fHwxNzY2ODM2ODg5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "cloud logo"
+    },
+    {
+      "id": "google-cert-logo",
+      "description": "Logo for Google certifications.",
+      "imageUrl": "https://images.unsplash.com/photo-1662027067763-770376e710f5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx0ZWNoJTIwbG9nb3xlbnwwfHx8fDE3NjY4NDg3OTB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "tech logo"
+    },
+    {
+      "id": "uc-berkeley-logo",
+      "description": "Logo for UC Berkeley.",
+      "imageUrl": "/uc-berkeley-logo.svg",
+      "imageHint": "university building"
+    }
+  ]
 }

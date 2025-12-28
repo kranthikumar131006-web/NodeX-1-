@@ -19,6 +19,7 @@ export type Project = {
 
 export type Freelancer = {
   id: string;
+  userId: string;
   name: string;
   email: string;
   avatarUrl: string;
@@ -31,6 +32,27 @@ export type Freelancer = {
   reviews: Review[];
   portfolio: Project[];
   bio: string;
+  isFreelancing: boolean;
+  education: {
+    university: string;
+    degree: string;
+    years: string;
+    current: boolean;
+  };
+  certifications: {
+    name: string;
+    issuer: string;
+    date: string;
+    credentialUrl: string;
+    logo: string;
+  }[];
+  socials: {
+    resumeUrl: string;
+    portfolioUrl: string;
+    githubUrl: string;
+    linkedinUrl: string;
+    instagramUrl: string;
+  };
 };
 
 export type TeamMember = {
@@ -95,5 +117,3 @@ export type HackathonTeam = {
   memberIds: string[];
   lookingFor: { role: string; skills: string[] }[];
 };
-
-    
