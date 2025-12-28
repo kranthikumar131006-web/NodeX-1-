@@ -103,7 +103,7 @@ const sanitizeProfileData = (data: any) => {
   sanitized.certifications = (data.certifications || []).map((cert: any) => ({
     name: cert.name || '',
     url: cert.url || '',
-    date: cert.date || 'Not specified',
+    date: cert.date || '',
   }));
   sanitized.skills = data.skills || [];
   return sanitized;
@@ -440,8 +440,9 @@ export default function ProfilePage() {
                              <Input placeholder="Add a new skill and press Enter" onKeyDown={(e) => {
                                if (e.key === 'Enter' && e.currentTarget.value.trim() !== '') {
                                  e.preventDefault();
-                                 if (!formData.skills.includes(e.currentTarget.value.trim())) {
-                                  handleSkillsChange([...formData.skills, e.currentTarget.value.trim()]);
+                                 const newSkill = e.currentTarget.value.trim();
+                                 if (!formData.skills.includes(newSkill)) {
+                                   handleSkillsChange([...formData.skills, newSkill]);
                                  }
                                  e.currentTarget.value = '';
                                }
@@ -479,6 +480,10 @@ export default function ProfilePage() {
                                  <Label>Link</Label>
                                  <Input name="url" value={cert.url} onChange={(e) => handleCertificationChange(index, e)} />
                                </div>
+                                <div className="grid gap-2">
+                                  <Label>Date</Label>
+                                  <Input name="date" value={cert.date} onChange={(e) => handleCertificationChange(index, e)} />
+                                </div>
                                <Button size="icon" variant="destructive" className="absolute top-2 right-2 h-6 w-6 font-medium" onClick={() => handleRemoveCertification(index)}>
                                   <X className="h-4 w-4" />
                                </Button>
@@ -737,3 +742,5 @@ export default function ProfilePage() {
       </div>
   );
 }
+
+    
